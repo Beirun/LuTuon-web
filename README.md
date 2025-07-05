@@ -88,7 +88,7 @@ npm run dev
 
 ## 👥 Team
 
-- 🧠 Project Manage: [@Bynib](https://github.com/Bynib)
+- 🧠 Project Manager: [@Bynib](https://github.com/Bynib)
 - 👨‍💻 Developer: [@Beirun](https://github.com/Beirun)
 - 🎨 Designer: [@Kenronix](https://github.com/Kenronix)
 - 📱 Tester: [@EdJaymarPilapil](https://github.com/EdJaymarPilapil)

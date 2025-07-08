@@ -67,7 +67,7 @@ const openLoginDialog = () => {
 
       <div class="flex flex-col items-center mt-15 gap-15 sm:gap-15 lg:gap-20 sm:flex-col lg:flex-row">
         <div
-          class="cursor-pointer flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-white rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90">
+          class="cursor-pointer flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-white rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90 hover:brightness-93">
           <div>
             <img src="@/assets/android.png" alt="" />
           </div>
@@ -77,7 +77,7 @@ const openLoginDialog = () => {
           </div>
         </div>
         <a href="https://play.google.com/store/apps/details?id=com.miHoYo.GenshinImpact" target="_blank"
-          class="cursor-pointer flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-white rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90">
+          class="cursor-pointer flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-white rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90 hover:brightness-93">
           <div>
             <img src="@/assets/google-play.png" alt="" />
           </div>

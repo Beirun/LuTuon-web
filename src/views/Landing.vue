@@ -74,7 +74,7 @@ const openPlayStore = () => {
         class="flex items-center mb-15 sm:mb-15 md:mb-0 gap-2 mt-8 h-12 w-36 text-primary-foreground/80 dark:text-primary-foreground bg-primary font-medium text-lg active:brightness-90 cursor-pointer rounded-md shadow-md shadow-black/40 transition-all duration-300 hover:brightness-95 dark:hover:brightness-110"
       >
         Login
-        <MoveRight />
+        <MoveRight class="size-6"/>
       </Button>
 
       <!-- Buttons Section -->

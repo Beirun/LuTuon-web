@@ -14,8 +14,20 @@ import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
+import { Icon } from '@iconify/vue'
 
 const screenWidth = ref(window.innerWidth)
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
+
+const TogglePassword = () => {
+  showPassword.value = !showPassword.value
+}
+
+const ToggleConfirmPassword = () => {
+  showConfirmPassword.value = !showConfirmPassword.value
+}
+
 
 const updateWidth = () => {
   screenWidth.value = window.innerWidth
@@ -77,13 +89,17 @@ const handleOpenChange = (openState: boolean) => {
             <Label for="password" class="text-base sm:text-base md:text-xl px-2 sm:px-2 md:px-4"
               >Password</Label
             >
-            <Input
+            <div class="relative">
+              <Input
               tabindex="-1"
-              placeholder="••••••••"
+              :placeholder="showPassword ? 'Password123' : '••••••••'"
               id="password"
-              type="password"
+              :type="showPassword ? 'text': 'password'"
               class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
-            />
+              />
+              <Icon icon="radix-icons:eye-closed" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"  :class="showPassword ? 'hidden' : ''" @click="TogglePassword"/>
+              <Icon icon="radix-icons:eye-open" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showPassword ? '' : 'hidden'" @click="TogglePassword"/>
+            </div>
           </div>
           <div class="flex flex-col gap-1">
             <Label
@@ -91,13 +107,18 @@ const handleOpenChange = (openState: boolean) => {
               class="text-base sm:text-base md:text-xl px-2 sm:px-2 md:px-4"
               >Confirm Password</Label
             >
-            <Input
+            <div class="relative">
+              
+              <Input
               tabindex="-1"
-              placeholder="••••••••"
+              :placeholder="showConfirmPassword ? 'Password123' : '••••••••'"
               id="confirmpassword"
-              type="password"
+              :type="showConfirmPassword ? 'text': 'password'"
               class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
-            />
+              />
+              <Icon icon="radix-icons:eye-closed" class=" size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"  :class="showConfirmPassword ? 'hidden' : ''" @click="ToggleConfirmPassword"/>
+              <Icon icon="radix-icons:eye-open" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showConfirmPassword ? '' : 'hidden'" @click="ToggleConfirmPassword"/>
+            </div>
           </div>
         </div>
         <Button
@@ -113,7 +134,7 @@ const handleOpenChange = (openState: boolean) => {
           <Button
             variant="link"
             @click="openLoginDialog"
-            class="px-0 text-primary brightness-85 text-sm sm:text-sm md:text-lg font-light hover:underline hover:brightness-80"
+            class="px-0 text-primary brightness-85 text-sm sm:text-sm md:text-lg font-light hover:underline hover:brightness-80 cursor-pointer"
             >Login Here!</Button
           >
         </div>

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import SideBar from '@/components/SideBar.vue'
 import {Separator} from '@/components/ui/separator'
-import {Icon} from '@iconify/vue'
+// import {Icon} from '@iconify/vue'
+import {Bell} from 'lucide-vue-next'
 </script>
 
 <template>
@@ -11,7 +12,7 @@ import {Icon} from '@iconify/vue'
             <div class="w-7/8 h-7/8">
                 <div class="flex justify-between mb-10">
                     <p class="text-3xl">Welcome to dashboard, <b>Admin!</b></p>
-                    <Icon icon="mingcute:notification-fill" class="text-4xl " />
+                    <Bell/>
                 </div>
                 <Separator class="text-[#DBDBE0] -mb-18"/>
                 <div class="w-full h-full flex flex-col gap-10 justify-end ">

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 import {useRoute, useRouter} from "vue-router"
 import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut } from 'lucide-vue-next';
+import {Separator} from "@/components/ui/separator"
 
 const route = useRoute()
 const router = useRouter()
@@ -59,8 +60,9 @@ const items = [
   <Sidebar class="flex flex-col h-screen">
     <SidebarContent class="flex-1 flex flex-col">
       <SidebarGroup>
-        <SidebarGroupLabel class="mt-10">
+        <SidebarGroupLabel class="mt-10 w-full flex flex-col gap-5 mb-5">
           <img src="@/assets/logo.png" alt="">
+          <Separator/>
         </SidebarGroupLabel>
         <SidebarGroupContent class="flex-1">
           <SidebarMenu>

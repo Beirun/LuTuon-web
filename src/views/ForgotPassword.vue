@@ -11,7 +11,7 @@ import {
 import { ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
+// import { Icon } from '@iconify/vue'
 
 const currentStep = ref(1)
 const email = ref('')
@@ -124,7 +124,7 @@ const ToggleShowConfirmPassword = () => {
           :type="showNewPassword ? 'text' : 'password'"
           placeholder="New password"
         />
-        <Icon
+        <!-- <Icon
           icon="radix-icons:eye-closed"
           class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
           :class="showNewPassword ? 'hidden' : ''"
@@ -135,7 +135,7 @@ const ToggleShowConfirmPassword = () => {
           class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
           :class="showNewPassword ? '' : 'hidden'"
           @click="ToggleShowNewPassword"
-        />
+        /> -->
       </div>
       <div class="w-1/5 relative">
         <Input
@@ -143,7 +143,7 @@ const ToggleShowConfirmPassword = () => {
           :type="showConfirmPassword ? 'text' : 'password'"
           placeholder="Confirm password"
         />
-        <Icon
+        <!-- <Icon
           icon="radix-icons:eye-closed"
           class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
           :class="showConfirmPassword ? 'hidden' : ''"
@@ -154,7 +154,7 @@ const ToggleShowConfirmPassword = () => {
           class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
           :class="showConfirmPassword ? '' : 'hidden'"
           @click="ToggleShowConfirmPassword"
-        />
+        /> -->
       </div>
       <Button
         class="w-1/5"

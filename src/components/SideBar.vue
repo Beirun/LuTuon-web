@@ -1,69 +1,98 @@
-<script lang="ts" setup>
-import { Separator } from '@/components/ui/separator'
-import { Icon } from '@iconify/vue'
-import { useRoute, useRouter } from 'vue-router'
+<script setup lang="ts">
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import {useRoute, useRouter} from "vue-router"
+import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut } from 'lucide-vue-next';
 
 const route = useRoute()
 const router = useRouter()
+
+// Menu items.
+const items = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: House,
+  },
+  {
+    title: "Users",
+    url: "/users",
+    icon: UsersRound,
+  },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: Files,
+  },
+  {
+    title: "Feedbacks",
+    url: "/feedbacks",
+    icon: MessageSquareText,
+  },
+  {
+    title: "Logs",
+    url: "/logs",
+    icon: Logs,
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: UserRoundCog,
+  },
+  {
+    title: "Logout",
+    url: "/logout",
+    icon: LogOut,
+  }
+];
 </script>
 
 <template>
-  <div class="w-1/6 h-screen bg-[#242629] flex flex-col items-center">
-    <div class="w-7/10 h-full flex flex-col items-center py-8 gap-10">
-      <img src="@/assets/logo.png" alt="" />
-      <Separator />
-      <div class="w-full h-full flex flex-col justify-between">
-        <div class="flex flex-col gap-10">
-          <div class="flex items-center cursor-pointer" @click="router.push('/dashboard')">
-            <Icon
-              icon="material-symbols:home-rounded"
-              class="text-4xl"
-              :class="route.path === '/dashboard' ? 'text-yellow-300' : 'text-[#E7E7E7]'"
-            />
-            <div
-              class="text-2xl ml-4"
-              :class="route.path === '/dashboard' ? 'text-yellow-300' : 'text-[#E7E7E7]'"
-            >
-              Dashboard
-            </div>
-          </div>
-          <div class="flex items-center cursor-pointer" @click="router.push('/users')">
-            <Icon
-              icon="solar:user-bold"
-              class="text-4xl text-[#E7E7E7]"
-              :class="route.path === '/users' ? 'text-yellow-300' : 'text-[#E7E7E7]'"
-            />
-            <div
-              class="text-[#E7E7E7] text-2xl ml-4"
-              :class="route.path === '/users' ? 'text-yellow-300' : 'text-[#E7E7E7]'"
-            >
-              Users
-            </div>
-          </div>
-          <div class="flex items-center cursor-pointer">
-            <Icon icon="iconoir:reports-solid" class="text-4xl text-[#E7E7E7]" />
-            <div class="text-[#E7E7E7] text-2xl ml-4">Reports</div>
-          </div>
-          <div class="flex items-center cursor-pointer">
-            <Icon icon="fluent:comment-24-filled" class="text-4xl text-[#E7E7E7]" />
-            <div class="text-[#E7E7E7] text-2xl ml-4">Feedback</div>
-          </div>
-          <div class="flex items-center cursor-pointer">
-            <Icon icon="icon-park-solid:log" class="text-4xl text-[#E7E7E7]" />
-            <div class="text-[#E7E7E7] text-2xl ml-4">Logs</div>
-          </div>
-          <div class="flex items-center cursor-pointer">
-            <Icon icon="ix:user-settings-filled" class="text-4xl text-[#E7E7E7]" />
-            <div class="text-[#E7E7E7] text-2xl ml-4">Settings</div>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center cursor-pointer">
-            <Icon icon="majesticons:door-exit" class="text-4xl text-[#E7E7E7]" />
-            <div class="text-[#E7E7E7] text-2xl ml-4">Logout</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <Sidebar class="flex flex-col h-screen">
+    <SidebarContent class="flex-1 flex flex-col">
+      <SidebarGroup>
+        <SidebarGroupLabel class="mt-10">
+          <img src="@/assets/logo.png" alt="">
+        </SidebarGroupLabel>
+        <SidebarGroupContent class="flex-1">
+          <SidebarMenu>
+            <SidebarMenuItem v-for="item in items.slice(0, -1)" :key="item.title">
+              <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
+                <a @click="router.push(item.url)" 
+                   :class="route.path === item.url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
+                  <component :is="item.icon" class="size-6" />
+                  <span class="text-xl ">{{item.title}}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <!-- Logout at bottom -->
+      <SidebarGroup class="mt-auto">
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
+                <a @click="router.push(items[items.length-1].url)" 
+                   :class="route.path === items[items.length-1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
+                  <component :is="items[items.length-1].icon" class="size-6" />
+                  <span class="text-xl ">{{items[items.length-1].title}}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+  </Sidebar>
 </template>

@@ -14,7 +14,8 @@ import { ref } from 'vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
-import {Icon} from '@iconify/vue'
+// import {Icon} from '@iconify/vue'
+import { Eye, EyeClosed } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 const showPassword = ref(false)
@@ -86,8 +87,8 @@ const goToForgotPassword = () => {
               :type="showPassword ? 'text': 'password'"
               class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
               />
-              <Icon icon="radix-icons:eye-closed" class=" size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"   :class="showPassword ? 'hidden' : ''" @click="TogglePassword"/>
-              <Icon icon="radix-icons:eye-open" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showPassword ? '' : 'hidden'" @click="TogglePassword"/>
+              <EyeClosed class=" size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"   :class="showPassword ? 'hidden' : ''" @click="TogglePassword"/>
+              <Eye icon="radix-icons:eye-open" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showPassword ? '' : 'hidden'" @click="TogglePassword"/>
             </div>
           </div>
         </div>

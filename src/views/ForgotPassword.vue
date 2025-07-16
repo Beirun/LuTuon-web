@@ -11,7 +11,7 @@ import {
 import { ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Icon } from '@iconify/vue'
+// import { Icon } from '@iconify/vue'
 
 const currentStep = ref(1)
 const email = ref('')

@@ -11,7 +11,9 @@ import {
 import { ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import {Eye, EyeClosed, Check} from 'lucide-vue-next'
 // import { Icon } from '@iconify/vue'
+
 
 const currentStep = ref(1)
 const email = ref('')
@@ -21,6 +23,7 @@ const confirmPassword = ref('')
 
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
+
 
 const handleNext = () => {
   if (email.value !== '') {
@@ -51,14 +54,14 @@ const ToggleShowConfirmPassword = () => {
 </script>
 
 <template>
-  <div class="w-screen h-screen flex flex-col justify-center items-center">
+  <div class="w-screen h-[100dvh] flex flex-col justify-center items-center">
     <p class="text-center text-2xl font-bold mb-6">Forgot Password?</p>
-    <Stepper v-slot="{ nextStep }" class="w-full mb-8 flex justify-center items-center flex-col">
+    <Stepper v-slot="{ nextStep, prevStep }" class="w-full mb-8 flex justify-center items-center flex-col">
       <div class="flex w-full justify-center gap-2">
         <StepperItem v-slot="{ state }" :step="1" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
-              <span v-if="currentStep > 1">✓</span>
+              <span v-if="currentStep > 1"><Check /></span>
               <span v-else>1</span>
             </StepperIndicator>
             <StepperTitle>Enter Email</StepperTitle>
@@ -69,7 +72,7 @@ const ToggleShowConfirmPassword = () => {
         <StepperItem v-slot="{ state }" :step="2" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
-              <span v-if="currentStep > 2">✓</span>
+              <span v-if="currentStep > 2"><Check /></span>
               <span v-else>2</span>
             </StepperIndicator>
             <StepperTitle>Verification</StepperTitle>
@@ -89,15 +92,16 @@ const ToggleShowConfirmPassword = () => {
 
       <!-- Step 1 Content -->
       <div v-if="currentStep === 1" class="w-full flex flex-col items-center gap-4">
-        <p>Please enter the account you want to change the password for</p>
-        <Input class="w-1/5" v-model="email" placeholder="email@example.com" />
+        <p class="text-center">Please enter the account email you want to change the password for</p>
+        <Input autofocus class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5" v-model="email" placeholder="email@example.com" />
         <Button
-          class="w-1/5"
+          class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
           :disabled="email === ''"
           @click="
             () => {
               handleNext()
               nextStep()
+
             }
           "
         >
@@ -108,9 +112,9 @@ const ToggleShowConfirmPassword = () => {
       <!-- Step 2 Content -->
       <div v-if="currentStep === 2" class="w-full flex flex-col items-center gap-4">
         <p>Verification code sent to {{ email }}</p>
-        <Input v-model="verificationCode" class="w-1/5" placeholder="Verification code" />
+        <Input class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5" v-model="verificationCode" placeholder="Verification code" />
         <Button
-          class="w-1/5"
+          class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
           :disabled="verificationCode === ''"
           @click="
             () => {
@@ -126,38 +130,36 @@ const ToggleShowConfirmPassword = () => {
       <!-- Step 3 Content -->
       <div v-if="currentStep === 3" class="w-full flex flex-col items-center gap-4">
         <p>Set your new password</p>
-        <div class="w-1/5 relative">
+        <div class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5 relative">
           <Input
             v-model="newPassword"
             :type="showNewPassword ? 'text' : 'password'"
             placeholder="New password"
           />
-          <Icon
-            icon="radix-icons:eye-closed"
+          <EyeClosed
             class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
             :class="showNewPassword ? 'hidden' : ''"
             @click="ToggleShowNewPassword"
           />
-          <Icon
-            icon="radix-icons:eye-open"
+          <Eye
             class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
             :class="showNewPassword ? '' : 'hidden'"
             @click="ToggleShowNewPassword"
           />
         </div>
-        <div class="w-1/5 relative">
+        <div class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5 relative">
           <Input
             v-model="confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
             placeholder="Confirm password"
           />
-          <Icon
+          <EyeClosed
             icon="radix-icons:eye-closed"
             class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
             :class="showConfirmPassword ? 'hidden' : ''"
             @click="ToggleShowConfirmPassword"
           />
-          <Icon
+          <Eye
             icon="radix-icons:eye-open"
             class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl cursor-pointer"
             :class="showConfirmPassword ? '' : 'hidden'"
@@ -165,13 +167,23 @@ const ToggleShowConfirmPassword = () => {
           />
         </div>
         <Button
-          class="w-1/5"
+          class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
           :disabled="newPassword === '' || confirmPassword === ''"
           @click="handleSubmit"
         >
           Submit
         </Button>
       </div>
+      <Button
+          v-if="currentStep > 1"
+          class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
+          @click="() => { 
+            prevStep() 
+            currentStep -= 1
+          }"
+        >
+          Back
+        </Button>
     </Stepper>
   </div>
 </template>

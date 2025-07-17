@@ -41,7 +41,7 @@ const handleOpenChange = (openState: boolean) => {
 
 const router = useRouter()
 const goToForgotPassword = () => {
-  router.push('/forgot-password')
+  window.open('/forgot-password', '_blank')
 }
 </script>
 <template>

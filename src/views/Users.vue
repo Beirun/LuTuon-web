@@ -4,6 +4,6 @@ import SideBar from '@/components/SideBar.vue'
 
 <template>
     <div class="w-screen h-screen">
-        <SideBar />
+        <!-- <SideBar /> -->
     </div>
 </template>

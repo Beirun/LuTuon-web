@@ -9,12 +9,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { ref, inject } from "vue";
 import {useRoute, useRouter} from "vue-router"
 import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut } from 'lucide-vue-next';
 import {Separator} from "@/components/ui/separator"
 
 const route = useRoute()
 const router = useRouter()
+
+const isSidebarOpen = inject('sidebarState', ref(false))
 
 // Menu items.
 const items = [
@@ -54,10 +57,15 @@ const items = [
     icon: LogOut,
   }
 ];
+
+const navigate = (url: string) => {
+  router.push(url)
+  isSidebarOpen.value = false
+}
 </script>
 
 <template>
-  <Sidebar class="flex flex-col h-screen">
+  <Sidebar v-model:open="isSidebarOpen" class="flex flex-col h-screen">
     <SidebarContent class="flex-1 flex flex-col">
       <SidebarGroup>
         <SidebarGroupLabel class="mt-10 w-full flex flex-col gap-5 mb-5">
@@ -68,7 +76,7 @@ const items = [
           <SidebarMenu>
             <SidebarMenuItem v-for="item in items.slice(0, -1)" :key="item.title">
               <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
-                <a @click="router.push(item.url)" 
+                <a @click="navigate(item.url)" 
                    :class="route.path === item.url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
                   <component :is="item.icon" class="size-6" />
                   <span class="text-xl ">{{item.title}}</span>
@@ -85,7 +93,7 @@ const items = [
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
-                <a @click="router.push(items[items.length-1].url)" 
+                <a @click="navigate(items[items.length-1].url)" 
                    :class="route.path === items[items.length-1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
                   <component :is="items[items.length-1].icon" class="size-6" />
                   <span class="text-xl ">{{items[items.length-1].title}}</span>

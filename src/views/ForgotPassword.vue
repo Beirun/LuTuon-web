@@ -62,7 +62,7 @@ const ToggleShowConfirmPassword = () => {
           <StepperTrigger :disabled="true">
             <StepperIndicator>
               <span v-if="currentStep > 1"><Check /></span>
-              <span v-else>1</span>
+              <span v-else class="font-bold">1</span>
             </StepperIndicator>
             <StepperTitle>Enter Email</StepperTitle>
           </StepperTrigger>
@@ -73,7 +73,7 @@ const ToggleShowConfirmPassword = () => {
           <StepperTrigger :disabled="true">
             <StepperIndicator>
               <span v-if="currentStep > 2"><Check /></span>
-              <span v-else>2</span>
+              <span v-else class="font-bold">2</span>
             </StepperIndicator>
             <StepperTitle>Verification</StepperTitle>
           </StepperTrigger>
@@ -83,7 +83,7 @@ const ToggleShowConfirmPassword = () => {
         <StepperItem v-slot="{ state }" :step="3" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
-              <span>3</span>
+              <span class="font-bold">3</span>
             </StepperIndicator>
             <StepperTitle>Set Password</StepperTitle>
           </StepperTrigger>

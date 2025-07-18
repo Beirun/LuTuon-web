@@ -65,11 +65,11 @@ const navigate = (url: string) => {
 </script>
 
 <template>
-  <Sidebar v-model:open="isSidebarOpen" class="flex flex-col h-screen">
+  <Sidebar v-if="route.path !== '/forgot-password' && route.path !== '/'" v-model:open="isSidebarOpen" class="flex flex-col h-screen w-1/6">
     <SidebarContent class="flex-1 flex flex-col">
       <SidebarGroup>
         <SidebarGroupLabel class="mt-10 w-full flex flex-col gap-5 mb-5">
-          <img src="@/assets/logo.png" alt="">
+          <img src="@/assets/logo-w-outline.png" alt="">
           <Separator/>
         </SidebarGroupLabel>
         <SidebarGroupContent class="flex-1">

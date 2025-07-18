@@ -8,8 +8,8 @@ import {ref} from 'vue'
 </script>
 
 <template>
-    <div class="w-screen h-screen flex">
-        <div class="lg:w-5/6 h-full flex justify-center items-center">
+    <div class="w-screen h-screen flex lg:justify-end">
+        <div class="lg:w-5/6 w-full md:w-full h-full flex justify-center items-center right-0">
             <div class="w-7/8 h-7/8">
                 <div class="flex justify-between mb-10 lg:mb-5">
                     <p class="text-3xl">Welcome to dashboard, <b>Admin!</b></p>

@@ -15,7 +15,7 @@ provide('sidebarState', isSidebarOpen)
 <template>
   <SidebarProvider>
     <div class="w-screen h-screen flex flex-col">
-      <SidebarTrigger class="lg:hidden cursor-pointer" :class="route.path === '/forgot-password' ? 'hidden' : ''" @click="isSidebarOpen = true"/>
+      <SidebarTrigger class="lg:hidden cursor-pointer" :class="route.path === '/forgot-password' || route.path === '/' ? 'hidden' : ''" @click="isSidebarOpen = true"/>
       <SideBar />
       <RouterView />
     </div>

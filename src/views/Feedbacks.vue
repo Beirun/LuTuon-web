@@ -17,7 +17,7 @@ import {
     <div class="lg:w-5/6 w-full md:w-full h-full flex justify-center items-center right-0">
       <div class="w-7/8 h-7/8">
         <div class="flex justify-between mb-10 lg:mb-5">
-          <p class="text-3xl font-bold">User List</p>
+          <p class="text-3xl font-bold">Feedbacks</p>
         </div>
         <Separator class="text-[#DBDBE0] mb-10 lg:mb-0" />
         <div class="w-full h-full flex flex-col justify-center">
@@ -28,16 +28,16 @@ import {
                 <TableRow>
                   <TableHead class="font-bold text-black text-center">Account ID</TableHead>
                   <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Birthdate</TableHead>
-                  <TableHead class="font-bold text-black text-center">Email Address</TableHead>
+                  <TableHead class="font-bold text-black text-center">Date</TableHead>
+                  <TableHead class="font-bold text-black text-center">Message</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
                   <TableCell class="h-[6vh] text-black text-center">1001</TableCell>
                   <TableCell class=" text-black text-center">kenji</TableCell>
-                  <TableCell class=" text-black text-center">August 15, 2003</TableCell>
-                  <TableCell class=" text-black text-center">kennethjamesbatuhan@gmail.com</TableCell>
+                  <TableCell class=" text-black text-center">07/17/25</TableCell>
+                  <TableCell class=" text-black text-center">Very entertaining!</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

@@ -7,6 +7,7 @@ import Reports from '@/views/Reports.vue'
 import Feedbacks from '@/views/Feedbacks.vue'
 import Logs from '@/views/Logs.vue'
 import Settings from '@/views/Settings.vue'
+import UserDashboard from '@/views/User/Dashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,8 +23,8 @@ const router = createRouter({
       component: ForgotPassword,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
+      path: '/admin',
+      name: 'admindashboard',
       component: Dashboard,
     },
     {
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: Settings
+    },
+    {
+      path: '/dashboard',
+      name: 'user-dashboard',
+      component: UserDashboard
     }
   ],
 })

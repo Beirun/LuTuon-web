@@ -23,7 +23,7 @@ const isSidebarOpen = inject('sidebarState', ref(false))
 const items = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/admin",
     icon: House,
   },
   {

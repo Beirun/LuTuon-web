@@ -9,6 +9,7 @@ const route = useRoute()
 const isSidebarOpen = ref(false)
 provide('sidebarState', isSidebarOpen) 
 
+const paths = ['/forgot-password', '/', '/dashboard','/personal-information','/password']
 
 </script>
 
@@ -16,7 +17,7 @@ provide('sidebarState', isSidebarOpen)
   <SidebarProvider>
     <div class="w-screen h-screen flex flex-col">
       <SidebarTrigger class="lg:hidden cursor-pointer" :class="route.path === '/forgot-password' || route.path === '/' ? 'hidden' : ''" @click="isSidebarOpen = true"/>
-      <SideBar />
+      <SideBar v-if ="!paths.includes(route.path)"/>
       <RouterView />
     </div>
   </SidebarProvider>

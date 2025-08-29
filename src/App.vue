@@ -1,25 +1,36 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import {SidebarProvider, SidebarTrigger} from '@/components/ui/sidebar'
-import {useRoute} from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import SideBar from './components/SideBar.vue'
-import {ref, provide} from 'vue'
+import { ref, provide, computed } from 'vue'
+import { Toaster } from '@/components/ui/sonner'
+import 'vue-sonner/style.css'
+import { useColorMode } from '@vueuse/core'
+
+const mode = useColorMode({ disableTransition: false })
 
 const route = useRoute()
 const isSidebarOpen = ref(false)
-provide('sidebarState', isSidebarOpen) 
+provide('sidebarState', isSidebarOpen)
 
 const paths = ['/forgot-password', '/', '/dashboard','/personal-information','/password']
 
+const toasterTheme = computed(() =>
+  mode.value === 'auto' ? 'light' : mode.value
+)
 </script>
 
 <template>
+  <Toaster richColors :theme="toasterTheme"  />
   <SidebarProvider>
     <div class="w-screen h-screen flex flex-col">
-      <SidebarTrigger class="lg:hidden cursor-pointer" :class="route.path === '/forgot-password' || route.path === '/' ? 'hidden' : ''" @click="isSidebarOpen = true"/>
-      <SideBar v-if ="!paths.includes(route.path)"/>
+      <SidebarTrigger
+        class="lg:hidden cursor-pointer"
+        :class="route.path === '/forgot-password' || route.path === '/' ? 'hidden' : ''"
+        @click="isSidebarOpen = true"
+      />
+      <SideBar v-if="!paths.includes(route.path)" />
       <RouterView />
     </div>
   </SidebarProvider>
 </template>
-

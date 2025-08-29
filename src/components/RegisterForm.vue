@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
 import {
   Dialog,
   DialogContent,
@@ -13,10 +14,26 @@ import LoginForm from './LoginForm.vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 // import { Icon } from '@iconify/vue'
 import { Eye, EyeClosed} from 'lucide-vue-next'
 
+const auth = useAuthStore();
+const credentials = reactive({
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
+
+const register = async() =>{
+    const success = await auth.register(credentials)
+    if(!success) return
+    credentials.confirmPassword = ''
+    credentials.password = ''
+    credentials.email= ''
+    handleOpenChange(false)
+  
+}
 const screenWidth = ref(window.innerWidth)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -79,6 +96,7 @@ const handleOpenChange = (openState: boolean) => {
               >Email</Label
             >
             <Input
+              v-model="credentials.email"
               tabindex="-1"
               placeholder="email@example.com"
               id="email"
@@ -92,6 +110,7 @@ const handleOpenChange = (openState: boolean) => {
             >
             <div class="relative">
               <Input
+              v-model="credentials.password"
               tabindex="-1"
               :placeholder="showPassword ? 'Password123' : '••••••••'"
               id="password"
@@ -111,6 +130,7 @@ const handleOpenChange = (openState: boolean) => {
             <div class="relative">
               
               <Input
+              v-model="credentials.confirmPassword"
               tabindex="-1"
               :placeholder="showConfirmPassword ? 'Password123' : '••••••••'"
               id="confirmpassword"
@@ -123,6 +143,7 @@ const handleOpenChange = (openState: boolean) => {
           </div>
         </div>
         <Button
+          @click="register"
           class="h-14 bg-primary text-primary-foreground/80 dark:text-primary-foreground w-full py-3 sm:py-3 md:py-4 rounded-sm sm:rounded-sm md:rounded-md text-base sm:text-base md:text-xl font-medium active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-[#aa8700]/30 transition-all duration-300 mt-8"
         >
           REGISTER

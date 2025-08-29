@@ -10,14 +10,20 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import RegisterForm from './RegisterForm.vue'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 // import {Icon} from '@iconify/vue'
 import { Eye, EyeClosed } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
+const auth = useAuthStore();
+
+const credentials = reactive({
+  email: '',
+  password: '',
+})
 const showPassword = ref(false)
 
 const TogglePassword = () => {
@@ -39,7 +45,6 @@ const handleOpenChange = (openState: boolean) => {
   emit('update:open', openState)
 }
 
-const router = useRouter()
 const goToForgotPassword = () => {
   window.open('/forgot-password', '_blank')
 }
@@ -68,6 +73,7 @@ const goToForgotPassword = () => {
               >Email</Label
             >
             <Input
+              v-model="credentials.email"
               tabindex="-1"
               placeholder="email@example.com"
               id="email"
@@ -81,6 +87,7 @@ const goToForgotPassword = () => {
             >
             <div class="relative">
               <Input
+              v-model="credentials.password"
               tabindex="-1"
               :placeholder="showPassword ? 'Password123' : '••••••••'"
               id="password"
@@ -103,6 +110,7 @@ const goToForgotPassword = () => {
           >
         </div>
         <Button
+          @click="auth.login(credentials)"
           class="h-14 bg-primary text-primary-foreground/80 dark:text-primary-foreground w-full py-3 sm:py-3 md:py-4 rounded-sm sm:rounded-sm md:rounded-md text-base sm:text-base md:text-xl font-medium active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-[#aa8700]/30 transition-all duration-300 dark:hover:brightness-110 dark:active:brightness-90"
         >
           LOGIN

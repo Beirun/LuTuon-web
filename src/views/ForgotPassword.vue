@@ -8,36 +8,77 @@ import {
   StepperTitle,
   StepperTrigger,
 } from '@/components/ui/stepper'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Eye, EyeClosed, Check } from 'lucide-vue-next'
+import { Eye, EyeClosed, Check, Loader2 } from 'lucide-vue-next'
+import { useResetStore } from '@/stores/reset'
+import { useSonnerStore } from '@/stores/sonner'
 
+const sonner = useSonnerStore()
+const reset = useResetStore()
 const currentStep = ref(1)
 const email = ref('')
 const verificationCode = ref('')
+const onKeyPress = (e: KeyboardEvent) => {
+  const key = e.key
+  if (!/^\d$/.test(key)) {
+    e.preventDefault() // block non-numeric keys
+  }
+  if (verificationCode.value.length >= 6) {
+    e.preventDefault() // block input beyond 6
+  }
+}
+
+const onInput = (e: Event) => {
+  const el = e.target as HTMLInputElement
+  // sanitize in case of paste
+  verificationCode.value = el.value.replace(/\D/g, "").slice(0, 6)
+}
 const newPassword = ref('')
 const confirmPassword = ref('')
 
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const handleNext = () => {
+const handleNext = async(nextStep : ()=> void) => {
   if (email.value !== '') {
+    const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+    if(!validateEmail(email.value)){
+        sonner.error("Enter a valid email")
+        return 
+    } 
+    await reset.requestReset(email.value)
     currentStep.value = 2
+    nextStep()
   }
 }
 
-const handleVerify = () => {
+const handleVerify = async(nextStep : ()=>void) => {
   if (verificationCode.value !== '') {
+    if(verificationCode.value.length < 6){
+      sonner.error("Please Enter a valid Code")
+      return
+    }
+    const result = await reset.verifyCode(email.value,verificationCode.value)
+    if(!result) return;
     currentStep.value = 3
+    nextStep()
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async(nextStep : ()=>void) => {
   if (newPassword.value !== '' && confirmPassword.value !== '') {
-    // Handle password submission logic here
-    console.log('Password changed successfully!')
+    if (newPassword.value !== confirmPassword.value) {
+      sonner.error("Passwords do not match");
+      return
+    }
+    if (newPassword.value.length < 8) {
+      sonner.error("Password must be at least 8 characters long");
+      return
+    }
+    await reset.resetPassword(email.value,verificationCode.value,newPassword.value)
   }
 }
 
@@ -103,14 +144,15 @@ const ToggleShowConfirmPassword = () => {
         />
         <Button
           class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
-          :disabled="email === ''"
+          :disabled="email === '' || reset.loading"
           @click="
             () => {
-              handleNext()
-              nextStep()
+              handleNext(nextStep)
             }
           "
         >
+          <Loader2 v-if="reset.loading" class="w-4 h-4 animate-spin" />
+
           Next
         </Button>
       </div>
@@ -122,17 +164,19 @@ const ToggleShowConfirmPassword = () => {
           class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
           v-model="verificationCode"
           placeholder="Verification code"
+          @keypress="onKeyPress"
+          @input="onInput"
         />
         <Button
           class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
-          :disabled="verificationCode === ''"
+          :disabled="verificationCode === '' || reset.loading"
           @click="
             () => {
-              handleVerify()
-              nextStep()
+              handleVerify(nextStep)
             }
           "
         >
+          <Loader2 v-if="reset.loading" class="w-4 h-4 animate-spin" />
           Verify
         </Button>
       </div>
@@ -178,13 +222,15 @@ const ToggleShowConfirmPassword = () => {
         </div>
         <Button
           class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
-          :disabled="newPassword === '' || confirmPassword === ''"
+          :disabled="newPassword === '' || confirmPassword === '' || reset.loading"
           @click="handleSubmit"
         >
+          <Loader2 v-if="reset.loading" class="w-4 h-4 animate-spin" />
           Submit
         </Button>
       </div>
       <Button
+        :disabled="reset.loading"
         v-if="currentStep > 1"
         class="w-[80vw] xs:w-3/5 sm:w-5/6 lg:w-1/5"
         @click="
@@ -194,6 +240,7 @@ const ToggleShowConfirmPassword = () => {
           }
         "
       >
+        <Loader2 v-if="reset.loading" class="w-4 h-4 animate-spin" />
         Back
       </Button>
     </Stepper>

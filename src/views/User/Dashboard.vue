@@ -47,7 +47,7 @@ const handleManage = () => {
       <div><img src="@/assets/logo.png" alt="" /></div>
       <div @click="auth.logout" class="flex w-full h-full justify-end items-center gap-5">
         <component :is="Bell" class="fill-[#3A3A3A] text-[#3A3A3A]" />
-        <div class="h-1/2 px-3 rounded-md border border-[#D6D6D6] flex items-center gap-2">
+        <div class="h-1/2 px-3 rounded-md border border-border flex items-center gap-2">
           {{ auth.userInfo.userEmail }}
           <component :is="Triangle" height="15" class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A]" />
         </div>
@@ -56,14 +56,14 @@ const handleManage = () => {
 
     <!-- body -->
     <div class="w-full h-full pt-10 flex flex-col items-center gap-5">
-      <div class="w-1/2 bg-white flex justify-between items-center border-b border-[#D6D6D6] pb-5">
+      <div class="w-1/2 bg-background flex justify-between items-center border-b border-border pb-5">
         <p class="text-2xl font-bold">Account Center</p>
-        <div class="h-full p-3 rounded-md border border-[#D6D6D6] flex items-center">
+        <div class="h-full p-3 rounded-md border border-border flex items-center">
           ID: 11223344
         </div>
       </div>
       <div class="w-1/2 h-3/4 flex justify-between gap-5">
-        <div class="w-1/3 border-r border-[#D6D6D6]">
+        <div class="w-1/3 border-r border-border">
           <div v-for="item in items" class="my-10">
             <a
               @click=""
@@ -79,7 +79,7 @@ const handleManage = () => {
           </div>
         </div>
         <div class="w-2/3 flex flex-col gap-5">
-          <div class="w-full border border-[#D6D6D6] rounded-xl">
+          <div class="w-full border border-border rounded-xl">
             <div class="flex justify-between border-b p-3">
               <p class="text-lg font-bold">Personal Information</p>
               <Button
@@ -91,21 +91,21 @@ const handleManage = () => {
             <div>
               <Table>
                 <TableBody>
-                  <TableRow class="flex justify-between px-5">
-                    <TableCell class="h-[6vh] text-black text-center">Username</TableCell>
-                    <TableCell class="text-black text-center">
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center">Username</TableCell>
+                    <TableCell class="text-foreground text-center">
                       <Input
                         :disabled="!manage"
                         :value="auth.userInfo.userName"
                         placeholder="kenji"
                         class="text-right p-0 w-full border-0 shadow-none focus:outline-none"
-                        :class="manage ? 'text-black' : 'text-gray-400'"
+                        :class="manage ? 'text-foreground' : 'text-gray-400'"
                       />
                     </TableCell>
                   </TableRow>
-                  <TableRow class="flex justify-between px-5">
-                    <TableCell class="h-[6vh] text-black text-center">Birthdate</TableCell>
-                    <TableCell class="text-black text-center">
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center">Birthdate</TableCell>
+                    <TableCell class="text-foreground text-center">
                       {{ 
                         new Date(auth.userInfo.userDob)
                           .toLocaleString("en-US", {
@@ -116,15 +116,15 @@ const handleManage = () => {
                       }}
                   </TableCell>
                   </TableRow>
-                  <TableRow class="flex justify-between px-5">
-                    <TableCell class="h-[6vh] text-black text-center">Email Address</TableCell>
-                    <TableCell class="text-black text-center">{{ auth.userInfo.userEmail }}</TableCell>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center">Email Address</TableCell>
+                    <TableCell class="text-foreground text-center">{{ auth.userInfo.userEmail }}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </div>
           </div>
-          <div class="w-full h-1/3 border border-[#D6D6D6] rounded-xl"></div>
+          <div class="w-full h-1/3 border border-border rounded-xl"></div>
         </div>
       </div>
     </div>

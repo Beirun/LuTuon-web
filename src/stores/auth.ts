@@ -14,6 +14,7 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoading = ref(false)
 
   const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => user.value.isAdmin)
   const userInfo = computed(() => user.value)
 
   const register = async (credentials: { email: string; password: string; confirmPassword: string }) => {
@@ -65,12 +66,12 @@ export const useAuthStore = defineStore("auth", () => {
       const res = await useFetch(URL + "/accounts/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(credentials),    
         credentials: "include",
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
-
+      
       sonner.success(data.message)
       token.value = data.token  
       user.value = data.user
@@ -80,13 +81,22 @@ export const useAuthStore = defineStore("auth", () => {
 
       const redirectPath = sessionStorage.getItem("redirectAfterLogin")
       sessionStorage.removeItem("redirectAfterLogin")
-      router.push(redirectPath || "/dashboard")
+
+      // check if admin
+      if (redirectPath) {
+        router.push(redirectPath)
+      } else if (user.value?.isAdmin) {
+        router.push("/admin")
+      } else {
+        router.push("/dashboard")
+      }
     } catch (err: any) {
       sonner.error(err.message)
     } finally {
       isLoading.value = false
     }
   }
+
 
   const logout = async () => {
     try {
@@ -146,6 +156,7 @@ const makeAuthenticatedRequest = async () => {
     user,
     isLoading,
     isAuthenticated,
+    isAdmin,
     userInfo,
     register,
     login,

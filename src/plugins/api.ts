@@ -45,7 +45,7 @@ export async function useFetch(input: RequestInfo, init: RequestInit = {}): Prom
   if (token) {
     (init.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`
   }
-
+  console.log(input)
   let res = await fetch(input, init)
   if (res.status === 401 || res.status === 403) {
     const newToken = await refreshAccessToken()

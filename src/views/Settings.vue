@@ -15,6 +15,9 @@ import {
 import { Bell } from 'lucide-vue-next'
 import { ref } from 'vue'
 import {Eye, EyeClosed} from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore();
 
 const manage = ref(false)
 const update = ref(false)
@@ -107,7 +110,7 @@ const handleSave = (from:string)=> {
                     <Input
                       :disabled="!manage"
                       class="w-1/2 text-right focus:outline-none"
-                      :value="'kenji'"
+                      :value="auth.userInfo.userName"
                     />
                   </TableCell>
                 </TableRow>
@@ -121,7 +124,11 @@ const handleSave = (from:string)=> {
                     <Input
                       :disabled="!manage"
                       class="text-right focus:outline-none"
-                      :value="'August 15, 2003'"
+                      :value="new Date(auth.userInfo.userDob).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })"
                     />
                   </TableCell>
                 </TableRow>
@@ -135,7 +142,7 @@ const handleSave = (from:string)=> {
                     <Input
                       :disabled="!manage"
                       class="text-right w-full focus:outline-none"
-                      :value="'kennethjamesbatuhan@gmail.com'"
+                      :value="auth.userInfo.userEmail"
                     />
                   </TableCell>
                 </TableRow>

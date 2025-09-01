@@ -74,7 +74,7 @@ const goToForgotPassword = () => {
             >
             <Input
               v-model="credentials.email"
-              tabindex="-1"
+              tabindex="1"
               placeholder="email@example.com"
               id="email"
               type="text"
@@ -88,7 +88,7 @@ const goToForgotPassword = () => {
             <div class="relative">
               <Input
               v-model="credentials.password"
-              tabindex="-1"
+              tabindex="2"
               :placeholder="showPassword ? 'Password123' : '••••••••'"
               id="password"
               :type="showPassword ? 'text': 'password'"
@@ -102,6 +102,7 @@ const goToForgotPassword = () => {
 
         <div class="w-full py-4 flex justify-end">
           <Button
+            tabindex="4"
             @click="goToForgotPassword"
             variant="link"
             class="font-light px-0 text-primary brightness-85 text-sm sm:text-sm md:text-lg hover:underline hover:brightness-80 cursor-pointer"
@@ -110,6 +111,7 @@ const goToForgotPassword = () => {
           >
         </div>
         <Button
+          tabindex="3"
           @click="auth.login(credentials)"
           class="h-14 bg-primary text-primary-foreground/80 dark:text-primary-foreground w-full py-3 sm:py-3 md:py-4 rounded-sm sm:rounded-sm md:rounded-md text-base sm:text-base md:text-xl font-medium active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-[#aa8700]/30 transition-all duration-300 dark:hover:brightness-110 dark:active:brightness-90"
         >

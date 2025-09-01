@@ -10,12 +10,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { ref, inject } from "vue";
-import {useRoute, useRouter} from "vue-router"
+import {useRoute } from "vue-router"
 import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut } from 'lucide-vue-next';
 import {Separator} from "@/components/ui/separator"
+import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
 
+const auth = useAuthStore()
 const route = useRoute()
-const router = useRouter()
 
 const isSidebarOpen = inject('sidebarState', ref(false))
 
@@ -72,33 +74,34 @@ const navigate = (url: string) => {
           <img src="@/assets/logo-w-outline.png" alt="">
           <Separator/>
         </SidebarGroupLabel>
-        <SidebarGroupContent class="flex-1">
+        <SidebarGroupContent class="flex-1 mt-4">
           <SidebarMenu>
             <SidebarMenuItem v-for="item in items.slice(0, -1)" :key="item.title">
-              <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
-                <a @click="navigate(item.url)" 
+              <div asChild  class="hover:text-[#E7E7E7] active:text-white">
+                <a @click="navigate(item.url)" class="flex items-center gap-4" 
                    :class="route.path === item.url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
-                  <component :is="item.icon" class="size-6" />
+                  <component :is="item.icon" class="size-8" />
                   <span class="text-xl ">{{item.title}}</span>
                 </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+              </div>
+            </SidebarMenuItem>  
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
-
       <!-- Logout at bottom -->
-      <SidebarGroup class="mt-auto">
+      <SidebarGroup class="mt-auto mb-4">
+        <Separator/>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild  class="hover:text-[#E7E7E7] active:text-white">
-                <a @click="navigate(items[items.length-1].url)" 
+              <div asChild  class="hover:text-[#E7E7E7] active:text-white ">
+                <a @click="auth.logout" 
+                    class="flex gap-4"
                    :class="route.path === items[items.length-1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
                   <component :is="items[items.length-1].icon" class="size-6" />
                   <span class="text-xl ">{{items[items.length-1].title}}</span>
                 </a>
-              </SidebarMenuButton>
+              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>

@@ -2,41 +2,37 @@
 import { useAuthStore } from '@/stores/auth'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Bell, Triangle, ShieldUser, SquareUserRound, LockKeyhole } from 'lucide-vue-next'
+import { Bell, Triangle, ShieldUser, SquareUserRound, LockKeyhole, LogOut } from 'lucide-vue-next'
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
+
 const route = useRoute()
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 const items = [
-  {
-    title: 'Account Overview',
-    icon: ShieldUser,
-    url: '/dashboard',
-  },
-  {
-    title: 'Personal Information',
-    icon: SquareUserRound,
-    url: '/personal-information',
-  },
-  {
-    title: 'Password',
-    icon: LockKeyhole,
-    url: '/password',
-  },
+  { title: 'Account Overview', icon: ShieldUser, url: '/dashboard' },
+  { title: 'Personal Information', icon: SquareUserRound, url: '/personal-information' },
+  { title: 'Password', icon: LockKeyhole, url: '/password' },
 ]
 
 const manage = ref(false)
 
 const handleManage = () => {
   manage.value = !manage.value
+}
+
+const handleLogout = () => {
+  auth.logout()
 }
 </script>
 
@@ -45,12 +41,25 @@ const handleManage = () => {
     <!-- header -->
     <div class="w-full h-1/10 flex justify-between items-center px-10 shadow-xs">
       <div><img src="@/assets/logo.png" alt="" /></div>
-      <div @click="auth.logout" class="flex w-full h-full justify-end items-center gap-5">
+      <div class="flex w-full h-full justify-end items-center gap-5">
         <component :is="Bell" class="fill-[#3A3A3A] text-[#3A3A3A]" />
-        <div class="h-1/2 px-3 rounded-md border border-border flex items-center gap-2">
-          {{ auth.userInfo.userEmail }}
-          <component :is="Triangle" height="15" class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A]" />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <div class="h-1/2 px-3 rounded-md border border-border flex items-center gap-2 cursor-pointer">
+              {{ auth.userInfo.userEmail }}
+              <component :is="Triangle" height="15" class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A]" />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-40">
+            <DropdownMenuItem
+              @click="handleLogout"
+              class="cursor-pointer flex items-center justify-between text-base"
+            >
+              <span>Logout</span>
+              <LogOut class="size-5" />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
 

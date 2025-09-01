@@ -10,6 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useUserStore } from '@/stores/user'
+import { onBeforeMount } from 'vue'
+
+const user = useUserStore()
+
+onBeforeMount(async () => {
+  if (user.users.length === 0) await user.fetchUsers()
+})
 </script>
 
 <template>
@@ -26,18 +35,67 @@ import {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Account ID</TableHead>
                   <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Birthdate</TableHead>
                   <TableHead class="font-bold text-black text-center">Email Address</TableHead>
+                  <TableHead class="font-bold text-black text-center">Birthdate</TableHead>
+                  <TableHead class="font-bold text-black text-center">Role</TableHead>
+                  <TableHead class="font-bold text-black text-center">Date Joined</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+
+              <!-- Skeleton while loading -->
+              <TableBody v-if="user.loading">
+                <TableRow v-for="i in 5" :key="i">
+                  <TableCell class="h-[6vh] text-center">
+                    <Skeleton class="h-4 w-24 mx-auto" />
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-36 mx-auto" />
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-28 mx-auto" />
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-20 mx-auto" />
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-40 mx-auto" />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- No users -->
+              <TableBody v-else-if="!user.users.length">
                 <TableRow>
-                  <TableCell class="h-[6vh] text-black text-center">1001</TableCell>
-                  <TableCell class=" text-black text-center">kenji</TableCell>
-                  <TableCell class=" text-black text-center">August 15, 2003</TableCell>
-                  <TableCell class=" text-black text-center">kennethjamesbatuhan@gmail.com</TableCell>
+                  <TableCell colspan="5" class="text-center text-gray-500 py-6">
+                    No Users Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- Data rows -->
+              <TableBody v-else>
+                <TableRow v-for="u in user.users" :key="u.userId">
+                  <TableCell class="h-[6vh] text-black text-center">{{ u.userName }}</TableCell>
+                  <TableCell class="text-black text-center">{{ u.userEmail }}</TableCell>
+                  <TableCell class="text-black text-center">{{
+                    new Date(u.userDob).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  }}</TableCell>
+                  <TableCell class="text-black text-center">{{ u.roleName }}</TableCell>
+                  <TableCell class="text-black text-center">{{
+                    new Date(u.dateCreated).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    })
+                  }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

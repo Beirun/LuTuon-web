@@ -99,6 +99,7 @@ export const useAuthStore = defineStore("auth", () => {
 
 
   const logout = async () => {
+    isLoading.value = true
     try {
       const res = await useFetch(URL + "/accounts/logout", {
         method: "POST",

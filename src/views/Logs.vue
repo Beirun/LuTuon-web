@@ -32,15 +32,15 @@ onBeforeMount(async () => {
         </div>
         <Separator class="text-[#DBDBE0] mb-10 lg:mb-0" />
         <div class="w-full h-full flex flex-col justify-center">
-          <div class="w-full h-9/10 outline-1 rounded-2xl p-5 overflow-x-auto">
+          <div class="w-full h-9/10 outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 overflow-x-auto">
             <Table>
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Email</TableHead>
-                  <TableHead class="font-bold text-black text-center">Date</TableHead>
-                  <TableHead class="font-bold text-black text-center">Description</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Username</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Email</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Date</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Description</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -56,8 +56,8 @@ onBeforeMount(async () => {
 
               <!-- No logs -->
               <TableBody v-else-if="!logStore.logs.length">
-                <TableRow>
-                  <TableCell colspan="6" class="text-center text-gray-500 py-16 text-3xl font-bold">
+                <TableRow class="hover:bg-transparent">
+                  <TableCell colspan="6" class="text-center text-foreground/80 py-36 text-3xl font-bold">
                     No Logs Found
                   </TableCell>
                 </TableRow>
@@ -66,10 +66,10 @@ onBeforeMount(async () => {
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow v-for="l in logStore.logs" :key="l.logId">
-                  <TableCell class="text-black text-center">{{ l.userName }}</TableCell>
-                  <TableCell class="text-black text-center">{{ l.userEmail }}</TableCell>
-                  <TableCell class="text-black text-center">{{ formatDateTime(l.logDate) }}</TableCell>
-                  <TableCell class="text-black text-center">{{ l.logDescription }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ l.userName }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ l.userEmail }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ formatDateTime(l.logDate) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ l.logDescription }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

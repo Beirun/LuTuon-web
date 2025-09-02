@@ -32,15 +32,15 @@ onBeforeMount(async () => {
         </div>
         <Separator class="text-[#DBDBE0] mb-10 lg:mb-0" />
         <div class="w-full h-full flex flex-col justify-center">
-          <div class="w-full h-9/10 outline-1 rounded-2xl p-5 overflow-x-auto">
+          <div class="w-full h-9/10 outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 overflow-x-auto">
             <Table>
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Email</TableHead>
-                  <TableHead class="font-bold text-black text-center">Date</TableHead>
-                  <TableHead class="font-bold text-black text-center">Message</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Username</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Email</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Date</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Message</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -56,8 +56,8 @@ onBeforeMount(async () => {
 
               <!-- No feedbacks -->
               <TableBody v-else-if="!feedbackStore.feedbacks.length">
-                <TableRow>
-                  <TableCell colspan="5" class="text-center text-gray-500 py-16 text-3xl font-bold">
+                <TableRow class="hover:bg-transparent">
+                  <TableCell colspan="5" class="text-center text-foreground py-36 text-3xl font-bold">
                     No Feedbacks Found
                   </TableCell>
                 </TableRow>
@@ -66,10 +66,10 @@ onBeforeMount(async () => {
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow v-for="f in feedbackStore.feedbacks" :key="f.feedbackId">
-                  <TableCell class="text-black text-center">{{ f.userName }}</TableCell>
-                  <TableCell class="text-black text-center">{{ f.userEmail }}</TableCell>
-                  <TableCell class="text-black text-center">{{ formatDateTime(f.feedbackDate) }}</TableCell>
-                  <TableCell class="text-black text-center">{{ f.feedbackMessage }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ f.userEmail }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ formatDateTime(f.feedbackDate) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ f.feedbackMessage }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

@@ -16,7 +16,7 @@ import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 // import { Icon } from '@iconify/vue'
-import { Eye, EyeClosed} from 'lucide-vue-next'
+import { Eye, EyeClosed, Loader2} from 'lucide-vue-next'
 
 const auth = useAuthStore();
 const credentials = reactive({
@@ -143,9 +143,12 @@ const handleOpenChange = (openState: boolean) => {
           </div>
         </div>
         <Button
+          :disabled="auth.isLoading"
           @click="register"
           class="h-14 bg-primary text-primary-foreground/80 dark:text-primary-foreground w-full py-3 sm:py-3 md:py-4 rounded-sm sm:rounded-sm md:rounded-md text-base sm:text-base md:text-xl font-medium active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-[#aa8700]/30 transition-all duration-300 mt-8"
         >
+          <Loader2 v-if="auth.isLoading" class="w-4 h-4 animate-spin" />
+
           REGISTER
         </Button>
         <div class="w-full py-4 flex justify-center items-center">
@@ -166,6 +169,7 @@ const handleOpenChange = (openState: boolean) => {
           <div class="h-[1px] w-full bg-foreground"></div>
         </div>
         <Button
+          :disabled="auth.isLoading"
           variant="outline"
           class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
         >

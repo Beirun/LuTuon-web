@@ -13,6 +13,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUserStore } from '@/stores/user'
 import { onBeforeMount } from 'vue'
+import { formatDate, formatDateTime } from '@/plugins/date'
 
 const user = useUserStore()
 
@@ -79,22 +80,11 @@ onBeforeMount(async () => {
                   <TableCell class="h-[6vh] text-black text-center">{{ u.userName }}</TableCell>
                   <TableCell class="text-black text-center">{{ u.userEmail }}</TableCell>
                   <TableCell class="text-black text-center">{{
-                    new Date(u.userDob).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })
+                    formatDate(u.userDob)
                   }}</TableCell>
                   <TableCell class="text-black text-center">{{ u.roleName }}</TableCell>
                   <TableCell class="text-black text-center">{{
-                    new Date(u.dateCreated).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })
+                    formatDateTime(u.dateCreated)
                   }}</TableCell>
                 </TableRow>
               </TableBody>

@@ -16,6 +16,7 @@ import { Bell } from 'lucide-vue-next'
 import { ref } from 'vue'
 import {Eye, EyeClosed} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { formatDate } from '@/plugins/date'
 
 const auth = useAuthStore();
 
@@ -124,11 +125,7 @@ const handleSave = (from:string)=> {
                     <Input
                       :disabled="!manage"
                       class="text-right focus:outline-none"
-                      :value="new Date(auth.userInfo.userDob).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })"
+                      :value="formatDate(auth.userInfo.userDob)"
                     />
                   </TableCell>
                 </TableRow>

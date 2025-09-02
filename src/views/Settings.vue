@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import SideBar from '@/components/SideBar.vue'
-import Button from '@/components/ui/button/Button.vue'
+// import Button from '@/components/ui/button/Button.vue'
 import { Separator } from '@/components/ui/separator'
-// import {Icon} from '@iconify/vue'
+
 import {
   Table,
   TableBody,
@@ -11,21 +11,45 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+
 } from '@/components/ui/table'
 import { Bell } from 'lucide-vue-next'
 import { ref } from 'vue'
-import {Eye, EyeClosed} from 'lucide-vue-next'
+import {Eye, EyeClosed, CalendarDays} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import { formatDate } from '@/plugins/date'
+
+import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+
+import type { DateValue } from '@internationalized/date'
+import { DateFormatter, getLocalTimeZone } from '@internationalized/date'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+
 
 const auth = useAuthStore();
+const df = new DateFormatter('en-US', {
+  dateStyle: 'long',
+})
+
+const value = ref<DateValue>()
 
 const manage = ref(false)
 const update = ref(false)
-const showPassword = ref(false)
+const showOldPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
-const TogglePassword = () => {
-  showPassword.value = !showPassword.value
+const TogglePassword = (password: string) => {
+  if (password === 'old') {
+    showOldPassword.value = !showOldPassword.value
+  }
+  if (password === 'new') {
+    showNewPassword.value = !showNewPassword.value
+  }
+  if (password === 'confirm') {
+    showConfirmPassword.value = !showConfirmPassword.value
+  }
 }
 
 const handleEdit = (from:string) => {
@@ -40,7 +64,9 @@ const handleEdit = (from:string) => {
 const handleCancel= (from: string)=> {
   if (from === 'password') {
     update.value = false
-    showPassword.value = false
+    showOldPassword.value = false
+    showNewPassword.value = false
+    showConfirmPassword.value = false
   }
   if (from === 'manage') {
     manage.value = false
@@ -51,7 +77,9 @@ const handleCancel= (from: string)=> {
 const handleSave = (from:string)=> {
   if (from === 'password') {
     update.value = false
-    showPassword.value = false
+    showOldPassword.value = false
+    showNewPassword.value = false
+    showConfirmPassword.value = false
   }
   if (from === 'manage') {
     manage.value = false
@@ -72,7 +100,7 @@ const handleSave = (from:string)=> {
           <div class="w-full outline-1 rounded-2xl p-5">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow class="hover:bg-transparent">
                   <TableHead class="lg:text-2xl font-bold text-black">Personal Information</TableHead>
                   <TableHead
                     v-if="!manage"
@@ -101,44 +129,71 @@ const handleSave = (from:string)=> {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[10vh]">Username</TableCell>
+                <TableRow class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[8vh]">Username</TableCell>
                   <TableCell
                     :class="
-                      manage ? 'text-black text-right lg:px-10' : 'text-[#3A3A3A] text-right lg:px-10'
+                      manage ? 'text-black text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
                     <Input
                       :disabled="!manage"
-                      class="w-1/2 text-right focus:outline-none"
+                      class="w-2/5 h-2/3 text-right focus:outline-none"
+                      :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
                       :value="auth.userInfo.userName"
                     />
                   </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[10vh]">Birthdate</TableCell>
+                <TableRow class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[8vh]">Birthdate</TableCell>
                   <TableCell
                     :class="
                       manage ? 'text-black text-right lg:px-10' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
-                    <Input
-                      :disabled="!manage"
-                      class="text-right focus:outline-none"
-                      :value="formatDate(auth.userInfo.userDob)"
-                    />
+                    <Popover v-if="manage">
+                        <PopoverTrigger as-child>
+                          <Button
+                            variant="outline"
+                            :class="
+                              cn(
+                                'w-[280px] justify-start text-left font-normal',
+                                !value && 'text-muted-foreground',
+                              )
+                            "
+                          >
+                            <component :is="CalendarDays" class="mr-2 h-4 w-4" />
+                            {{
+                              value ? df.format(value.toDate(getLocalTimeZone())) : 'Pick a date'
+                            }}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent class="w-auto p-0">
+                          <Calendar v-model="value" initial-focus />
+                        </PopoverContent>
+                      </Popover>
+                      <div v-if="!manage">
+                        {{
+                          new Date(auth.userInfo.userDob).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                          })
+                        }}
+                      </div>
                   </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[10vh]">Email Address</TableCell>
+                <TableRow class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[8vh]">Email Address</TableCell>
                   <TableCell
                     :class="
-                      manage ? 'text-black text-right lg:px-10' : 'text-[#3A3A3A] text-right lg:px-10'
+                      manage ? 'text-black text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
                     <Input
                       :disabled="!manage"
-                      class="text-right w-full focus:outline-none"
+                      class="w-2/5 h-2/3 text-right focus:outline-none"
+                      :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
                       :value="auth.userInfo.userEmail"
                     />
                   </TableCell>
@@ -149,7 +204,7 @@ const handleSave = (from:string)=> {
           <div class="w-full outline-1 rounded-2xl p-5">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow class="hover:bg-transparent">
                   <TableHead class="lg:text-2xl font-bold text-black">Manage Password</TableHead>
                   <TableHead
                     v-if="!update"
@@ -163,49 +218,76 @@ const handleSave = (from:string)=> {
                   </TableHead>
                   <TableHead
                     v-if="update"
+                    
                     class="font-bold text-[#F8C600] flex justify-end gap-2 lg:px-10"
                   >
                     <Button
-                      @click="handleCancel('password')"
+                    @click="handleCancel('password')"
                       class="bg-transparent hover:bg-transparent cursor-pointer border border-[#F8C600]"
                       >Cancel</Button
                     >
                     <Button
-                      @click="handleSave('password')"
+                    @click="handleSave('password')"
                     class="cursor-pointer">Save</Button>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[10vh]">Password</TableCell>
+                <TableRow class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[6vh]">Password</TableCell>
                   <TableCell
                     :class="
-                      update ? 'text-black text-center lg:px-10 w-1/2' : 'text-[#3A3A3A] text-right lg:px-10'
+                      update ? 'text-black text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
-                    <div class="relative">
+                    <span v-if="!update">*********</span>
+                    <div v-else class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+
                       <Input
-                        tabindex="-1"
-                        :placeholder="showPassword ? 'Password123' : '••••••••'"
-                        id="password"
-                        :type="showPassword ? 'text' : 'password'"
-                        :class="update ? 'focus:outline-none text-center lg:pl-100 w-full' : 'focus:outline-none text-right w-full'"
-                        :disabled="!update"
+                      :type="showOldPassword ? 'text': 'password'"
+                      class="text-right w-full focus:outline-none px-3"
+                      placeholder="Old Password"
                       />
-                      <EyeClosed
-                        v-if="update"
-                        class="size-5 absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
-                        :class="showPassword ? 'hidden' : ''"
-                        @click="TogglePassword"
+                      <component v-if="!showOldPassword" @click="TogglePassword('old')" :is="EyeClosed" class=" text-[#3A3A3A]"/>
+                      <component v-else @click="TogglePassword('old')" :is="Eye" class=" text-[#3A3A3A]"/>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                <TableRow v-if="update" class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[6vh]"></TableCell>
+                  <TableCell
+                    :class="
+                      update ? 'text-black text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
+                    "
+                  >
+                    <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+
+                      <Input
+                      :type="showNewPassword ? 'text': 'password'"
+                      class="text-right w-full focus:outline-none px-3"
+                      placeholder="New Password"
                       />
-                      <Eye
-                        v-if="update"
-                        icon="radix-icons:eye-open"
-                        class="size-5 absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
-                        :class="showPassword ? '' : 'hidden'"
-                        @click="TogglePassword"
+                      <component v-if="!showNewPassword" @click="TogglePassword('new')" :is="EyeClosed" class=" text-[#3A3A3A]"/>
+                      <component v-else @click="TogglePassword('new')" :is="Eye" class=" text-[#3A3A3A]"/>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                <TableRow v-if="update" class="hover:bg-transparent">
+                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[6vh]"></TableCell>
+                  <TableCell
+                    :class="
+                      update ? 'text-black text-right lg:px-10  lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
+                    "
+                  >
+                    <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+
+                      <Input
+                      :type="showConfirmPassword ? 'text': 'password'"
+                      class="text-right w-full focus:outline-none px-3"
+                      placeholder="Confirm Password"
                       />
+                      <component v-if="!showConfirmPassword" @click="TogglePassword('confirm')" :is="EyeClosed" class=" text-[#3A3A3A]"/>
+                      <component v-else @click="TogglePassword('confirm')" :is="Eye" class=" text-[#3A3A3A]"/>
                     </div>
                   </TableCell>
                 </TableRow>

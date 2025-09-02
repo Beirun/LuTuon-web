@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/sidebar"
 import { ref, inject } from "vue";
 import {useRoute } from "vue-router"
-import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut } from 'lucide-vue-next';
+import { House, UsersRound, Files, MessageSquareText, Logs, UserRoundCog, LogOut, Loader2 } from 'lucide-vue-next';
 import {Separator} from "@/components/ui/separator"
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+import Button from "./ui/button/Button.vue";
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -72,12 +73,12 @@ const navigate = (url: string) => {
       <SidebarGroup>
         <SidebarGroupLabel class="mt-10 w-full flex flex-col gap-5 mb-5">
           <img src="@/assets/logo-w-outline.png" alt="">
-          <Separator/>
+          <Separator class="dark:bg-gray-200/50"/>
         </SidebarGroupLabel>
         <SidebarGroupContent class="flex-1 mt-4">
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in items.slice(0, -1)" :key="item.title">
-              <div asChild  class="hover:text-[#E7E7E7] active:text-white">
+            <SidebarMenuItem v-for="item in items.slice(0, -1)" :key="item.title" class="mt-2">
+              <div asChild  class="hover:text-[#E7E7E7] active:text-white py-2">
                 <a @click="navigate(item.url)" class="flex items-center gap-4" 
                    :class="route.path === item.url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
                   <component :is="item.icon" class="size-8" />
@@ -90,17 +91,21 @@ const navigate = (url: string) => {
       </SidebarGroup>
       <!-- Logout at bottom -->
       <SidebarGroup class="mt-auto mb-4">
-        <Separator/>
+        <Separator class="dark:bg-gray-200/50"/>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
               <div asChild  class="hover:text-[#E7E7E7] active:text-white ">
-                <a @click="auth.logout" 
-                    class="flex gap-4"
+                <Button @click="auth.logout" 
+                    variant="ghost"
+                    class="flex gap-4 hover:text-white"
+                    :disabled="auth.isLoading"
                    :class="route.path === items[items.length-1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
-                  <component :is="items[items.length-1].icon" class="size-6" />
+                   <Loader2 v-if="auth.isLoading" class="size-6 animate-spin" />
+                   <component v-else :is="items[items.length-1].icon" class="size-6" />
+
                   <span class="text-xl ">{{items[items.length-1].title}}</span>
-                </a>
+                </Button>
               </div>
             </SidebarMenuItem>
           </SidebarMenu>

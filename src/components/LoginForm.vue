@@ -15,7 +15,7 @@ import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 // import {Icon} from '@iconify/vue'
-import { Eye, EyeClosed } from 'lucide-vue-next'
+import { Eye, EyeClosed, Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore();
@@ -111,10 +111,13 @@ const goToForgotPassword = () => {
           >
         </div>
         <Button
+          :disabled="auth.isLoading"
           tabindex="3"
           @click="auth.login(credentials)"
           class="h-14 bg-primary text-primary-foreground/80 dark:text-primary-foreground w-full py-3 sm:py-3 md:py-4 rounded-sm sm:rounded-sm md:rounded-md text-base sm:text-base md:text-xl font-medium active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-[#aa8700]/30 transition-all duration-300 dark:hover:brightness-110 dark:active:brightness-90"
         >
+          <Loader2 v-if="auth.isLoading" class="w-4 h-4 animate-spin" />
+
           LOGIN
         </Button>
         <div class="w-full py-4 flex justify-center items-center">
@@ -123,6 +126,7 @@ const goToForgotPassword = () => {
           </span>
           &nbsp;
           <Button
+            tabindex="5"
             variant="link"
             @click="openRegisterDialog"
             class="px-0 text-primary brightness-85 text-sm sm:text-sm md:text-lg font-light hover:underline hover:brightness-80 cursor-pointer"
@@ -135,6 +139,8 @@ const goToForgotPassword = () => {
           <div class="h-[1px] w-full bg-foreground"></div>
         </div>
         <Button
+          tabindex="6"
+          :disabled="auth.isLoading"
           variant="outline"
           class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
         >

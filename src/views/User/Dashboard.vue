@@ -24,8 +24,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-
-const route = useRoute()
+import DarkModeSwitch from '@/components/DarkModeSwitch.vue'
 const auth = useAuthStore()
 
 const items = [
@@ -85,19 +84,23 @@ const handleLogout = () => {
     <div class="w-full h-1/10 flex justify-between items-center px-10 shadow-xs">
       <div><img src="@/assets/logo.png" alt="" /></div>
       <div class="flex w-full h-full justify-end items-center gap-5">
-        <component :is="Bell" class="fill-[#3A3A3A] text-[#3A3A3A]" />
+        <DarkModeSwitch/>
+        <Button variant="outline" class="h-12 w-12 shadow-sm shadow-black/20 active:brightness-90 hover:brightness-95 duration-300 cursor-pointer">
+          <component :is="Bell" class="text-[#3A3A3A] dark:text-white " />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <div
-              class="h-1/2 px-3 rounded-md border border-border flex items-center gap-2 cursor-pointer"
+            <Button 
+              variant="outline"
+              class="h-12 px-3 font-light text-gray-600 dark:text-[#e8e8e8] shadow-sm shadow-black/20 rounded-md border border-border flex items-center gap-2 cursor-pointer active:brightness-90 hover:brightness-95 duration-300"
             >
               {{ auth.userInfo.userEmail }}
               <component
                 :is="Triangle"
                 height="15"
-                class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A]"
+                class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A] dark:text-[#e8e8e8] dark:fill-[#e8e8e8]"
               />
-            </div>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-40">
             <DropdownMenuItem
@@ -118,7 +121,7 @@ const handleLogout = () => {
         class="w-1/2 bg-background flex justify-between items-center border-b border-border pb-5"
       >
         <p class="text-2xl font-bold">Account Center</p>
-        <div class="h-full p-3 rounded-md border border-border flex items-center">ID: 11223344</div>
+        <div class="h-full p-3 rounded-md border border-border flex items-center">USER ID: {{ auth.userInfo.userId }}</div>
       </div>
       <div class="w-1/2 h-3/4 flex justify-between gap-5">
         <div class="w-1/3 border-r border-border">
@@ -155,7 +158,7 @@ const handleLogout = () => {
               <div v-if="edit" class="flex gap-5">
                 <Button
                   @click="handleEdit"
-                  class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-muted underline"
+                  class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-gray-500 dark:text-gray-300 underline"
                 >
                   Cancel
                 </Button>
@@ -307,7 +310,7 @@ const handleLogout = () => {
 
               <Button
                 @click="handlePasswordEdit"
-                class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-muted underline"
+                class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none dark:text-gray-300 text-gray-500 underline"
               >
                 Cancel
               </Button>

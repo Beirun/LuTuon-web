@@ -31,16 +31,16 @@ onBeforeMount(async () => {
         </div>
         <Separator class="text-[#DBDBE0] mb-10 lg:mb-0" />
         <div class="w-full h-full flex flex-col justify-center">
-          <div class="w-full h-9/10 outline-1 rounded-2xl p-5 overflow-x-auto">
+          <div class="w-full h-9/10 outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 overflow-x-auto">
             <Table>
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Email Address</TableHead>
-                  <TableHead class="font-bold text-black text-center">Birthdate</TableHead>
-                  <TableHead class="font-bold text-black text-center">Role</TableHead>
-                  <TableHead class="font-bold text-black text-center">Date Joined</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Username</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Email Address</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Birthdate</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Role</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Date Joined</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -67,8 +67,8 @@ onBeforeMount(async () => {
 
               <!-- No users -->
               <TableBody v-else-if="!user.users.length">
-                <TableRow>
-                  <TableCell colspan="5" class="text-center text-gray-500 py-6">
+                <TableRow class="hover:bg-transparent">
+                  <TableCell colspan="5" class="text-center text-foreground/80 py-36">
                     No Users Found
                   </TableCell>
                 </TableRow>
@@ -77,13 +77,13 @@ onBeforeMount(async () => {
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow v-for="u in user.users" :key="u.userId">
-                  <TableCell class="h-[6vh] text-black text-center">{{ u.userName }}</TableCell>
-                  <TableCell class="text-black text-center">{{ u.userEmail }}</TableCell>
-                  <TableCell class="text-black text-center">{{
+                  <TableCell class="h-[6vh] text-foreground text-center">{{ u.userName }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ u.userEmail }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
                     formatDate(u.userDob)
                   }}</TableCell>
-                  <TableCell class="text-black text-center">{{ u.roleName }}</TableCell>
-                  <TableCell class="text-black text-center">{{
+                  <TableCell class="text-foreground text-center">{{ u.roleName }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
                     formatDateTime(u.dateCreated)
                   }}</TableCell>
                 </TableRow>

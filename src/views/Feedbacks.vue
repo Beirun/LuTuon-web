@@ -1,3 +1,4 @@
+<!-- @/views/Feedback.vue -->
 <script lang="ts" setup>
 import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
@@ -10,6 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useFeedbackStore } from '@/stores/feedback'
+import { onBeforeMount } from 'vue'
+import { formatDateTime } from '@/plugins/date'
+
+const feedbackStore = useFeedbackStore()
+
+onBeforeMount(async () => {
+  if (feedbackStore.feedbacks.length === 0) await feedbackStore.fetchFeedbacks()
+})
 </script>
 
 <template>
@@ -26,18 +37,39 @@ import {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Account ID</TableHead>
                   <TableHead class="font-bold text-black text-center">Username</TableHead>
+                  <TableHead class="font-bold text-black text-center">Email</TableHead>
                   <TableHead class="font-bold text-black text-center">Date</TableHead>
                   <TableHead class="font-bold text-black text-center">Message</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+
+              <!-- Skeleton while loading -->
+              <TableBody v-if="feedbackStore.loading">
+                <TableRow v-for="i in 5" :key="i">
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-32 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-40 mx-auto" /></TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- No feedbacks -->
+              <TableBody v-else-if="!feedbackStore.feedbacks.length">
                 <TableRow>
-                  <TableCell class="h-[6vh] text-black text-center">1001</TableCell>
-                  <TableCell class=" text-black text-center">kenji</TableCell>
-                  <TableCell class=" text-black text-center">07/17/25</TableCell>
-                  <TableCell class=" text-black text-center">Very entertaining!</TableCell>
+                  <TableCell colspan="5" class="text-center text-gray-500 py-16 text-3xl font-bold">
+                    No Feedbacks Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- Data rows -->
+              <TableBody v-else>
+                <TableRow v-for="f in feedbackStore.feedbacks" :key="f.feedbackId">
+                  <TableCell class="text-black text-center">{{ f.userName }}</TableCell>
+                  <TableCell class="text-black text-center">{{ f.userEmail }}</TableCell>
+                  <TableCell class="text-black text-center">{{ formatDateTime(f.feedbackDate) }}</TableCell>
+                  <TableCell class="text-black text-center">{{ f.feedbackMessage }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

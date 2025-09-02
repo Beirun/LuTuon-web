@@ -1,3 +1,4 @@
+<!-- @/views/Reports.vue -->
 <script lang="ts" setup>
 import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
@@ -10,6 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useReportStore } from '@/stores/report'
+import { onBeforeMount } from 'vue'
+import { diffMinutesSeconds, formatDateTime } from '@/plugins/date'
+const reportStore = useReportStore()
+
+onBeforeMount(async () => {
+  if (reportStore.reports.length === 0) await reportStore.fetchReports()
+})
 </script>
 
 <template>
@@ -26,9 +36,7 @@ import {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="font-bold text-black text-center">Account ID</TableHead>
                   <TableHead class="font-bold text-black text-center">Username</TableHead>
-                  <TableHead class="font-bold text-black text-center">Attempt</TableHead>
                   <TableHead class="font-bold text-black text-center">Point</TableHead>
                   <TableHead class="font-bold text-black text-center">Food</TableHead>
                   <TableHead class="font-bold text-black text-center">Date</TableHead>
@@ -36,16 +44,41 @@ import {
                   <TableHead class="font-bold text-black text-center">Type</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+
+              <!-- Skeleton while loading -->
+              <TableBody v-if="reportStore.loading">
+                <TableRow v-for="i in 5" :key="i">
+                  <TableCell class="text-center"><Skeleton class="h-4 w-20 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-10 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-10 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- No reports -->
+              <TableBody v-else-if="!reportStore.reports.length">
                 <TableRow>
-                  <TableCell class="h-[6vh] text-black text-center">1001</TableCell>
-                  <TableCell class=" text-black text-center">kenji</TableCell>
-                  <TableCell class=" text-black text-center">3</TableCell>
-                  <TableCell class=" text-black text-center">-</TableCell>
-                  <TableCell class=" text-black text-center">Chicken Adobo</TableCell>
-                  <TableCell class=" text-black text-center">07/17/25</TableCell>
-                  <TableCell class=" text-black text-center">6 min 10 sec</TableCell>
-                  <TableCell class=" text-black text-center">Tutorial</TableCell>
+                  <TableCell colspan="8" class="text-center text-gray-500 py-16 text-3xl font-bold">
+                    No Reports Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+
+              <!-- Data rows -->
+              <TableBody v-else>
+                <TableRow v-for="r in reportStore.reports" :key="r.attemptId">
+                  <TableCell class="text-black text-center">{{ r.userName }}</TableCell>
+                  <TableCell class="text-black text-center">{{ r.attemptPoint }}</TableCell>
+                  <TableCell class="text-black text-center">{{ r.foodName }}</TableCell>
+                  <TableCell class="text-black text-center">{{
+                    formatDateTime(r.attemptDate)
+                  }}</TableCell>
+                  <TableCell class="text-black text-center">
+                    {{ diffMinutesSeconds(r.attemptDate,r.attemptDuration) }}
+                  </TableCell>
+                  <TableCell class="text-black text-center">{{ r.attemptType }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

@@ -14,9 +14,9 @@ import { reactive, ref } from 'vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
-// import {Icon} from '@iconify/vue'
 import { Eye, EyeClosed, Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { googleTokenLogin  } from 'vue3-google-login'
 
 const auth = useAuthStore();
 
@@ -47,6 +47,14 @@ const handleOpenChange = (openState: boolean) => {
 
 const goToForgotPassword = () => {
   window.open('/forgot-password', '_blank')
+}
+
+async function google() {
+  const object = await googleTokenLogin()
+  console.log("JWT Credential:", object)
+  
+  auth.continueWithGoogle(object);
+  
 }
 </script>
 <template>
@@ -138,15 +146,17 @@ const goToForgotPassword = () => {
           <div class="text-sm sm:text-sm md:text-base">OR</div>
           <div class="h-[1px] w-full bg-foreground"></div>
         </div>
-        <Button
-          tabindex="6"
-          :disabled="auth.isLoading"
-          variant="outline"
-          class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
-        >
-          <img src="@/assets/google.png" class="size-6 sm:size-6 md:size-8" alt="" />
-          LOGIN WITH GOOGLE
-        </Button>
+          
+          <Button
+            @click="google"
+            tabindex="6"
+            :disabled="auth.isLoading"
+            variant="outline"
+            class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
+            >
+              <img src="@/assets/google.png" class="size-6 sm:size-6 md:size-8" alt="" />
+              CONTINUE WITH GOOGLE
+          </Button>
       </div>
     </DialogContent>
   </Dialog>

@@ -17,6 +17,7 @@ import Label from './ui/label/Label.vue'
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 // import { Icon } from '@iconify/vue'
 import { Eye, EyeClosed, Loader2} from 'lucide-vue-next'
+import { googleTokenLogin } from 'vue3-google-login'
 
 const auth = useAuthStore();
 const credentials = reactive({
@@ -70,6 +71,14 @@ const openLoginDialog = () => {
 
 const handleOpenChange = (openState: boolean) => {
   emit('update:open', openState)
+}
+
+async function google() {
+  const object = await googleTokenLogin()
+  console.log("JWT Credential:", object)
+  
+  auth.continueWithGoogle(object);
+  
 }
 </script>
 <template>
@@ -168,13 +177,15 @@ const handleOpenChange = (openState: boolean) => {
           <div class="text-sm sm:text-sm md:text-base">OR</div>
           <div class="h-[1px] w-full bg-foreground"></div>
         </div>
+
         <Button
+          @click="google"
           :disabled="auth.isLoading"
           variant="outline"
           class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
         >
           <img src="@/assets/google.png" class="size-6 sm:size-6 md:size-8" alt="" />
-          REGISTER WITH GOOGLE
+          CONTINUE WITH GOOGLE
         </Button>
       </div>
     </DialogContent>

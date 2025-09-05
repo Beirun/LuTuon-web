@@ -30,7 +30,7 @@ import DarkModeSwitch from '@/components/DarkModeSwitch.vue'
 const auth = useAuthStore()
 
 const items = [
-  { title: 'Account Overview', icon: ShieldUser, url: '/dashboard' },
+  { title: 'Account Overview', icon: ShieldUser},
   { title: 'Personal Information', icon: SquareUserRound },
   { title: 'Security', icon: LockKeyhole },
 ]

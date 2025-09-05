@@ -1,6 +1,5 @@
 import { useAuthStore } from "@/stores/auth"
 import { useSonnerStore } from "@/stores/sonner"
-let token: string | null = localStorage.getItem("token")
 let isRefreshing = false
 let url = import.meta.env.VITE_BASE_URL
 let refreshPromise: Promise<string | null> | null = null
@@ -24,7 +23,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
       const data = await res.json()
       localStorage.setItem("token", data.token)
-      token = data.token
+      auth.setToken(data.token)
       return data.token
     } catch (err: any) {
       sonner.message(err.message, "Please Log-In again")
@@ -41,9 +40,10 @@ async function refreshAccessToken(): Promise<string | null> {
 
 
 export async function useFetch(input: RequestInfo, init: RequestInit = {}): Promise<Response> {
+  const auth = useAuthStore()
   if (!init.headers) init.headers = {}
-  if (token) {
-    (init.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`
+  if (auth.token) {
+    (init.headers as Record<string, string>)["Authorization"] = `Bearer ${auth.token}`
   }
   console.log(input)
   let res = await fetch(input, init)

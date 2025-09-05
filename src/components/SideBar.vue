@@ -95,10 +95,9 @@ const navigate = (url: string) => {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <div asChild  class="hover:text-[#E7E7E7] active:text-white ">
+              <div asChild  class="hover:text-[#E7E7E7] active:text-white hover:bg-transparent">
                 <Button @click="auth.logout" 
-                    variant="ghost"
-                    class="flex gap-4 hover:text-white"
+                    class="flex gap-4 hover:text-white bg-transparent"
                     :disabled="auth.isLoading"
                    :class="route.path === items[items.length-1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
                    <Loader2 v-if="auth.isLoading" class="size-6 animate-spin" />

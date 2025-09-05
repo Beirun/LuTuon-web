@@ -12,7 +12,7 @@ const mode = useColorMode({ disableTransition: false })
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="outline" class="cursor-pointer shadow-md inset-shadow-black/50 size-9 sm:size-9 md:size-12 py-1 active:brightness-90 hover:brightness-95 duration-300">
+      <Button variant="outline" class="cursor-pointer shadow-md inset-shadow-black/50 size-12 sm:size-12 md:size-12 py-1 active:brightness-90 hover:brightness-95 duration-300">
         <Sun class="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
         <Moon class="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         <span class="sr-only">Toggle theme</span>

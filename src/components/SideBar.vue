@@ -68,7 +68,7 @@ const navigate = (url: string) => {
 </script>
 
 <template>
-  <Sidebar v-if="route.path !== '/forgot-password' && route.path !== '/'" v-model:open="isSidebarOpen" class="flex flex-col h-screen w-1/6">
+  <Sidebar v-if="route.path !== '/forgot-password' && route.path !== '/' && route.path !== '/dashboard'" v-model:open="isSidebarOpen" class="flex flex-col h-screen w-1/6">
     <SidebarContent class="flex-1 flex flex-col">
       <SidebarGroup>
         <SidebarGroupLabel class="mt-10 w-full flex flex-col gap-5 mb-5">

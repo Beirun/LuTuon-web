@@ -26,7 +26,7 @@ const toasterTheme = computed(() =>
     <div class="w-screen h-screen flex flex-col">
       <SidebarTrigger
         class="lg:hidden cursor-pointer"
-        :class="route.path === '/forgot-password' || route.path === '/' ? 'hidden' : ''"
+        :class="route.path === '/forgot-password' || route.path === '/' || route.path === '/dashboard' ? 'hidden' : ''"
         @click="isSidebarOpen = true"
       />
       <SideBar v-if="!paths.includes(route.path)" />

@@ -101,7 +101,7 @@ const handleSave = (from:string)=> {
             <Table>
               <TableHeader>
                 <TableRow class="hover:bg-transparent">
-                  <TableHead class="lg:text-2xl font-bold text-black">Personal Information</TableHead>
+                  <TableHead class="lg:text-2xl font-bold text-foreground">Personal Information</TableHead>
                   <TableHead
                     v-if="!manage"
                     @click="handleEdit('manage')"
@@ -130,10 +130,10 @@ const handleSave = (from:string)=> {
               </TableHeader>
               <TableBody>
                 <TableRow class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[8vh]">Username</TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[8vh]">Username</TableCell>
                   <TableCell
                     :class="
-                      manage ? 'text-black text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
+                      manage ? 'text-foreground text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
                     <Input
@@ -145,10 +145,10 @@ const handleSave = (from:string)=> {
                   </TableCell>
                 </TableRow>
                 <TableRow class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[8vh]">Birthdate</TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[8vh]">Birthdate</TableCell>
                   <TableCell
                     :class="
-                      manage ? 'text-black text-right lg:px-10' : 'text-[#3A3A3A] text-right lg:px-10'
+                      manage ? 'text-foreground text-right lg:px-10' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
                     <Popover v-if="manage">
@@ -157,7 +157,7 @@ const handleSave = (from:string)=> {
                             variant="outline"
                             :class="
                               cn(
-                                'w-[280px] justify-start text-left font-normal',
+                                'w-[280px] justify-start text-left font-normal ',
                                 !value && 'text-muted-foreground',
                               )
                             "
@@ -172,7 +172,7 @@ const handleSave = (from:string)=> {
                           <Calendar v-model="value" initial-focus />
                         </PopoverContent>
                       </Popover>
-                      <div v-if="!manage">
+                      <div v-if="!manage" class="text-gray-400">
                         {{
                           new Date(auth.userInfo.userDob).toLocaleString('en-US', {
                             year: 'numeric',
@@ -184,10 +184,10 @@ const handleSave = (from:string)=> {
                   </TableCell>
                 </TableRow>
                 <TableRow class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[8vh]">Email Address</TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[8vh]">Email Address</TableCell>
                   <TableCell
                     :class="
-                      manage ? 'text-black text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
+                      manage ? 'text-foreground text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
                     <Input
@@ -205,7 +205,7 @@ const handleSave = (from:string)=> {
             <Table>
               <TableHeader>
                 <TableRow class="hover:bg-transparent">
-                  <TableHead class="lg:text-2xl font-bold text-black">Manage Password</TableHead>
+                  <TableHead class="lg:text-2xl font-bold text-foreground">Manage Password</TableHead>
                   <TableHead
                     v-if="!update"
                     @click="handleEdit('update')"
@@ -234,13 +234,13 @@ const handleSave = (from:string)=> {
               </TableHeader>
               <TableBody>
                 <TableRow class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-[#3A3A3A] lg:px-10 lg:h-[6vh]">Password</TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh]">Password</TableCell>
                   <TableCell
                     :class="
-                      update ? 'text-black text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
+                      update ? 'text-foreground text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
-                    <span v-if="!update">*********</span>
+                    <span class="text-gray-400" v-if="!update">*********</span>
                     <div v-else class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
                       <Input
@@ -254,10 +254,10 @@ const handleSave = (from:string)=> {
                   </TableCell>
                 </TableRow>
                 <TableRow v-if="update" class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[6vh]"></TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh]"></TableCell>
                   <TableCell
                     :class="
-                      update ? 'text-black text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
+                      update ? 'text-foreground text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
                     <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
@@ -273,10 +273,10 @@ const handleSave = (from:string)=> {
                   </TableCell>
                 </TableRow>
                 <TableRow v-if="update" class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-black lg:px-10 lg:h-[6vh]"></TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh]"></TableCell>
                   <TableCell
                     :class="
-                      update ? 'text-black text-right lg:px-10  lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
+                      update ? 'text-foreground text-right lg:px-10  lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
                     <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">

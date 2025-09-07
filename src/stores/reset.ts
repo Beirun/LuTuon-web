@@ -29,8 +29,10 @@ export const useResetStore = defineStore("reset", () => {
       expiresAt.value = data.expiresAt;
 
       sonner.success(data.message);
+      return true;
     } catch (e: any) {
       sonner.error(e.message || "An error occurred");
+      return false
     } finally {
       loading.value = false;
     }
@@ -62,13 +64,14 @@ export const useResetStore = defineStore("reset", () => {
   email: string,
   enteredCode: string,
   newPassword: string,
+  confirmPassword: string
 ) {
   loading.value = true;
   try {
 
     const res = await useFetch(URL+`/reset/password`, {
       method: "POST",
-      body: JSON.stringify({ email, code: enteredCode, newPassword }),
+      body: JSON.stringify({ email, code: enteredCode, newPassword, confirmPassword }),
       headers: { "Content-Type": "application/json" },
     });
 

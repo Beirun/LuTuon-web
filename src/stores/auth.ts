@@ -10,32 +10,14 @@ export const useAuthStore = defineStore("auth", () => {
   const URL = import.meta.env.VITE_BASE_URL
 
   const token = ref(localStorage.getItem("token"))
-  const user = ref(JSON.parse(localStorage.getItem("user") || "null"))
+  const user = ref(JSON.parse(localStorage.getItem("user") || "null"));
   const isLoading = ref(false)
   const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = ref(false)
+  const isAdmin = computed(() => user.value.roleId === import.meta.env.VITE_ADMIN_ROLE)
   const userInfo = computed(() => user.value)
   const isFromLogin = ref(false)
   const register = async (credentials: { email: string; password: string; confirmPassword: string }) => {
-    const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-    if (!credentials.email || !credentials.password || !credentials.confirmPassword) {
-      sonner.error("Input all fields")
-      return
-    }
-    if (!validateEmail(credentials.email)) {
-      sonner.error("Enter a valid email")
-      return
-    }
-    if (credentials.password !== credentials.confirmPassword) {
-      sonner.error("Passwords do not match")
-      return
-    }
-    if (credentials.password.length < 8) {
-      sonner.error("Password must be at least 8 characters long")
-      return
-    }
-
+  
     isLoading.value = true
     try {
       const res = await useFetch(URL + "/accounts/register", {
@@ -63,12 +45,11 @@ export const useAuthStore = defineStore("auth", () => {
           Authorization: `Bearer ${object.access_token}`
         }
       })
-      const user = await result.json();
+      const fetchedUser = await result.json();
       
-      console.log(user)
       const credentials = {
-        email: user.email,
-        username: user.name 
+        email: fetchedUser.email,
+        username: fetchedUser.name 
       }
 
       const res = await useFetch(URL + "/accounts/google", {
@@ -79,12 +60,12 @@ export const useAuthStore = defineStore("auth", () => {
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
-      
-        sonner.success(data.message)
-        token.value = data.token  
-        user.value = data.user
-        isAdmin.value = data.user.isAdmin
+      console.log("user before", user.value)
+      sonner.success(data.message)
+      token.value = data.token  
+      user.value = data.user
         
+      console.log("user after", user.value)
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
 
@@ -107,10 +88,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
   const login = async (credentials: { email: string; password: string }) => {
-    if (!credentials.email || !credentials.password) {
-      sonner.error("Input all fields")
-      return
-    }
+    
     isLoading.value = true
     try {
       const res = await useFetch(URL + "/accounts/login", {
@@ -126,9 +104,9 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = data.token  
       user.value = data.user
 
+
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
-
       const redirectPath = sessionStorage.getItem("redirectAfterLogin")
       sessionStorage.removeItem("redirectAfterLogin")
 
@@ -173,6 +151,46 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  const update = async (updates: {
+  username?: string
+  email?: string
+  dob?: string
+  oldPassword?: string
+  newPassword?: string
+  confirmPassword?: string
+}) => {
+  isLoading.value = true
+  try {
+    const res = await useFetch(`${URL}/accounts/${userInfo.value.userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+      credentials: "include",
+    })
+    const data = await res.json()
+    if (!res.ok) return sonner.error(data.message)
+    
+    if(res.status === 200) {
+      sonner.message("Profile Info",data.message);
+      return true;
+    }
+    else sonner.success(data.message)
+    // update only non-sensitive info in store
+    if (data.user.userName || data.user.userEmail || data.user.userDob) {
+      user.value = { ...user.value, ...data.user}
+      localStorage.setItem("user", JSON.stringify(user.value))
+    }
+    return true
+  } catch (err: any) {
+    sonner.error(err.message)
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+
+
   const handleTokenExpiry = () => {
     token.value = null
     user.value = null
@@ -214,18 +232,20 @@ const makeAuthenticatedRequest = async () => {
  
 
   return {
-    token,
-    user,
-    isLoading,
-    isAuthenticated,
-    isAdmin,
-    userInfo,
-    register,
-    login,
-    logout,
-    handleTokenExpiry,
-    makeAuthenticatedRequest,
-    continueWithGoogle,
-    setToken
-  }
+  token,
+  user,
+  isLoading,
+  isAuthenticated,
+  isAdmin,
+  userInfo,
+  register,
+  login,
+  logout,
+  handleTokenExpiry,
+  makeAuthenticatedRequest,
+  continueWithGoogle,
+  setToken,
+  update
+}
+
 })

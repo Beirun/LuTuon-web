@@ -75,8 +75,6 @@ const handleOpenChange = (openState: boolean) => {
 
 async function google() {
   const object = await googleTokenLogin()
-  console.log("JWT Credential:", object)
-  
   auth.continueWithGoogle(object);
   
 }

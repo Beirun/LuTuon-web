@@ -14,7 +14,7 @@ import {
 
 } from '@/components/ui/table'
 import { Bell } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import {Eye, EyeClosed, CalendarDays} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
@@ -30,6 +30,16 @@ import { Button } from '@/components/ui/button'
 const auth = useAuthStore();
 const df = new DateFormatter('en-US', {
   dateStyle: 'long',
+})
+
+const userName = ref(auth.userInfo.userName)
+const userDob = ref(auth.userInfo.userDob)
+const userEmail = ref(auth.userInfo.userEmail)
+
+const userPassword = reactive({
+  oldPassword: "",
+  newPassword: "",
+  confirmPassword: ""
 })
 
 const value = ref<DateValue>()
@@ -61,29 +71,51 @@ const handleEdit = (from:string) => {
   }
 }
 
-const handleCancel= (from: string)=> {
-  if (from === 'password') {
-    update.value = false
-    showOldPassword.value = false
-    showNewPassword.value = false
-    showConfirmPassword.value = false
-  }
-  if (from === 'manage') {
-    manage.value = false
-  }
-    
+const handleCancel = () =>{
+  userName.value = auth.userInfo.userName
+  userDob.value = auth.userInfo.userDob
+  userEmail.value = auth.userInfo.userEmail
+  manage.value = false;
 }
 
-const handleSave = (from:string)=> {
-  if (from === 'password') {
-    update.value = false
-    showOldPassword.value = false
-    showNewPassword.value = false
-    showConfirmPassword.value = false
-  }
-  if (from === 'manage') {
-    manage.value = false
-  }
+const handleSave = async() =>{
+  const updates : any = {};                            
+  if(!!value.value) userDob.value = new Date(value.value?.toDate(getLocalTimeZone())).toISOString();
+  updates.userName = userName.value;  
+  updates.userEmail = userEmail.value;  
+  updates.userDob = userDob.value;  
+  const success = await auth.update(updates);
+  if(!success) return
+  userName.value = auth.userInfo.userName
+  userDob.value = auth.userInfo.userDob
+  userEmail.value = auth.userInfo.userEmail
+  manage.value = false;
+}
+
+const handlePasswordCancel = () =>{
+  userPassword.oldPassword = '';
+  userPassword.newPassword = '';
+  userPassword.confirmPassword = '';
+  update.value = false;
+  showOldPassword.value = false
+  showNewPassword.value = false
+  showConfirmPassword.value = false
+}
+
+const handlePasswordSave = async() =>{
+  console.log("old",userPassword.oldPassword)
+  console.log("new",userPassword.newPassword)
+  console.log("confirm",userPassword.confirmPassword)
+  
+  const success = await auth.update(userPassword);
+  if(!success) return; 
+  userPassword.oldPassword = '';
+  userPassword.newPassword = '';
+  userPassword.confirmPassword = '';
+  update.value = false;
+  showOldPassword.value = false
+  showNewPassword.value = false
+  showConfirmPassword.value = false
 }
 
 
@@ -118,12 +150,12 @@ const handleSave = (from:string)=> {
                     class="font-bold text-[#F8C600] flex justify-end gap-2 lg:px-10"
                   >
                     <Button
-                    @click="handleCancel('manage')"
+                    @click="handleCancel"
                       class="bg-transparent hover:bg-transparent cursor-pointer border border-[#F8C600]"
                       >Cancel</Button
                     >
                     <Button
-                    @click="handleSave('manage')"
+                    @click="handleSave"
                     class="cursor-pointer">Save</Button>
                   </TableHead>
                 </TableRow>
@@ -136,11 +168,11 @@ const handleSave = (from:string)=> {
                       manage ? 'text-foreground text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
-                    <Input
+                    <input
                       :disabled="!manage"
                       class="w-2/5 h-2/3 text-right focus:outline-none"
                       :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
-                      :value="auth.userInfo.userName"
+                      v-model="userName"
                     />
                   </TableCell>
                 </TableRow>
@@ -174,7 +206,7 @@ const handleSave = (from:string)=> {
                       </Popover>
                       <div v-if="!manage" class="text-gray-400">
                         {{
-                          new Date(auth.userInfo.userDob).toLocaleString('en-US', {
+                          new Date(userDob).toLocaleString('en-US', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
@@ -190,11 +222,11 @@ const handleSave = (from:string)=> {
                       manage ? 'text-foreground text-right lg:px-10 lg:h-[8vh]' : 'text-[#3A3A3A] text-right lg:px-10'
                     "
                   >
-                    <Input
+                    <input
                       :disabled="!manage"
                       class="w-2/5 h-2/3 text-right focus:outline-none"
                       :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
-                      :value="auth.userInfo.userEmail"
+                      v-model="userEmail"
                     />
                   </TableCell>
                 </TableRow>
@@ -222,12 +254,12 @@ const handleSave = (from:string)=> {
                     class="font-bold text-[#F8C600] flex justify-end gap-2 lg:px-10"
                   >
                     <Button
-                    @click="handleCancel('password')"
+                    @click="handlePasswordCancel"
                       class="bg-transparent hover:bg-transparent cursor-pointer border border-[#F8C600]"
                       >Cancel</Button
                     >
                     <Button
-                    @click="handleSave('password')"
+                    @click="handlePasswordSave"
                     class="cursor-pointer">Save</Button>
                   </TableHead>
                 </TableRow>
@@ -243,7 +275,8 @@ const handleSave = (from:string)=> {
                     <span class="text-gray-400" v-if="!update">*********</span>
                     <div v-else class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
-                      <Input
+                      <input
+                      v-model="userPassword.oldPassword"
                       :type="showOldPassword ? 'text': 'password'"
                       class="text-right w-full focus:outline-none px-3"
                       placeholder="Old Password"
@@ -262,7 +295,8 @@ const handleSave = (from:string)=> {
                   >
                     <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
-                      <Input
+                      <input
+                      v-model="userPassword.newPassword"
                       :type="showNewPassword ? 'text': 'password'"
                       class="text-right w-full focus:outline-none px-3"
                       placeholder="New Password"
@@ -281,7 +315,8 @@ const handleSave = (from:string)=> {
                   >
                     <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
-                      <Input
+                      <input
+                      v-model="userPassword.confirmPassword"
                       :type="showConfirmPassword ? 'text': 'password'"
                       class="text-right w-full focus:outline-none px-3"
                       placeholder="Confirm Password"

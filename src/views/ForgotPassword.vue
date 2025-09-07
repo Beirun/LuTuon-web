@@ -42,44 +42,22 @@ const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const handleNext = async(nextStep : ()=> void) => {
-  if (email.value !== '') {
-    const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-    if(!validateEmail(email.value)){
-        sonner.error("Enter a valid email")
-        return 
-    } 
-    await reset.requestReset(email.value)
+    const result = await reset.requestReset(email.value)
+    if(!result) return;
     currentStep.value = 2
     nextStep()
-  }
 }
 
 const handleVerify = async(nextStep : ()=>void) => {
-  if (verificationCode.value !== '') {
-    if(verificationCode.value.length < 6){
-      sonner.error("Please Enter a valid Code")
-      return
-    }
+  
     const result = await reset.verifyCode(email.value,verificationCode.value)
     if(!result) return;
     currentStep.value = 3
     nextStep()
-  }
 }
 
 const handleSubmit = async(nextStep : ()=>void) => {
-  if (newPassword.value !== '' && confirmPassword.value !== '') {
-    if (newPassword.value !== confirmPassword.value) {
-      sonner.error("Passwords do not match");
-      return
-    }
-    if (newPassword.value.length < 8) {
-      sonner.error("Password must be at least 8 characters long");
-      return
-    }
-    await reset.resetPassword(email.value,verificationCode.value,newPassword.value)
-  }
+    await reset.resetPassword(email.value,verificationCode.value,newPassword.value, confirmPassword.value)
 }
 
 const ToggleShowNewPassword = () => {

@@ -44,7 +44,7 @@ onBeforeMount(async () => {
 
 <template>
   <div class="min-h-screen w-full flex justify-end">
-    <div class="flex flex-col p-4 md:p-6 lg:p-8 w-full md:w-5/6">
+    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6 ">
       <div class="md:p-10">
         <div class="flex justify-between mb-5 lg:mb-5">
           <p class="text-3xl font-bold">Reports</p>

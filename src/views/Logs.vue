@@ -62,7 +62,7 @@ onBeforeMount(async () => {
           <div
             class="w-full max-h-[78vh] overflow-auto outline-1 
                    dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
-                   bg-[#e8e8e8]/10 rounded-2xl p-5 scrollbar-styled"
+                   bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
               <TableCaption></TableCaption>

@@ -129,7 +129,7 @@ const handlePasswordSave = async() =>{
         <p class="text-3xl font-bold">Account Settings</p>
         <Separator class="text-[#DBDBE0] mb-10 lg:mb-0 mt-5" />
         <div class="w-full h-full flex flex-col gap-10 lg:pt-10">
-          <div class="w-full outline-1 rounded-2xl p-5">
+          <div class="w-full outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5">
             <Table>
               <TableHeader>
                 <TableRow class="hover:bg-transparent">
@@ -233,7 +233,7 @@ const handlePasswordSave = async() =>{
               </TableBody>
             </Table>
           </div>
-          <div class="w-full outline-1 rounded-2xl p-5">
+          <div class="w-full outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5">
             <Table>
               <TableHeader>
                 <TableRow class="hover:bg-transparent">

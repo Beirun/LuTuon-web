@@ -79,7 +79,9 @@ ChartJS.register(
       
       <div class="grid grid-cols-1 gap-6">
         <!-- Registered Users Chart -->
-        <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+        <div class="outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm">
           <p class="text-xl md:text-2xl font-bold mb-4">Registered Users</p>
           <div class="h-64 md:h-80">
             <Line :data="lineData" :options="{...lineOptions, responsive: true, maintainAspectRatio: false}" />
@@ -88,7 +90,9 @@ ChartJS.register(
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Most Played Dish -->
-          <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+          <div class="outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm">
             <p class="text-xl md:text-2xl font-bold mb-4">Most Played Dish</p>
             <div class="h-64">
               <Bar :data="hBarData" :options="{...hBarOptions, responsive: true, maintainAspectRatio: false}" />
@@ -96,7 +100,9 @@ ChartJS.register(
           </div>
           
           <!-- Weekly Players -->
-          <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+          <div class="outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm">
             <p class="text-xl md:text-2xl font-bold mb-4">Weekly Players</p>
             <div class="h-64">
               <Bar :data="vBarData" :options="{...vBarOptions, responsive: true, maintainAspectRatio: false}" />

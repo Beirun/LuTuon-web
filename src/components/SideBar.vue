@@ -79,7 +79,7 @@ const setMode = (val: "light" | "dark" | "auto") => {
     </SidebarHeader>
     <SidebarContent class="flex-1 flex flex-col">
       <SidebarGroup v-for="item in items.slice(0, -1)" :key="item.title" class="mb-2">
-        <div asChild class="hover:text-[#E7E7E7] active:text-white py-2 w-full px-12 mt-2 hover:brightness-120">
+        <div asChild class="hover:text-[#E7E7E7] active:text-white py-2 w-full pl-[clamp(1.5rem,1.75vw,40px)] mt-2 hover:brightness-120">
           <a @click="navigate(item.url)" class="flex items-center gap-4"
             :class="route.path === item.url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
             <component :is="item.icon" class="size-8" />
@@ -92,7 +92,7 @@ const setMode = (val: "light" | "dark" | "auto") => {
         <Separator class="dark:bg-gray-200/50" />
         <Popover v-model:open="popoverOpen">
           <PopoverTrigger as-child>
-            <div class="flex gap-4 hover:text-white w-full justify-start py-2 px-12 mt-2 hover:brightness-120"
+            <div class="flex gap-4 hover:text-white w-full justify-start py-2 pl-[clamp(1.5rem,1.75vw,40px)] mt-2 hover:brightness-120"
               :class="route.path === items[items.length - 1].url ? 'text-yellow-300 hover:text-yellow-300 active:text-yellow-300 hover:bg-transparent cursor-pointer active:bg-transparent' : 'text-[#E7E7E7] hover:bg-transparent cursor-pointer active:bg-transparent'">
               <component :is="items[items.length - 1].icon" class="size-6" />
               <span class="text-xl">{{ items[items.length - 1].title }}</span>

@@ -12,26 +12,50 @@ import {
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUserStore } from '@/stores/user'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { formatDate, formatDateTime } from '@/plugins/date'
 
+// pagination imports
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
+
 const user = useUserStore()
+
+const itemsPerPage = 10
+const currentPage = ref(1)
 
 onBeforeMount(async () => {
   if (user.users.length === 0) await user.fetchUsers()
 })
+
+const total = computed(() => user.users.length)
+const totalPages = computed(() => Math.ceil(total.value / itemsPerPage))
+
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return user.users.slice(start, start + itemsPerPage)
+})
 </script>
 
 <template>
-  <div class="w-screen h-screen flex lg:justify-end">
-    <div class="lg:w-5/6 w-full md:w-full h-full flex justify-center items-center right-0">
-      <div class="w-7/8 h-7/8">
-        <div class="flex justify-between mb-10 lg:mb-5">
+  <div class="min-h-screen w-full flex justify-end">
+    <div class="flex flex-col p-4 md:p-6 lg:p-8 w-full md:w-5/6">
+      <div class="md:p-10">
+
+        <div class="flex justify-between mb-5 lg:mb-5">
           <p class="text-3xl font-bold">User List</p>
         </div>
-        <Separator class="text-[#DBDBE0] mb-10 lg:mb-0" />
-        <div class="w-full h-full flex flex-col justify-center">
-          <div class="w-full h-9/10 outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 overflow-x-auto">
+        <Separator class="text-[#DBDBE0] mb-6" />
+        <div class="grid grid-cols-1 gap-6">
+          <div class="w-full max-h-[78vh] overflow-auto outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-5 scrollbar-styled">
             <Table>
               <TableCaption></TableCaption>
               <TableHeader>
@@ -73,22 +97,41 @@ onBeforeMount(async () => {
                   </TableCell>
                 </TableRow>
               </TableBody>
-
+              
               <!-- Data rows -->
               <TableBody v-else>
-                <TableRow v-for="u in user.users" :key="u.userId">
+                <TableRow v-for="u in paginatedUsers" :key="u.userId">
                   <TableCell class="h-[6vh] text-foreground text-center">{{ u.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ u.userEmail }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{
-                    formatDate(u.userDob)
-                  }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ formatDate(u.userDob) }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ u.roleName }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{
-                    formatDateTime(u.dateCreated)
-                  }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ formatDateTime(u.dateCreated) }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="totalPages > 1" class="mt-4 flex justify-center">
+            <Pagination v-slot="{ page }" :items-per-page="itemsPerPage" :total="total" :default-page="1" v-model:page="currentPage">
+              <PaginationContent v-slot="{ items }">
+                <PaginationPrevious />
+                
+                <template v-for="(item, index) in items" :key="index">
+                  <PaginationItem
+                    v-if="item.type === 'page'"
+                    :value="item.value"
+                    :is-active="item.value === page"
+                  >
+                    {{ item.value }}
+                  </PaginationItem>
+                </template>
+
+                <PaginationEllipsis :index="4" />
+                
+                <PaginationNext />
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </div>

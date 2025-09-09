@@ -123,12 +123,15 @@ const handlePasswordSave = async() =>{
 </script>
 
 <template>
-  <div class="w-screen h-screen flex lg:justify-end">
-    <div class="lg:w-5/6 w-full md:w-full h-full flex justify-center items-center right-0">
-      <div class="w-7/8 h-7/8">
-        <p class="text-3xl font-bold">Account Settings</p>
-        <Separator class="text-[#DBDBE0] mb-10 lg:mb-0 mt-5" />
-        <div class="w-full h-full flex flex-col gap-10 lg:pt-10">
+  <div class="min-h-screen w-full flex justify-end">
+    <div class="flex flex-col p-4 md:p-6 lg:p-8 w-full md:w-5/6">
+      <div class="md:p-10">
+
+        <div class="flex justify-between mb-5 lg:mb-5">
+          <p class="text-3xl font-bold">Account Settings</p>
+        </div>
+        <Separator class="text-[#DBDBE0] mb-6" />
+        <div class="grid grid-cols-1 gap-6">
           <div class="w-full outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5">
             <Table>
               <TableHeader>
@@ -274,7 +277,7 @@ const handlePasswordSave = async() =>{
                   >
                     <span class="text-gray-400" v-if="!update">*********</span>
                     <div v-else class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
-
+                      
                       <input
                       v-model="userPassword.oldPassword"
                       :type="showOldPassword ? 'text': 'password'"

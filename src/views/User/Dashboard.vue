@@ -185,7 +185,7 @@ const TogglePassword = (password: string) => {
 
     <!-- start body -->
     <div class="w-full h-full pt-10 flex flex-col items-center gap-5">
-      <div class="sm:w-1/2 w-9/10 bg-background flex justify-between items-center border-b border-border pb-5">
+      <div class="w-9/10 sm:w-9/10 md:w-3/4 lg:w-3/4 xl:w-3/4 2xl:w-1/2 bg-background flex justify-between items-center border-b border-border pb-5">
         <div class="flex gap-4 items-center">
 
           <!-- start drop down for tabs when mobile -->
@@ -237,7 +237,7 @@ const TogglePassword = (password: string) => {
 
       </div>
 
-      <div class="sm:w-1/2 w-9/10 h-3/4 flex sm:flex-row flex-col justify-between gap-5">
+      <div class="w-9/10 sm:w-9/10 md:w-3/4 lg:w-3/4 xl:w-3/4 2xl:w-1/2 flex sm:flex-row flex-col justify-between gap-5">
 
         <!-- start tab navigation on laptop -->
         <div class="w-1/3 border-r border-border sm:block hidden">
@@ -311,15 +311,15 @@ const TogglePassword = (password: string) => {
               <Table v-if="activeItem === 'personal information'" class="my-5">
                 <TableBody>
                   <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                    <TableCell class="h-[6vh] text-foreground flex flex-col sm:w-1/2 w-full justify-center-safe "
-                      :class="edit ? 'h-[8vh]' : 'text-gray-400'">Username
+                    <TableCell class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe "
+                      :class="edit ? 'h-[8vh] sm:h-[8vh] md:h-[8vh] lg:h-[8vh]' : 'text-gray-400'">Username
                       <input :disabled="!edit" v-model="userName"
                         class="p-0 shadow-none focus:outline-none text-left"
                         :class="edit ? ' border-1 px-2 rounded-lg h-full bg-popover text-popover-foreground' : 'text-gray-400'" />
                     </TableCell>
                   </TableRow>
                   <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                    <TableCell class="h-[6vh] text-foreground flex flex-col sm:w-1/2 w-full  justify-center-safe "
+                    <TableCell class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe "
                       :class="edit ? 'h-[8vh]' : 'text-gray-400'">Birthdate
 
                       <Popover v-if="edit">
@@ -352,7 +352,7 @@ const TogglePassword = (password: string) => {
                   </TableRow>
                   <TableRow class="flex justify-between px-5 hover:bg-transparent">
                     <TableCell
-                      class="h-[6vh] text-foreground flex flex-col justify-center-safe sm:w-1/2 w-full text-left"
+                      class="h-[6vh] text-foreground flex flex-col justify-center-safe w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 text-left"
                       :class="edit ? 'h-[8vh]' : 'text-gray-400'">Email Address
 
                       <input :disabled="!edit" v-model="userEmail" 

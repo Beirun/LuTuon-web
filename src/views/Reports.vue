@@ -53,8 +53,9 @@ onBeforeMount(async () => {
 
         <div class="grid grid-cols-1 gap-6">
           <div
-            class="w-full h-9/10 outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
-                   bg-[#e8e8e8]/10 rounded-2xl p-5 overflow-x-auto"
+            class="w-full max-h-[78vh] overflow-auto outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
               <TableCaption></TableCaption>

@@ -1,3 +1,7 @@
+import { useColorMode } from '@vueuse/core'
+const mode = useColorMode({ disableTransition: false })
+
+
 export const lineOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -19,6 +23,12 @@ export const lineOptions = {
         display: false,
       },
     },
+    y:{
+      grid:{
+        color: mode.value === 'light' || mode.value === 'auto' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)', // Optional: set line color
+
+      }
+    }
   },
 }
 
@@ -44,7 +54,7 @@ export const hBarOptions: any = {
         display: true,
         drawBorder: false,
         borderDash: [5, 5], // Dash pattern [length of dash, length of gap]
-        color: 'rgba(0, 0, 0, 0.1)', // Optional: set line color
+        color: mode.value === 'light' || mode.value === 'auto' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)', // Optional: set line color
         zeroLineBorderDash: [5, 5], // Make zero line dashed too
         zeroLineColor: 'rgba(0, 0, 0, 0.1)', // Optional: zero line color
       },
@@ -68,5 +78,11 @@ export const vBarOptions: any = {
         display: false,
       },
     },
+    y:{
+      grid:{
+        color: mode.value === 'light' || mode.value === 'auto' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)', // Optional: set line color
+
+      }
+    }
   },
 }

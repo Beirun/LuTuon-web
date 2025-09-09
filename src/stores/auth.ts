@@ -5,8 +5,10 @@ import router from "@/router"
 import { useSonnerStore } from "./sonner"
 import { useFetch } from "@/plugins/api" // <-- your custom fetch wrapper
 import type { CallbackTypes } from 'vue3-google-login';
+import { useNotificationStore } from "./notification"
 export const useAuthStore = defineStore("auth", () => {
   const sonner = useSonnerStore()
+  const notification = useNotificationStore()
   const URL = import.meta.env.VITE_BASE_URL
 
   const token = ref(localStorage.getItem("token"))
@@ -64,7 +66,8 @@ export const useAuthStore = defineStore("auth", () => {
       sonner.success(data.message)
       token.value = data.token  
       user.value = data.user
-        
+      
+      await notification.fetchNotifications(user.value.userId)
       console.log("user after", user.value)
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
@@ -104,6 +107,7 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = data.token  
       user.value = data.user
 
+      await notification.fetchNotifications(user.value.userId)
 
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
@@ -113,7 +117,7 @@ export const useAuthStore = defineStore("auth", () => {
       // check if admin
       if (redirectPath) {
         router.push(redirectPath)
-      } else if (user.value?.isAdmin) {
+      } else if (isAdmin.value) {
         router.push("/admin")
       } else {
         router.push("/dashboard")

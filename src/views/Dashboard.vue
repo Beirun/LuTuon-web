@@ -68,27 +68,38 @@ ChartJS.register(
 </script>
 
 <template>
-  <div class="w-screen h-screen flex lg:justify-end">
-    <div class="lg:w-5/6 w-full md:w-full h-full flex justify-center items-center right-0">
-      <div class="w-7/8 h-7/8">
-        <div class="flex justify-between -mt-10 sm:mt-0">
-          <p class="text-3xl">Welcome to dashboard, <b>Admin!</b></p>
-        </div>
-        <Separator class="text-[#DBDBE0] mt-5 mb-13 sm:mb-0" />
-        <div class="w-full h-full flex flex-col gap-10 justify-end mt-[3vh] sm:mt-0">
-          <div class="w-full sm:h-1/2 h-[25vh] outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl pt-5 pb-16 pl-5 pr-8">
-            <p class="lg:text-2xl font-bold pb-4 px-5">Registered Users</p>
-            <Line :data="lineData" :options="lineOptions" />
+  <div class="min-h-screen w-full flex justify-end">
+    <!-- Sidebar would typically go here but is commented out -->
+    
+    <div class="flex flex-col p-4 md:p-6 lg:p-8 w-full md:w-5/6">
+      <div class="mb-6">
+        <p class="text-2xl md:text-3xl">Welcome to dashboard, <b>Admin!</b></p>
+      </div>
+      <Separator class="text-[#DBDBE0] mb-6" />
+      
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Registered Users Chart -->
+        <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+          <p class="text-xl md:text-2xl font-bold mb-4">Registered Users</p>
+          <div class="h-64 md:h-80">
+            <Line :data="lineData" :options="{...lineOptions, responsive: true, maintainAspectRatio: false}" />
           </div>
-          <div class="w-full lg:h-2/5 h-full flex lg:flex-row flex-col gap-10 pb-10">
-
-            <div class="sm:w-1/2 w-full sm:h-full h-[25vh] outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 pb-12">
-              <p class="lg:text-2xl font-bold">Most Played Dish</p>
-              <Bar :data="hBarData" :options="hBarOptions" />
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Most Played Dish -->
+          <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+            <p class="text-xl md:text-2xl font-bold mb-4">Most Played Dish</p>
+            <div class="h-64">
+              <Bar :data="hBarData" :options="{...hBarOptions, responsive: true, maintainAspectRatio: false}" />
             </div>
-            <div class="sm:w-1/2 w-full sm:h-full h-[25vh] outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 pb-12">
-              <p class="lg:text-2xl font-bold">Weekly Players</p>
-              <Bar :data="vBarData" :options="vBarOptions" />
+          </div>
+          
+          <!-- Weekly Players -->
+          <div class="bg-white dark:bg-[#1e1e1e]/10 rounded-2xl p-4 md:p-6 shadow-sm">
+            <p class="text-xl md:text-2xl font-bold mb-4">Weekly Players</p>
+            <div class="h-64">
+              <Bar :data="vBarData" :options="{...vBarOptions, responsive: true, maintainAspectRatio: false}" />
             </div>
           </div>
         </div>

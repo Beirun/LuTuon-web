@@ -67,7 +67,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'user-dashboard',
       component: UserDashboard,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, requiresUser: true }
     }
   ],
 })
@@ -86,6 +86,11 @@ router.beforeEach(async(to, from, next) => {
       await authStore.makeAuthenticatedRequest()
     } catch {
       next('/')
+      return
+    }
+
+    if (to.meta.requiresUser && authStore.isAdmin) {
+      next('/admin')
       return
     }
 

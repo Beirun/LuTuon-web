@@ -35,6 +35,7 @@ const items = [
   { title: 'Security', icon: LockKeyhole },
 ]
 
+console.log(auth.isAdmin)
 const userName = ref(auth.userInfo.userName)
 const userDob = ref(auth.userInfo.userDob)
 const userEmail = ref(auth.userInfo.userEmail)

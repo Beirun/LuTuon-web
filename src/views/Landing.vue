@@ -46,7 +46,7 @@ const openPlayStore = () => {
         <DarkModeSwitch />
         <Button
           @click="isLoginOpen = true"
-          class="h-9 sm:h-9 md:h-12 text-primary-foreground/80 dark:text-primary-foreground px-4 py-1 sm:px-4 md:px-8 bg-primary font-medium text-sm sm:text-sm md:text-lg active:brightness-90 cursor-pointer rounded-sm sm:rounded:sm md:rounded-md shadow-md shadow-black/40 transition-all duration-300 hover:brightness-95 dark:hover:brightness-110"
+          class="h-12 sm:h-9 md:h-12 text-primary-foreground/80 dark:text-primary-foreground px-4 py-1 sm:px-4 md:px-8 bg-primary font-medium text-sm sm:text-sm md:text-lg active:brightness-90 cursor-pointer rounded-sm sm:rounded:sm md:rounded-md shadow-md shadow-black/40 transition-all duration-300 hover:brightness-95 dark:hover:brightness-110"
         >
           Login
         </Button>

@@ -11,6 +11,7 @@ import Feedbacks from '@/views/Feedbacks.vue'
 import Logs from '@/views/Logs.vue'
 import Settings from '@/views/Settings.vue'
 import UserDashboard from '@/views/User/Dashboard.vue'
+import Notifications from '@/views/Notifications.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,6 +69,12 @@ const router = createRouter({
       name: 'user-dashboard',
       component: UserDashboard,
       meta: { requiresAuth: true, requiresUser: true }
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: Notifications,
+      meta: {requiresAuth: true, requiresAdmin: true}
     }
   ],
 })

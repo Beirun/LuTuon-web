@@ -73,7 +73,6 @@ ChartJS.register(
       <div class="w-7/8 h-7/8">
         <div class="flex justify-between -mt-10 sm:mt-0">
           <p class="text-3xl">Welcome to dashboard, <b>Admin!</b></p>
-          <Bell />
         </div>
         <Separator class="text-[#DBDBE0] mt-5 mb-13 sm:mb-0" />
         <div class="w-full h-full flex flex-col gap-10 justify-end mt-[3vh] sm:mt-0">
@@ -82,6 +81,7 @@ ChartJS.register(
             <Line :data="lineData" :options="lineOptions" />
           </div>
           <div class="w-full lg:h-2/5 h-full flex lg:flex-row flex-col gap-10 pb-10">
+
             <div class="sm:w-1/2 w-full sm:h-full h-[25vh] outline-1 rounded-2xl p-5 pb-12">
               <p class="lg:text-2xl font-bold">Most Played Dish</p>
               <Bar :data="hBarData" :options="hBarOptions" />

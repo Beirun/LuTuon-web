@@ -12,9 +12,8 @@ import {
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUserStore } from '@/stores/user'
-import { onBeforeMount, computed } from 'vue'
+import { onBeforeMount, computed, ref, watch } from 'vue'
 import { formatDate, formatDateTime } from '@/plugins/date'
-// pagination imports
 import {
   Pagination,
   PaginationContent,
@@ -28,22 +27,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button, buttonVariants } from '@/components/ui/button'
-import type {DateValue} from '@internationalized/date'
+import type { DateValue } from '@internationalized/date'
 import type { DateRange } from 'reka-ui'
-import type {Grid} from 'reka-ui/date'
+import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
-import {CalendarDate, isEqualMonth,} from '@internationalized/date'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { CalendarDate, isEqualMonth } from '@internationalized/date'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { RangeCalendarRoot, useDateFormatter } from "reka-ui"
-import { createMonth, toDate } from "reka-ui/date"
-import { ref, watch } from "vue"
-import { cn } from "@/lib/utils"
+import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
+import { createMonth, toDate } from 'reka-ui/date'
+import { cn } from '@/lib/utils'
 import {
   RangeCalendarCell,
   RangeCalendarCellTrigger,
@@ -52,7 +48,7 @@ import {
   RangeCalendarGridHead,
   RangeCalendarGridRow,
   RangeCalendarHeadCell,
-} from "@/components/ui/range-calendar"
+} from '@/components/ui/range-calendar'
 
 const user = useUserStore()
 
@@ -60,14 +56,20 @@ const itemsPerPage = 10
 const currentPage = ref(1)
 
 const filter = ref('username')
+const searchQuery = ref('')
 
 const changeFilter = (filterBy: string) => {
   filter.value = filterBy
+  searchQuery.value = ''
 }
 
+// date filter setup
+const today = new Date()
+const start = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
+
 const value = ref({
-  start: new CalendarDate(2025, 1, 20),
-  end: new CalendarDate(2025, 1, 20).add({days:20})
+  start,
+  end: start.add({ days: 20 })
 }) as Ref<DateRange>
 
 const locale = ref('en-US')
@@ -77,55 +79,30 @@ const placeholder = ref(value.value.start) as Ref<DateValue>
 const secondMonthPlaceholder = ref(value.value.end) as Ref<DateValue>
 
 const firstMonth = ref(
-  createMonth({
-    dateObj: placeholder.value,
-    locale: locale.value,
-    fixedWeeks: true,
-    weekStartsOn: 0
-  })
+  createMonth({ dateObj: placeholder.value, locale: locale.value, fixedWeeks: true, weekStartsOn: 0 }),
 ) as Ref<Grid<DateValue>>
 
-  const secondMonth = ref(
-  createMonth({
-    dateObj: secondMonthPlaceholder.value,
-    locale: locale.value,
-    fixedWeeks: true,
-    weekStartsOn: 0,
-  }),
+const secondMonth = ref(
+  createMonth({ dateObj: secondMonthPlaceholder.value, locale: locale.value, fixedWeeks: true, weekStartsOn: 0 }),
 ) as Ref<Grid<DateValue>>
-  
-function updateMonth(reference: "first" | "second", months: number) {
-  if (reference === "first") {
+
+function updateMonth(reference: 'first' | 'second', months: number) {
+  if (reference === 'first') {
     placeholder.value = placeholder.value.add({ months })
-  }
-  else {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months,
-    })
+  } else {
+    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({ months })
   }
 }
 
 watch(placeholder, (_placeholder) => {
-  firstMonth.value = createMonth({
-    dateObj: _placeholder,
-    weekStartsOn: 0,
-    fixedWeeks: false,
-    locale: locale.value,
-  })
+  firstMonth.value = createMonth({ dateObj: _placeholder, weekStartsOn: 0, fixedWeeks: false, locale: locale.value })
   if (isEqualMonth(secondMonthPlaceholder.value, _placeholder)) {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months: 1,
-    })
+    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({ months: 1 })
   }
 })
 
 watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
-  secondMonth.value = createMonth({
-    dateObj: _secondMonthPlaceholder,
-    weekStartsOn: 0,
-    fixedWeeks: false,
-    locale: locale.value,
-  })
+  secondMonth.value = createMonth({ dateObj: _secondMonthPlaceholder, weekStartsOn: 0, fixedWeeks: false, locale: locale.value })
   if (isEqualMonth(_secondMonthPlaceholder, placeholder.value))
     placeholder.value = placeholder.value.subtract({ months: 1 })
 })
@@ -134,210 +111,234 @@ onBeforeMount(async () => {
   if (user.users.length === 0) await user.fetchUsers()
 })
 
-const total = computed(() => user.users.length)
-const totalPages = computed(() => Math.ceil(total.value / itemsPerPage))
+// filtering first
+const filteredUsers = computed(() => {
+  if (!user.users.length) return []
+
+  if (filter.value === 'username') {
+    return user.users.filter(u => u.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  }
+  if (filter.value === 'email') {
+    return user.users.filter(u => u.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  }
+  if (filter.value === 'role') {
+    return user.users.filter(u => u.roleName?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  }
+  if (filter.value === 'birthdate' && value.value.start && value.value.end) {
+    const startDate = toDate(value.value.start).getTime()
+    const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
+    return user.users.filter(u => {
+      const dob = new Date(u.userDob).getTime()
+      return dob >= startDate && dob <= endDate
+    })
+  }
+  if (filter.value === 'date joined' && value.value.start && value.value.end) {
+    const startDate = toDate(value.value.start).getTime()
+    const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
+    return user.users.filter(u => {
+      const joined = new Date(u.dateCreated).getTime()
+      return joined >= startDate && joined <= endDate
+    })
+  }
+  return user.users
+})
+
+// then paginate
+const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage))
 
 const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
-  return user.users.slice(start, start + itemsPerPage)
+  return filteredUsers.value.slice(start, start + itemsPerPage)
 })
 </script>
 
+
 <template>
   <div class="min-h-screen w-full flex justify-end">
-    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6 ">
+    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6">
       <div class="md:p-10">
-
         <div class="flex justify-between mb-5 lg:mb-5">
           <p class="text-3xl font-bold w-1/2">User List</p>
           <div class="w-1/3 flex items-center justify-end">
-            <Input v-if="filter === 'username' || filter === 'email' || filter === 'role'"  placeholder="Search"/>
+            <Input
+              v-if="filter === 'username' || filter === 'email' || filter === 'role'"
+              v-model="searchQuery"
+              placeholder="Search"
+            />
             <Popover v-else>
-    <PopoverTrigger as-child>
-      <Button
-        variant="outline"
-        :class="
-          cn(
-            'w-[280px] justify-start text-left font-normal',
-            !value && 'text-muted-foreground',
-          )
-        "
-      >
-        <Calendar class="mr-2 h-4 w-4" />
-        <template v-if="value.start">
-          <template v-if="value.end">
-            {{
-              formatter.custom(toDate(value.start), {
-                dateStyle: "medium",
-              })
-            }}
-            -
-            {{
-              formatter.custom(toDate(value.end), {
-                dateStyle: "medium",
-              })
-            }}
-          </template>
-
-          <template v-else>
-            {{
-              formatter.custom(toDate(value.start), {
-                dateStyle: "medium",
-              })
-            }}
-          </template>
-        </template>
-        <template v-else>
-          Pick a date
-        </template>
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent class="w-auto p-0">
-      <RangeCalendarRoot v-slot="{ weekDays }" v-model="value" v-model:placeholder="placeholder" class="p-3">
-        <div
-          class="flex flex-col gap-y-4 mt-4 sm:flex-row sm:gap-x-4 sm:gap-y-0"
-        >
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center justify-between">
-              <button
-                :class="
-                  cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  )
-                "
-                @click="updateMonth('first', -1)"
-              >
-                <ChevronLeft class="h-4 w-4" />
-              </button>
-              <div :class="cn('text-sm font-medium')">
-                {{
-                  formatter.fullMonthAndYear(
-                    toDate(firstMonth.value),
-                  )
-                }}
-              </div>
-              <button
-                :class="
-                  cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  )
-                "
-                @click="updateMonth('first', 1)"
-              >
-                <ChevronRight class="h-4 w-4" />
-              </button>
-            </div>
-            <RangeCalendarGrid>
-              <RangeCalendarGridHead>
-                <RangeCalendarGridRow>
-                  <RangeCalendarHeadCell
-                    v-for="day in weekDays"
-                    :key="day"
-                    class="w-full"
-                  >
-                    {{ day }}
-                  </RangeCalendarHeadCell>
-                </RangeCalendarGridRow>
-              </RangeCalendarGridHead>
-              <RangeCalendarGridBody>
-                <RangeCalendarGridRow
-                  v-for="(
-                    weekDates, index
-                  ) in firstMonth.rows"
-                  :key="`weekDate-${index}`"
-                  class="mt-2 w-full"
+              <PopoverTrigger as-child>
+                <Button
+                  variant="outline"
+                  :class="
+                    cn(
+                      'w-[280px] justify-start text-left font-normal',
+                      !value && 'text-muted-foreground',
+                    )
+                  "
                 >
-                  <RangeCalendarCell
-                    v-for="weekDate in weekDates"
-                    :key="weekDate.toString()"
-                    :date="weekDate"
-                  >
-                    <RangeCalendarCellTrigger
-                      :day="weekDate"
-                      :month="firstMonth.value"
-                    />
-                  </RangeCalendarCell>
-                </RangeCalendarGridRow>
-              </RangeCalendarGridBody>
-            </RangeCalendarGrid>
-          </div>
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center justify-between">
-              <button
-                :class="
-                  cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  )
-                "
-                @click="updateMonth('second', -1)"
-              >
-                <ChevronLeft class="h-4 w-4" />
-              </button>
-              <div :class="cn('text-sm font-medium')">
-                {{
-                  formatter.fullMonthAndYear(
-                    toDate(secondMonth.value),
-                  )
-                }}
-              </div>
+                  <Calendar class="mr-2 h-4 w-4" />
+                  <template v-if="value.start">
+                    <template v-if="value.end">
+                      {{
+                        formatter.custom(toDate(value.start), {
+                          dateStyle: 'medium',
+                        })
+                      }}
+                      -
+                      {{
+                        formatter.custom(toDate(value.end), {
+                          dateStyle: 'medium',
+                        })
+                      }}
+                    </template>
 
-              <button
-                :class="
-                  cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                  )
-                "
-                @click="updateMonth('second', 1)"
-              >
-                <ChevronRight class="h-4 w-4" />
-              </button>
-            </div>
-            <RangeCalendarGrid>
-              <RangeCalendarGridHead>
-                <RangeCalendarGridRow>
-                  <RangeCalendarHeadCell
-                    v-for="day in weekDays"
-                    :key="day"
-                    class="w-full"
-                  >
-                    {{ day }}
-                  </RangeCalendarHeadCell>
-                </RangeCalendarGridRow>
-              </RangeCalendarGridHead>
-              <RangeCalendarGridBody>
-                <RangeCalendarGridRow
-                  v-for="(
-                    weekDates, index
-                  ) in secondMonth.rows"
-                  :key="`weekDate-${index}`"
-                  class="mt-2 w-full"
+                    <template v-else>
+                      {{
+                        formatter.custom(toDate(value.start), {
+                          dateStyle: 'medium',
+                        })
+                      }}
+                    </template>
+                  </template>
+                  <template v-else> Pick a date </template>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <RangeCalendarRoot
+                  v-slot="{ weekDays }"
+                  v-model="value"
+                  v-model:placeholder="placeholder"
+                  class="p-3"
                 >
-                  <RangeCalendarCell
-                    v-for="weekDate in weekDates"
-                    :key="weekDate.toString()"
-                    :date="weekDate"
-                  >
-                    <RangeCalendarCellTrigger
-                      :day="weekDate"
-                      :month="secondMonth.value"
-                    />
-                  </RangeCalendarCell>
-                </RangeCalendarGridRow>
-              </RangeCalendarGridBody>
-            </RangeCalendarGrid>
-          </div>
-        </div>
-      </RangeCalendarRoot>
-    </PopoverContent>
-  </Popover>
+                  <div class="flex flex-col gap-y-4 mt-4 sm:flex-row sm:gap-x-4 sm:gap-y-0">
+                    <div class="flex flex-col gap-4">
+                      <div class="flex items-center justify-between">
+                        <button
+                          :class="
+                            cn(
+                              buttonVariants({ variant: 'outline' }),
+                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            )
+                          "
+                          @click="updateMonth('first', -1)"
+                        >
+                          <ChevronLeft class="h-4 w-4" />
+                        </button>
+                        <div :class="cn('text-sm font-medium')">
+                          {{ formatter.fullMonthAndYear(toDate(firstMonth.value)) }}
+                        </div>
+                        <button
+                          :class="
+                            cn(
+                              buttonVariants({ variant: 'outline' }),
+                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            )
+                          "
+                          @click="updateMonth('first', 1)"
+                        >
+                          <ChevronRight class="h-4 w-4" />
+                        </button>
+                      </div>
+                      <RangeCalendarGrid>
+                        <RangeCalendarGridHead>
+                          <RangeCalendarGridRow>
+                            <RangeCalendarHeadCell
+                              v-for="day in weekDays"
+                              :key="day"
+                              class="w-full"
+                            >
+                              {{ day }}
+                            </RangeCalendarHeadCell>
+                          </RangeCalendarGridRow>
+                        </RangeCalendarGridHead>
+                        <RangeCalendarGridBody>
+                          <RangeCalendarGridRow
+                            v-for="(weekDates, index) in firstMonth.rows"
+                            :key="`weekDate-${index}`"
+                            class="mt-2 w-full"
+                          >
+                            <RangeCalendarCell
+                              v-for="weekDate in weekDates"
+                              :key="weekDate.toString()"
+                              :date="weekDate"
+                            >
+                              <RangeCalendarCellTrigger :day="weekDate" :month="firstMonth.value" />
+                            </RangeCalendarCell>
+                          </RangeCalendarGridRow>
+                        </RangeCalendarGridBody>
+                      </RangeCalendarGrid>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                      <div class="flex items-center justify-between">
+                        <button
+                          :class="
+                            cn(
+                              buttonVariants({ variant: 'outline' }),
+                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            )
+                          "
+                          @click="updateMonth('second', -1)"
+                        >
+                          <ChevronLeft class="h-4 w-4" />
+                        </button>
+                        <div :class="cn('text-sm font-medium')">
+                          {{ formatter.fullMonthAndYear(toDate(secondMonth.value)) }}
+                        </div>
+
+                        <button
+                          :class="
+                            cn(
+                              buttonVariants({ variant: 'outline' }),
+                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            )
+                          "
+                          @click="updateMonth('second', 1)"
+                        >
+                          <ChevronRight class="h-4 w-4" />
+                        </button>
+                      </div>
+                      <RangeCalendarGrid>
+                        <RangeCalendarGridHead>
+                          <RangeCalendarGridRow>
+                            <RangeCalendarHeadCell
+                              v-for="day in weekDays"
+                              :key="day"
+                              class="w-full"
+                            >
+                              {{ day }}
+                            </RangeCalendarHeadCell>
+                          </RangeCalendarGridRow>
+                        </RangeCalendarGridHead>
+                        <RangeCalendarGridBody>
+                          <RangeCalendarGridRow
+                            v-for="(weekDates, index) in secondMonth.rows"
+                            :key="`weekDate-${index}`"
+                            class="mt-2 w-full"
+                          >
+                            <RangeCalendarCell
+                              v-for="weekDate in weekDates"
+                              :key="weekDate.toString()"
+                              :date="weekDate"
+                            >
+                              <RangeCalendarCellTrigger
+                                :day="weekDate"
+                                :month="secondMonth.value"
+                              />
+                            </RangeCalendarCell>
+                          </RangeCalendarGridRow>
+                        </RangeCalendarGridBody>
+                      </RangeCalendarGrid>
+                    </div>
+                  </div>
+                </RangeCalendarRoot>
+              </PopoverContent>
+            </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span>Filter by <span class="capitalize">{{ filter }}</span></span>
+                  <span
+                    >Filter by <span class="capitalize">{{ filter }}</span></span
+                  >
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -345,16 +346,18 @@ const paginatedUsers = computed(() => {
                 <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('birthdate')">Birthdate</DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('role')">Role</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('date joined')">Date Joined</DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('date joined')"
+                  >Date Joined</DropdownMenuItem
+                >
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
         <div class="grid grid-cols-1 gap-6">
-          <div class="w-full max-h-[78vh] overflow-auto outline-1 
-                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
-                   bg-[#e8e8e8]/10 rounded-2xl p-5 scrollbar-styled">
+          <div
+            class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 scrollbar-styled"
+          >
             <Table>
               <TableCaption></TableCaption>
               <TableHeader>
@@ -396,15 +399,21 @@ const paginatedUsers = computed(() => {
                   </TableCell>
                 </TableRow>
               </TableBody>
-              
+
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow v-for="u in paginatedUsers" :key="u.userId">
-                  <TableCell class="h-[6vh] text-foreground text-center">{{ u.userName }}</TableCell>
+                  <TableCell class="h-[6vh] text-foreground text-center">{{
+                    u.userName
+                  }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ u.userEmail }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{ formatDate(u.userDob) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    formatDate(u.userDob)
+                  }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ u.roleName }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{ formatDateTime(u.dateCreated) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    formatDateTime(u.dateCreated)
+                  }}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -412,10 +421,16 @@ const paginatedUsers = computed(() => {
 
           <!-- Pagination -->
           <div v-if="totalPages > 1" class="mt-4 flex justify-center">
-            <Pagination v-slot="{ page }" :items-per-page="itemsPerPage" :total="total" :default-page="1" v-model:page="currentPage">
+            <Pagination
+              v-slot="{ page }"
+              :items-per-page="itemsPerPage"
+              :total="totalPages  "
+              :default-page="1"
+              v-model:page="currentPage"
+            >
               <PaginationContent v-slot="{ items }">
                 <PaginationPrevious />
-                
+
                 <template v-for="(item, index) in items" :key="index">
                   <PaginationItem
                     v-if="item.type === 'page'"
@@ -427,7 +442,7 @@ const paginatedUsers = computed(() => {
                 </template>
 
                 <PaginationEllipsis :index="4" />
-                
+
                 <PaginationNext />
               </PaginationContent>
             </Pagination>

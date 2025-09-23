@@ -1,11 +1,11 @@
 // @/stores/feedback.ts
-import { defineStore } from "pinia"
-import { ref } from "vue"
-import { useFetch } from "@/plugins/api"
-import { type Feedback } from "@/models/feedback"
-import { useSonnerStore } from "@/stores/sonner"
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { useFetch } from '@/plugins/api'
+import { type Feedback } from '@/models/feedback'
+import { useSonnerStore } from '@/stores/sonner'
 
-export const useFeedbackStore = defineStore("feedback", () => {
+export const useFeedbackStore = defineStore('feedback', () => {
   const feedbacks = ref<Feedback[]>([])
   const feedback = ref<Feedback | null>(null)
   const loading = ref(false)
@@ -16,15 +16,15 @@ export const useFeedbackStore = defineStore("feedback", () => {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/feedbacks`, {
-        method: "GET",
-        credentials: "include",
+        method: 'GET',
+        credentials: 'include',
       })
-      if (!res.ok) throw new Error("Failed to fetch feedbacks")
+      if (!res.ok) throw new Error('Failed to fetch feedbacks')
       const data = await res.json()
       feedbacks.value = data
     } catch (e: any) {
       feedbacks.value = []
-      sonner.error(e.message || "Failed to fetch feedbacks")
+      sonner.error(e.message || 'Failed to fetch feedbacks')
     } finally {
       loading.value = false
     }
@@ -33,16 +33,16 @@ export const useFeedbackStore = defineStore("feedback", () => {
   async function fetchFeedback(id: string) {
     loading.value = true
     try {
-      const res = await useFetch(`${URL}/feedbacks/user/${id}`, {
-        method: "GET",
-        credentials: "include",
+      const res = await useFetch(`${URL}/feedbacks/user`, {
+        method: 'GET',
+        credentials: 'include',
       })
-      if (!res.ok) throw new Error("Failed to fetch feedback")
+      if (!res.ok) throw new Error('Failed to fetch feedback')
       const data = await res.json()
       feedback.value = data
     } catch (e: any) {
       feedback.value = null
-      sonner.error(e.message || "Failed to fetch feedback")
+      sonner.error(e.message || 'Failed to fetch feedback')
     } finally {
       loading.value = false
     }

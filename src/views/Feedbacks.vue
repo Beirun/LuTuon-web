@@ -16,7 +16,6 @@ import { useFeedbackStore } from '@/stores/feedback'
 import { onBeforeMount, ref, computed, watch } from 'vue'
 import { formatDateTime } from '@/plugins/date'
 
-// Pagination components
 import {
   Pagination,
   PaginationContent,
@@ -56,7 +55,6 @@ import {
 } from '@/components/ui/range-calendar'
 
 const filter = ref('username')
-
 const changeFilter = (filterBy: string) => {
   filter.value = filterBy
 }
@@ -97,9 +95,7 @@ function updateMonth(reference: 'first' | 'second', months: number) {
   if (reference === 'first') {
     placeholder.value = placeholder.value.add({ months })
   } else {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months,
-    })
+    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({ months })
   }
 }
 watch(placeholder, (_placeholder) => {
@@ -110,9 +106,7 @@ watch(placeholder, (_placeholder) => {
     locale: locale.value,
   })
   if (isEqualMonth(secondMonthPlaceholder.value, _placeholder)) {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months: 1,
-    })
+    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({ months: 1 })
   }
 })
 
@@ -127,31 +121,30 @@ watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
     placeholder.value = placeholder.value.subtract({ months: 1 })
 })
 
-
 const feedbackStore = useFeedbackStore()
 
 // Pagination state
-const currentPage = ref(1)
 const itemsPerPage = 10
+const currentPage = ref(1)
 
-// Filtering function
+// Filtering
 const searchQuery = ref('')
 const filteredFeedbacks = computed(() => {
   if (!feedbackStore.feedbacks.length) return []
   if (filter.value === 'username') {
-    return feedbackStore.feedbacks.filter(l =>
-      l.userName?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return feedbackStore.feedbacks.filter(f =>
+      f.userName?.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
   if (filter.value === 'email') {
-    return feedbackStore.feedbacks.filter(l =>
-      l.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return feedbackStore.feedbacks.filter(f =>
+      f.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
   if (filter.value === 'date' && value.value.start && value.value.end) {
     const start = toDate(value.value.start).getTime()
     const d = toDate(value.value.end)
-    d.setHours(23, 59, 59, 999) // set to 23:59:59.999 of that day
+    d.setHours(23, 59, 59, 999)
     const end = d.getTime()
     return feedbackStore.feedbacks.filter(f => {
       const feedbackTime = new Date(f.feedbackDate).getTime()
@@ -161,11 +154,15 @@ const filteredFeedbacks = computed(() => {
   return feedbackStore.feedbacks
 })
 
-const total = computed(() => feedbackStore.feedbacks.length)
+// total pages
+const totalPages = computed(() =>
+  Math.ceil(filteredFeedbacks.value.length / itemsPerPage)
+)
 
+// paginated results
 const paginatedFeedbacks = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
-  return feedbackStore.feedbacks.slice(start, start + itemsPerPage)
+  return filteredFeedbacks.value.slice(start, start + itemsPerPage)
 })
 
 onBeforeMount(async () => {
@@ -182,18 +179,17 @@ onBeforeMount(async () => {
           <div class="w-1/3 flex items-center justify-end">
             <Input
               v-if="filter === 'username' || filter === 'email'"
+              v-model="searchQuery"
               placeholder="Search"
-              />
+            />
             <Popover v-else>
               <PopoverTrigger as-child>
                 <Button
                   variant="outline"
-                  :class="
-                    cn(
-                      'w-[280px] justify-start text-left font-normal',
-                      !value && 'text-muted-foreground',
-                    )
-                  "
+                  :class="cn(
+                    'w-[280px] justify-start text-left font-normal',
+                    !value && 'text-muted-foreground',
+                  )"
                 >
                   <Calendar class="mr-2 h-4 w-4" />
                   <template v-if="value.start">
@@ -210,7 +206,6 @@ onBeforeMount(async () => {
                         })
                       }}
                     </template>
-
                     <template v-else>
                       {{
                         formatter.custom(toDate(value.start), {
@@ -233,12 +228,10 @@ onBeforeMount(async () => {
                     <div class="flex flex-col gap-4">
                       <div class="flex items-center justify-between">
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
+                          :class="cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                          )"
                           @click="updateMonth('first', -1)"
                         >
                           <ChevronLeft class="h-4 w-4" />
@@ -247,12 +240,10 @@ onBeforeMount(async () => {
                           {{ formatter.fullMonthAndYear(toDate(firstMonth.value)) }}
                         </div>
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
+                          :class="cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                          )"
                           @click="updateMonth('first', 1)"
                         >
                           <ChevronRight class="h-4 w-4" />
@@ -290,12 +281,10 @@ onBeforeMount(async () => {
                     <div class="flex flex-col gap-4">
                       <div class="flex items-center justify-between">
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
+                          :class="cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                          )"
                           @click="updateMonth('second', -1)"
                         >
                           <ChevronLeft class="h-4 w-4" />
@@ -303,14 +292,11 @@ onBeforeMount(async () => {
                         <div :class="cn('text-sm font-medium')">
                           {{ formatter.fullMonthAndYear(toDate(secondMonth.value)) }}
                         </div>
-
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
+                          :class="cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                          )"
                           @click="updateMonth('second', 1)"
                         >
                           <ChevronRight class="h-4 w-4" />
@@ -355,8 +341,7 @@ onBeforeMount(async () => {
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span>
+                  <span>Filter by <span class="capitalize">{{ filter }}</span></span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -364,14 +349,16 @@ onBeforeMount(async () => {
                 <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
               </DropdownMenuContent>
-              </DropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
 
         <div class="grid grid-cols-1 gap-6">
           <div
-            class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
+            class="w-full max-h-[78vh] overflow-auto outline-1 
+                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
+                   bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
               <TableCaption></TableCaption>
@@ -388,19 +375,16 @@ onBeforeMount(async () => {
               <TableBody v-if="feedbackStore.loading">
                 <TableRow v-for="i in 5" :key="i">
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
-                  <TableCell class="text-center"><Skeleton class="h-4 w-32 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
-                  <TableCell class="text-center"><Skeleton class="h-4 w-40 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-36 mx-auto" /></TableCell>
                 </TableRow>
               </TableBody>
 
               <!-- No feedbacks -->
-              <TableBody v-else-if="!feedbackStore.feedbacks.length">
+              <TableBody v-else-if="!filteredFeedbacks.length">
                 <TableRow class="hover:bg-transparent">
-                  <TableCell
-                    colspan="5"
-                    class="text-center text-foreground py-36 text-3xl font-bold"
-                  >
+                  <TableCell colspan="6" class="text-center text-foreground/80 py-36 text-3xl font-bold">
                     No Feedbacks Found
                   </TableCell>
                 </TableRow>
@@ -411,9 +395,7 @@ onBeforeMount(async () => {
                 <TableRow v-for="f in paginatedFeedbacks" :key="f.feedbackId">
                   <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.userEmail }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{
-                    formatDateTime(f.feedbackDate)
-                  }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ formatDateTime(f.feedbackDate) }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.feedbackMessage }}</TableCell>
                 </TableRow>
               </TableBody>
@@ -421,19 +403,16 @@ onBeforeMount(async () => {
           </div>
 
           <!-- Pagination -->
-          <div
-            v-if="!feedbackStore.loading && feedbackStore.feedbacks.length"
-            class="flex justify-center mt-4"
-          >
+          <div v-if="!feedbackStore.loading && filteredFeedbacks.length" class="flex justify-center mt-4">
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="total"
-              v-model:page="currentPage"
+              :total="filteredFeedbacks.length"
+              :default-page="currentPage"
+              @update:page="currentPage = $event"
             >
               <PaginationContent v-slot="{ items }">
                 <PaginationPrevious />
-
                 <template v-for="(item, index) in items" :key="index">
                   <PaginationItem
                     v-if="item.type === 'page'"
@@ -442,10 +421,8 @@ onBeforeMount(async () => {
                   >
                     {{ item.value }}
                   </PaginationItem>
+                  <PaginationEllipsis v-else :index="index" />
                 </template>
-
-                <PaginationEllipsis :index="4" />
-
                 <PaginationNext />
               </PaginationContent>
             </Pagination>

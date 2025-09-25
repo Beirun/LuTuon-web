@@ -27,9 +27,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import DarkModeSwitch from '@/components/DarkModeSwitch.vue'
-import { useNotificationStore } from '@/stores/notification'
 const auth = useAuthStore()
-const notification = useNotificationStore()
 const items = [
   { title: 'Account Overview', icon: ShieldUser },
   { title: 'Personal Information', icon: SquareUserRound },
@@ -139,7 +137,6 @@ const handleLogout = () => {
   auth.logout()
 }
 
-const notifOpen = ref(false)
 const showOldPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -155,11 +152,6 @@ const TogglePassword = (password: string) => {
     showConfirmPassword.value = !showConfirmPassword.value
   }
 }
-
-const markAsRead = async (id: string) => {
-  await notification.updateNotificationStatus(id, 'read')
-  notifOpen.value = false // close after click
-}
 </script>
 
 <template>
@@ -169,55 +161,12 @@ const markAsRead = async (id: string) => {
       <div><img src="@/assets/logo.png" alt="" /></div>
       <div class="flex w-full h-full justify-end items-center gap-5">
         <DarkModeSwitch />
-
-        <!-- notification dropdown -->
-        <DropdownMenu v-model:open="notifOpen">
-          <DropdownMenuTrigger as-child>
-            <Button
-              variant="outline"
-              class="h-12 w-12 shadow-sm shadow-black/20 active:brightness-90 hover:brightness-95 duration-300 cursor-pointer relative"
-            >
-              <component :is="Bell" class="text-[#3A3A3A] dark:text-white" />
-              <span
-                v-if="notification.notifications.some((n) => n.notificationStatus !== 'read')"
-                class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500"
-              />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="center" class="w-80 max-h-96 overflow-y-auto">
-            <div v-if="notification.loading" class="p-4 text-center text-sm text-muted-foreground">
-              Loading...
-            </div>
-            <div
-              v-else-if="notification.notifications.length === 0"
-              class="p-4 text-center py-20 text-muted-foreground text-lg"
-            >
-              No notifications
-            </div>
-            <div v-else>
-              <DropdownMenuItem
-                v-for="n in notification.notifications"
-                :key="n.notificationId"
-                class="flex flex-col items-start gap-1 py-2 cursor-pointer"
-                @click="markAsRead(n.notificationId)"
-              >
-                <span
-                  class="font-medium"
-                  :class="
-                    n.notificationStatus !== 'read' ? 'text-foreground' : 'text-muted-foreground'
-                  "
-                >
-                  {{ n.notificationTitle }}
-                </span>
-                <span class="text-xs text-muted-foreground">{{ n.notificationMessage }}</span>
-                <span class="text-xs text-gray-400">{{ n.notificationDate }}</span>
-              </DropdownMenuItem>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <!-- start drop down for tabs when mobile -->
+        <Button
+          variant="outline"
+          class="h-12 w-12 shadow-sm shadow-black/20 active:brightness-90 hover:brightness-95 duration-300 cursor-pointer"
+        >
+          <component :is="Bell" class="text-[#3A3A3A] dark:text-white" />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <Button
@@ -324,25 +273,25 @@ const markAsRead = async (id: string) => {
           </p>
         </div>
       </div>
-    </div>
 
-    <div
-      class="w-9/10 sm:w-9/10 md:w-3/4 lg:w-3/4 xl:w-3/4 2xl:w-1/2 flex sm:flex-row flex-col justify-between gap-5"
-    >
-      <!-- start tab navigation on laptop -->
-      <div class="w-1/3 border-r border-border sm:block hidden">
-        <div v-for="(item, index) in items" :key="index" class="sm:my-10 my-4">
-          <a
-            @click="handleSwitch(item.title.toLowerCase())"
-            :class="[
-              activeItem === item.title.toLowerCase()
-                ? 'text-yellow-300  flex gap-5 cursor-pointer'
-                : 'text-[#515151]  flex  gap-5 cursor-pointer',
-            ]"
-          >
-            <component :is="item.icon" class="size-6" />
-            <span class="text-xl">{{ item.title }}</span>
-          </a>
+      <div
+        class="w-9/10 sm:w-9/10 md:w-3/4 lg:w-3/4 xl:w-3/4 2xl:w-1/2 flex sm:flex-row flex-col justify-between gap-5"
+      >
+        <!-- start tab navigation on laptop -->
+        <div class="w-1/3 border-r border-border sm:block hidden">
+          <div v-for="(item, index) in items" :key="index" class="sm:my-10 my-4">
+            <a
+              @click="handleSwitch(item.title.toLowerCase())"
+              :class="[
+                activeItem === item.title.toLowerCase()
+                  ? 'text-yellow-300  flex gap-5 cursor-pointer'
+                  : 'text-[#515151]  flex  gap-5 cursor-pointer',
+              ]"
+            >
+              <component :is="item.icon" class="size-6" />
+              <span class="text-xl">{{ item.title }}</span>
+            </a>
+          </div>
         </div>
         <!-- end tab naviation on laptop -->
 
@@ -380,102 +329,26 @@ const markAsRead = async (id: string) => {
                 </Button>
               </div>
             </div>
-          </div>
-          <div>
-            <!-- start Table for non-editable personal info -->
-            <Table v-if="activeItem === 'account overview'" class="my-5">
-              <TableBody>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-foreground text-center flex items-center"
-                    >Username</TableCell
-                  >
-                  <TableCell class="text-foreground text-center w-1/2 flex items-center">
-                    <input
-                      :value="auth.userInfo.userName"
-                      class="text-right p-0 w-full border-0 shadow-none focus:outline-none"
-                    />
-                  </TableCell>
-                </TableRow>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-foreground text-center flex items-center"
-                    >Birthdate</TableCell
-                  >
-                  <TableCell class="text-foreground text-center flex items-center">
-                    {{
-                      new Date(auth.userInfo.userDob).toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                      })
-                    }}
-                  </TableCell>
-                </TableRow>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-foreground text-center flex items-center"
-                    >Email Address</TableCell
-                  >
-                  <TableCell class="text-foreground text-center w-1/2 flex items-center">
-                    <input
-                      :value="auth.userInfo.userEmail"
-                      placeholder="kenji"
-                      class="text-right p-0 w-full border-0 shadow-none focus:outline-none"
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <!-- end Table for non-editable personal info -->
-
-            <!-- start Table for EDITABLE personal info -->
-            <Table v-if="activeItem === 'personal information'" class="my-5">
-              <TableBody>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell
-                    class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe"
-                    :class="edit ? 'h-[8vh] sm:h-[8vh] md:h-[8vh] lg:h-[8vh]' : 'text-gray-400'"
-                    >Username
-                    <input
-                      :disabled="!edit"
-                      v-model="userName"
-                      class="p-0 shadow-none focus:outline-none text-left"
-                      :class="
-                        edit
-                          ? ' border-1 px-2 rounded-lg h-full bg-popover text-popover-foreground'
-                          : 'text-gray-400'
-                      "
-                    />
-                  </TableCell>
-                </TableRow>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell
-                    class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe"
-                    :class="edit ? 'h-[8vh]' : 'text-gray-400'"
-                    >Birthdate
-
-                    <Popover v-if="edit">
-                      <PopoverTrigger as-child>
-                        <Button
-                          variant="outline"
-                          :class="
-                            cn(
-                              'w-[78vw] sm:w-full justify-start text-left font-normal',
-                              !value && 'text-muted-foreground',
-                            )
-                          "
-                        >
-                          <component :is="CalendarDays" class="mr-2 h-4 w-4" />
-                          {{
-                            value
-                              ? df.format(value.toDate(getLocalTimeZone()))
-                              : df.format(new Date(userDob))
-                          }}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent class="w-auto p-0">
-                        <Calendar v-model="value" initial-focus />
-                      </PopoverContent>
-                    </Popover>
-                    <div v-if="!edit">
+            <div>
+              <!-- start Table for non-editable personal info -->
+              <Table v-if="activeItem === 'account overview'" class="my-5">
+                <TableBody>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center flex items-center"
+                      >Username</TableCell
+                    >
+                    <TableCell class="text-foreground text-center w-1/2 flex items-center">
+                      <input
+                        :value="auth.userInfo.userName"
+                        class="text-right p-0 w-full border-0 shadow-none focus:outline-none"
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center flex items-center"
+                      >Birthdate</TableCell
+                    >
+                    <TableCell class="text-foreground text-center flex items-center">
                       {{
                         new Date(auth.userInfo.userDob).toLocaleString('en-US', {
                           year: 'numeric',
@@ -483,30 +356,106 @@ const markAsRead = async (id: string) => {
                           day: '2-digit',
                         })
                       }}
-                    </div>
-                  </TableCell>
-                </TableRow>
-                <TableRow class="flex justify-between px-5 hover:bg-transparent">
-                  <TableCell
-                    class="h-[6vh] text-foreground flex flex-col justify-center-safe w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 text-left"
-                    :class="edit ? 'h-[8vh]' : 'text-gray-400'"
-                    >Email Address
+                    </TableCell>
+                  </TableRow>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell class="h-[6vh] text-foreground text-center flex items-center"
+                      >Email Address</TableCell
+                    >
+                    <TableCell class="text-foreground text-center w-1/2 flex items-center">
+                      <input
+                        :value="auth.userInfo.userEmail"
+                        placeholder="kenji"
+                        class="text-right p-0 w-full border-0 shadow-none focus:outline-none"
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+              <!-- end Table for non-editable personal info -->
 
-                    <input
-                      :disabled="!edit"
-                      v-model="userEmail"
-                      class="text-left p-0 w-full border-0 shadow-none focus:outline-none"
-                      :class="
-                        edit
-                          ? ' border-1 px-2 rounded-lg h-full bg-popover text-popover-foreground'
-                          : 'text-gray-400'
-                      "
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <!-- end Table for EDITABLE personal info -->
+              <!-- start Table for EDITABLE personal info -->
+              <Table v-if="activeItem === 'personal information'" class="my-5">
+                <TableBody>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell
+                      class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe"
+                      :class="edit ? 'h-[8vh] sm:h-[8vh] md:h-[8vh] lg:h-[8vh]' : 'text-gray-400'"
+                      >Username
+                      <input
+                        :disabled="!edit"
+                        v-model="userName"
+                        class="p-0 shadow-none focus:outline-none text-left"
+                        :class="
+                          edit
+                            ? ' border-1 px-2 rounded-lg h-full bg-popover text-popover-foreground'
+                            : 'text-gray-400'
+                        "
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell
+                      class="h-[6vh] text-foreground flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 justify-center-safe"
+                      :class="edit ? 'h-[8vh]' : 'text-gray-400'"
+                      >Birthdate
+
+                      <Popover v-if="edit">
+                        <PopoverTrigger as-child>
+                          <Button
+                            variant="outline"
+                            :class="
+                              cn(
+                                'w-[78vw] sm:w-full justify-start text-left font-normal',
+                                !value && 'text-muted-foreground',
+                              )
+                            "
+                          >
+                            <component :is="CalendarDays" class="mr-2 h-4 w-4" />
+                            {{
+                              value
+                                ? df.format(value.toDate(getLocalTimeZone()))
+                                : df.format(new Date(userDob))
+                            }}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent class="w-auto p-0">
+                          <Calendar v-model="value" initial-focus />
+                        </PopoverContent>
+                      </Popover>
+                      <div v-if="!edit">
+                        {{
+                          new Date(userDob).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                          })
+                        }}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                    <TableCell
+                      class="h-[6vh] text-foreground flex flex-col justify-center-safe w-full sm:w-full md:w-full lg:w-full xl:w-full 2xl:w-1/2 text-left"
+                      :class="edit ? 'h-[8vh]' : 'text-gray-400'"
+                      >Email Address
+
+                      <input
+                        :disabled="!edit"
+                        v-model="userEmail"
+                        class="text-left p-0 w-full border-0 shadow-none focus:outline-none"
+                        :class="
+                          edit
+                            ? ' border-1 px-2 rounded-lg h-full bg-popover text-popover-foreground'
+                            : 'text-gray-400'
+                        "
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+              <!-- end Table for EDITABLE personal info -->
+            </div>
           </div>
           <!-- end Personal Info top div on right side (if laptop) -->
 

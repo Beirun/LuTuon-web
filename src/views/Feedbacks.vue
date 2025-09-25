@@ -1,5 +1,6 @@
 <!-- @/views/Feedback.vue -->
 <script lang="ts" setup>
+import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import {
   Table,
@@ -63,7 +64,6 @@ const start = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.
 
 const value = ref({
   start,
-  end: start.add({ days: 20 }),
   end: start.add({ days: 20 }),
 }) as Ref<DateRange>
 
@@ -134,13 +134,9 @@ const filteredFeedbacks = computed(() => {
   if (filter.value === 'username') {
     return feedbackStore.feedbacks.filter((f) =>
       f.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
-    return feedbackStore.feedbacks.filter((f) =>
-      f.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     )
   }
   if (filter.value === 'email') {
-    return feedbackStore.feedbacks.filter((f) =>
-      f.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     return feedbackStore.feedbacks.filter((f) =>
       f.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     )
@@ -151,7 +147,6 @@ const filteredFeedbacks = computed(() => {
     d.setHours(23, 59, 59, 999)
     const end = d.getTime()
     return feedbackStore.feedbacks.filter((f) => {
-    return feedbackStore.feedbacks.filter((f) => {
       const feedbackTime = new Date(f.feedbackDate).getTime()
       return feedbackTime >= start && feedbackTime <= end
     })
@@ -160,7 +155,6 @@ const filteredFeedbacks = computed(() => {
 })
 
 // total pages
-const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / itemsPerPage))
 const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / itemsPerPage))
 
 // paginated results
@@ -242,12 +236,6 @@ onBeforeMount(async () => {
                               'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
                             )
                           "
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
                           @click="updateMonth('first', -1)"
                         >
                           <ChevronLeft class="h-4 w-4" />
@@ -256,12 +244,6 @@ onBeforeMount(async () => {
                           {{ formatter.fullMonthAndYear(toDate(firstMonth.value)) }}
                         </div>
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
                           :class="
                             cn(
                               buttonVariants({ variant: 'outline' }),
@@ -311,12 +293,6 @@ onBeforeMount(async () => {
                               'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
                             )
                           "
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
                           @click="updateMonth('second', -1)"
                         >
                           <ChevronLeft class="h-4 w-4" />
@@ -325,12 +301,6 @@ onBeforeMount(async () => {
                           {{ formatter.fullMonthAndYear(toDate(secondMonth.value)) }}
                         </div>
                         <button
-                          :class="
-                            cn(
-                              buttonVariants({ variant: 'outline' }),
-                              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            )
-                          "
                           :class="
                             cn(
                               buttonVariants({ variant: 'outline' }),
@@ -384,9 +354,6 @@ onBeforeMount(async () => {
                   <span
                     >Filter by <span class="capitalize">{{ filter }}</span></span
                   >
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span
-                  >
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -401,7 +368,6 @@ onBeforeMount(async () => {
 
         <div class="grid grid-cols-1 gap-6">
           <div
-            class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
             class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
@@ -432,10 +398,6 @@ onBeforeMount(async () => {
                     colspan="6"
                     class="text-center text-foreground/80 py-36 text-3xl font-bold"
                   >
-                  <TableCell
-                    colspan="6"
-                    class="text-center text-foreground/80 py-36 text-3xl font-bold"
-                  >
                     No Feedbacks Found
                   </TableCell>
                 </TableRow>
@@ -449,9 +411,6 @@ onBeforeMount(async () => {
                   <TableCell class="text-foreground text-center">{{
                     formatDateTime(f.feedbackDate)
                   }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{
-                    formatDateTime(f.feedbackDate)
-                  }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.feedbackMessage }}</TableCell>
                 </TableRow>
               </TableBody>
@@ -459,10 +418,6 @@ onBeforeMount(async () => {
           </div>
 
           <!-- Pagination -->
-          <div
-            v-if="!feedbackStore.loading && filteredFeedbacks.length"
-            class="flex justify-center mt-4"
-          >
           <div
             v-if="!feedbackStore.loading && filteredFeedbacks.length"
             class="flex justify-center mt-4"

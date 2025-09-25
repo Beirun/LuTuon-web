@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 // import {Icon} from '@iconify/vue'
+import { Bell } from 'lucide-vue-next'
 import { lineOptions, vBarOptions, hBarOptions } from '@/lib/chartConfig'
 import {
   Chart as ChartJS,
@@ -11,6 +13,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  scales,
   BarElement,
 } from 'chart.js'
 import { Bar, Line } from 'vue-chartjs'
@@ -68,28 +71,19 @@ ChartJS.register(
   <div class="min-h-screen w-full flex justify-end">
     <!-- Sidebar would typically go here but is commented out -->
 
-
     <div class="flex flex-col p-4 md:p-6 lg:p-8 w-full md:w-5/6">
       <div class="mb-6">
         <p class="text-2xl md:text-3xl">Welcome to dashboard, <b>Admin!</b></p>
       </div>
       <Separator class="text-[#DBDBE0] mb-6" />
 
-
       <div class="grid grid-cols-1 gap-6">
         <!-- Registered Users Chart -->
         <div
           class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
         >
-        <div
-          class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
-        >
           <p class="text-xl md:text-2xl font-bold mb-4">Registered Users</p>
           <div class="h-64 md:h-80">
-            <Line
-              :data="lineData"
-              :options="{ ...lineOptions, responsive: true, maintainAspectRatio: false }"
-            />
             <Line
               :data="lineData"
               :options="{ ...lineOptions, responsive: true, maintainAspectRatio: false }"
@@ -102,15 +96,8 @@ ChartJS.register(
           <div
             class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
           >
-          <div
-            class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
-          >
             <p class="text-xl md:text-2xl font-bold mb-4">Most Played Dish</p>
             <div class="h-64">
-              <Bar
-                :data="hBarData"
-                :options="{ ...hBarOptions, responsive: true, maintainAspectRatio: false }"
-              />
               <Bar
                 :data="hBarData"
                 :options="{ ...hBarOptions, responsive: true, maintainAspectRatio: false }"
@@ -118,20 +105,12 @@ ChartJS.register(
             </div>
           </div>
 
-
           <!-- Weekly Players -->
-          <div
-            class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
-          >
           <div
             class="outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm"
           >
             <p class="text-xl md:text-2xl font-bold mb-4">Weekly Players</p>
             <div class="h-64">
-              <Bar
-                :data="vBarData"
-                :options="{ ...vBarOptions, responsive: true, maintainAspectRatio: false }"
-              />
               <Bar
                 :data="vBarData"
                 :options="{ ...vBarOptions, responsive: true, maintainAspectRatio: false }"
@@ -143,4 +122,3 @@ ChartJS.register(
     </div>
   </div>
 </template>
-

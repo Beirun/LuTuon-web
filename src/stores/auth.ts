@@ -6,6 +6,8 @@ import { useSonnerStore } from './sonner'
 import { useFetch } from '@/plugins/api' // <-- your custom fetch wrapper
 import type { CallbackTypes } from 'vue3-google-login'
 import { useNotificationStore } from './notification'
+import { jwtDecode } from 'jwt-decode'
+
 export const useAuthStore = defineStore('auth', () => {
   const sonner = useSonnerStore()
   const notification = useNotificationStore()
@@ -15,7 +17,11 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
   const isLoading = ref(false)
   const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value.roleId === import.meta.env.VITE_ADMIN_ROLE)
+  const isAdmin = computed(() =>
+    token.value
+      ? Object.values(jwtDecode(token.value))[1] === import.meta.env.VITE_ADMIN_ROLE
+      : false,
+  )
   const userInfo = computed(() => user.value)
   const register = async (credentials: {
     email: string

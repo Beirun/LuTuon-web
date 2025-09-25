@@ -69,6 +69,8 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = data.token
       user.value = data.user
       await notification.fetchNotifications()
+      sonner.success(data.message)
+
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
 
@@ -96,6 +98,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
+      sonner.success(data.message)
 
       token.value = data.token
       user.value = data.user
@@ -126,6 +129,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
+      sonner.success(data.message)
 
       token.value = null
       user.value = null

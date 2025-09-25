@@ -22,15 +22,15 @@ export const useReportStore = defineStore('report', () => {
       if (!res.ok) throw new Error('Failed to fetch reports')
       const data = await res.json()
       reports.value = data
-    } catch (e: any) {
+    } catch (e: unknown) {
       reports.value = []
-      sonner.error(e.message || 'Failed to fetch reports')
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch reports')
     } finally {
       loading.value = false
     }
   }
 
-  async function fetchReport(id: string) {
+  async function fetchReport() {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/game/attempts/user`, {
@@ -40,9 +40,9 @@ export const useReportStore = defineStore('report', () => {
       if (!res.ok) throw new Error('Failed to fetch report')
       const data = await res.json()
       report.value = data
-    } catch (e: any) {
+    } catch (e: unknown) {
       report.value = null
-      sonner.error(e.message || 'Failed to fetch report')
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch report')
     } finally {
       loading.value = false
     }

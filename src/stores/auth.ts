@@ -1,9 +1,9 @@
-// stores/auth.ts
+// @/stores/auth.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import router from '@/router'
 import { useSonnerStore } from './sonner'
-import { useFetch } from '@/plugins/api' // <-- your custom fetch wrapper
+import { useFetch } from '@/plugins/api'
 import type { CallbackTypes } from 'vue3-google-login'
 import { useNotificationStore } from './notification'
 import { jwtDecode } from 'jwt-decode'
@@ -23,6 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
       : false,
   )
   const userInfo = computed(() => user.value)
+
   const register = async (credentials: {
     email: string
     password: string
@@ -30,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
   }) => {
     isLoading.value = true
     try {
-      const res = await useFetch(URL + '/accounts/register', {
+      const res = await useFetch(`${URL}/accounts/register`, {
         method: 'POST',
         body: JSON.stringify(credentials),
         headers: { 'Content-Type': 'application/json' },
@@ -40,8 +41,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (!res.ok) return sonner.error(data.message)
       sonner.success(data.message)
       return true
-    } catch (err: any) {
-      sonner.error(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
     } finally {
       isLoading.value = false
     }
@@ -51,18 +52,12 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true
     try {
       const result = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: {
-          Authorization: `Bearer ${object.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${object.access_token}` },
       })
       const fetchedUser = await result.json()
 
-      const credentials = {
-        email: fetchedUser.email,
-        username: fetchedUser.name,
-      }
-
-      const res = await useFetch(URL + '/accounts/google', {
+      const credentials = { email: fetchedUser.email, username: fetchedUser.name }
+      const res = await useFetch(`${URL}/accounts/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -70,37 +65,30 @@ export const useAuthStore = defineStore('auth', () => {
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
-      console.log('user before', user.value)
-      sonner.success(data.message)
+
       token.value = data.token
       user.value = data.user
-
-      await notification.fetchNotifications(user.value.userId)
-      console.log('user after', user.value)
+      await notification.fetchNotifications()
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
 
       const redirectPath = sessionStorage.getItem('redirectAfterLogin')
       sessionStorage.removeItem('redirectAfterLogin')
 
-      // check if admin
-      if (redirectPath) {
-        router.push(redirectPath)
-      } else if (isAdmin.value) {
-        router.push('/admin')
-      } else {
-        router.push('/dashboard')
-      }
-    } catch (err: any) {
-      sonner.error(err.message)
+      if (redirectPath) router.push(redirectPath)
+      else if (isAdmin.value) router.push('/admin')
+      else router.push('/dashboard')
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
     } finally {
       isLoading.value = false
     }
   }
+
   const login = async (credentials: { email: string; password: string }) => {
     isLoading.value = true
     try {
-      const res = await useFetch(URL + '/accounts/login', {
+      const res = await useFetch(`${URL}/accounts/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -109,27 +97,20 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
 
-      sonner.success(data.message)
       token.value = data.token
       user.value = data.user
-
-      await notification.fetchNotifications(user.value.userId)
-
+      await notification.fetchNotifications()
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
+
       const redirectPath = sessionStorage.getItem('redirectAfterLogin')
       sessionStorage.removeItem('redirectAfterLogin')
 
-      // check if admin
-      if (redirectPath) {
-        router.push(redirectPath)
-      } else if (isAdmin.value) {
-        router.push('/admin')
-      } else {
-        router.push('/dashboard')
-      }
-    } catch (err: any) {
-      sonner.error(err.message)
+      if (redirectPath) router.push(redirectPath)
+      else if (isAdmin.value) router.push('/admin')
+      else router.push('/dashboard')
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
     } finally {
       isLoading.value = false
     }
@@ -138,7 +119,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     isLoading.value = true
     try {
-      const res = await useFetch(URL + '/accounts/logout', {
+      const res = await useFetch(`${URL}/accounts/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -146,14 +127,13 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
 
-      sonner.success(data.message)
       token.value = null
       user.value = null
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       router.push('/')
-    } catch (err: any) {
-      sonner.error(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
     } finally {
       isLoading.value = false
     }
@@ -178,18 +158,14 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
 
-      if (res.status === 200) {
-        sonner.message('Profile Info', data.message)
-        return true
-      } else sonner.success(data.message)
-      // update only non-sensitive info in store
-      if (data.user.userName || data.user.userEmail || data.user.userDob) {
+      if (res.status === 200) sonner.message('Profile Info', data.message)
+      if (data.user) {
         user.value = { ...user.value, ...data.user }
         localStorage.setItem('user', JSON.stringify(user.value))
       }
       return true
-    } catch (err: any) {
-      sonner.error(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
       return false
     } finally {
       isLoading.value = false
@@ -212,22 +188,16 @@ export const useAuthStore = defineStore('auth', () => {
       sonner.error('No authentication token')
       return
     }
-    // if(isFromLogin){
-    //   isFromLogin.value = false;
-    //   console.log("yes")
-    //   return
-    // }
 
-    const res = await useFetch(URL + '/accounts/token/verify', {
+    const res = await useFetch(`${URL}/accounts/token/verify`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     })
-    if (res.status === 401 || res.status === 403) throw Error
+    if (res.status === 401 || res.status === 403) throw new Error('Unauthorized')
     return res
   }
+
   const setToken = (newToken: string) => {
     token.value = newToken
   }

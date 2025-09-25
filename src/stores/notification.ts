@@ -11,7 +11,7 @@ export const useNotificationStore = defineStore('notification', () => {
   const URL = import.meta.env.VITE_BASE_URL
   const sonner = useSonnerStore()
 
-  async function fetchNotifications(userId: string) {
+  async function fetchNotifications() {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/notifications/user`, {
@@ -23,9 +23,9 @@ export const useNotificationStore = defineStore('notification', () => {
       notifications.value = data
 
       console.log('notifications', notifications.value)
-    } catch (e: any) {
+    } catch (e: unknown) {
       notifications.value = []
-      sonner.error(e.message || 'Failed to fetch notifications')
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch notifications')
     } finally {
       loading.value = false
     }
@@ -44,8 +44,8 @@ export const useNotificationStore = defineStore('notification', () => {
       const data = await res.json()
       notifications.value.push(data)
       return data
-    } catch (e: any) {
-      sonner.error(e.message || 'Failed to create notification')
+    } catch (e: unknown) {
+      if (e instanceof Error) sonner.error(e.message || 'Failed to create notification')
       return null
     } finally {
       loading.value = false
@@ -66,8 +66,8 @@ export const useNotificationStore = defineStore('notification', () => {
       const i = notifications.value.findIndex((n) => n.notificationId === notificationId)
       if (i !== -1) notifications.value[i] = data
       return data
-    } catch (e: any) {
-      sonner.error(e.message || 'Failed to update notification')
+    } catch (e: unknown) {
+      if (e instanceof Error) sonner.error(e.message || 'Failed to update notification')
       return null
     } finally {
       loading.value = false
@@ -84,8 +84,8 @@ export const useNotificationStore = defineStore('notification', () => {
       if (!res.ok) throw new Error('Failed to delete notification')
       await res.json()
       notifications.value = notifications.value.filter((n) => n.notificationId !== notificationId)
-    } catch (e: any) {
-      sonner.error(e.message || 'Failed to delete notification')
+    } catch (e: unknown) {
+      if (e instanceof Error) sonner.error(e.message || 'Failed to delete notification')
     } finally {
       loading.value = false
     }

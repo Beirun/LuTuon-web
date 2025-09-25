@@ -20,6 +20,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import type { DateValue } from '@internationalized/date'
 import { DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import { cn } from '@/lib/utils'
@@ -147,12 +155,14 @@ const TogglePassword = (password: string) => {
     showConfirmPassword.value = !showConfirmPassword.value
   }
 }
+
+const openDeleteDialog = ref(false)
 </script>
 
 <template>
   <div class="w-screen h-screen flex flex-col justify-center">
     <!-- start header -->
-    <div class="w-full h-1/10 flex justify-between items-center px-10 shadow-xs">
+    <div class="w-full h-1/10 flex justify-between items-center px-2 lg:px-10 shadow-xs">
       <div><img src="@/assets/logo.png" alt="" /></div>
       <div class="flex w-full h-full justify-end items-center gap-5">
         <DarkModeSwitch />
@@ -481,12 +491,24 @@ const TogglePassword = (password: string) => {
               >
                 Edit
               </Button>
-              <Button
+              
+              <Dialog>
+                <DialogTrigger as-child>
+                  <Button
                 v-if="activeItem === 'personal information'"
                 class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-red-600"
               >
                 Delete
               </Button>
+                </DialogTrigger>
+                <DialogContent class="w-[300px] min-w-[300px] lg:max-w-[425px] rounded-md bottom-1/2 translate-y-1/2">
+                  <DialogHeader>
+                    <DialogTitle>Confirm Delete</DialogTitle>
+                    <DialogDescription>Are you sure you want to delete your account? You won't be able to retrieve any data.</DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter><Button class="cursor-pointer bg-red-600 text-white hover:bg-red-500">Delete</Button></DialogFooter>
+                </DialogContent>
+              </Dialog>
 
               <!-- buttons to appear when managePasswordEdit == true -->
               <div v-if="managePasswordEdit" class="flex gap-5">

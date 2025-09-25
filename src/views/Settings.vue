@@ -154,7 +154,7 @@ const handlePasswordSave = async() =>{
                   >
                     <Button
                     @click="handleCancel"
-                      class="bg-transparent hover:bg-transparent cursor-pointer border border-[#F8C600]"
+                      class="bg-transparent text-foreground hover:bg-transparent cursor-pointer border border-[#F8C600]"
                       >Cancel</Button
                     >
                     <Button
@@ -173,7 +173,7 @@ const handlePasswordSave = async() =>{
                   >
                     <input
                       :disabled="!manage"
-                      class="w-2/5 h-2/3 text-right focus:outline-none"
+                      class="w-full sm:w-full md:w-full lg:w-3/5 h-10 text-right focus:outline-none"
                       :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
                       v-model="userName"
                     />
@@ -192,7 +192,7 @@ const handlePasswordSave = async() =>{
                             variant="outline"
                             :class="
                               cn(
-                                'w-[280px] justify-start text-left font-normal ',
+                                'w-full sm:w-full md:w-full lg:w-3/5 justify-start text-left font-normal ',
                                 !value && 'text-muted-foreground',
                               )
                             "
@@ -227,7 +227,7 @@ const handlePasswordSave = async() =>{
                   >
                     <input
                       :disabled="!manage"
-                      class="w-2/5 h-2/3 text-right focus:outline-none"
+                      class="w-full sm:w-full md:w-full lg:w-3/5 h-10 text-right focus:outline-none"
                       :class="manage ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground' : 'text-gray-400'"
                       v-model="userEmail"
                     />
@@ -258,7 +258,7 @@ const handlePasswordSave = async() =>{
                   >
                     <Button
                     @click="handlePasswordCancel"
-                      class="bg-transparent hover:bg-transparent cursor-pointer border border-[#F8C600]"
+                      class="bg-transparent text-foreground hover:bg-transparent cursor-pointer border border-[#F8C600]"
                       >Cancel</Button
                     >
                     <Button
@@ -271,17 +271,17 @@ const handlePasswordSave = async() =>{
                 <TableRow class="hover:bg-transparent">
                   <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh]">Password</TableCell>
                   <TableCell
-                    :class="
+                  :class="
                       update ? 'text-foreground text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
                     <span class="text-gray-400" v-if="!update">*********</span>
-                    <div v-else class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+                    <div v-else class="flex justify-end items-center px-2 w-full sm:w-full md:w-full lg:w-3/5 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
                       
                       <input
                       v-model="userPassword.oldPassword"
                       :type="showOldPassword ? 'text': 'password'"
-                      class="text-right w-full focus:outline-none px-3"
+                      class=" h-10 text-right focus:outline-none px-3"
                       placeholder="Old Password"
                       />
                       <component v-if="!showOldPassword" @click="TogglePassword('old')" :is="EyeClosed" class=" text-[#3A3A3A]"/>
@@ -296,12 +296,12 @@ const handlePasswordSave = async() =>{
                       update ? 'text-foreground text-right lg:px-10 lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
-                    <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+                    <div class="flex justify-end items-center px-2 w-full sm:w-full md:w-full lg:w-3/5 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
                       <input
                       v-model="userPassword.newPassword"
                       :type="showNewPassword ? 'text': 'password'"
-                      class="text-right w-full focus:outline-none px-3"
+                      class="text-right focus:outline-none px-3 h-10"
                       placeholder="New Password"
                       />
                       <component v-if="!showNewPassword" @click="TogglePassword('new')" :is="EyeClosed" class=" text-[#3A3A3A]"/>
@@ -310,18 +310,18 @@ const handlePasswordSave = async() =>{
                   </TableCell>
                 </TableRow>
                 <TableRow v-if="update" class="hover:bg-transparent">
-                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh]"></TableCell>
+                  <TableCell class="h-[6vh] text-foreground lg:px-10 lg:h-[6vh] w-1/2"></TableCell>
                   <TableCell
                     :class="
                       update ? 'text-foreground text-right lg:px-10  lg:h-[6vh] flex justify-end' : 'text-[#3A3A3A] text-right lg:px-10 lg:h-[6vh]'
                     "
                   >
-                    <div class="flex justify-end items-center px-2 w-1/2 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
+                    <div class="flex justify-end items-center px-2 w-full sm:w-full md:w-full lg:w-3/5 shadow-none focus:outline-none border rounded-lg h-full bg-popover text-popover-foreground">
 
                       <input
                       v-model="userPassword.confirmPassword"
                       :type="showConfirmPassword ? 'text': 'password'"
-                      class="text-right w-full focus:outline-none px-3"
+                      class="text-right w-full focus:outline-none px-3 h-10"
                       placeholder="Confirm Password"
                       />
                       <component v-if="!showConfirmPassword" @click="TogglePassword('confirm')" :is="EyeClosed" class=" text-[#3A3A3A]"/>

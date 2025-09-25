@@ -48,12 +48,6 @@ const navigate = (url: string) => {
   hoverOpen.value = false
 }
 
-const goSettings = () => {
-  router.push("/settings")
-  popoverOpen.value = false
-  hoverOpen.value = false
-}
-
 const doLogout = async () => {
   await auth.logout()
   popoverOpen.value = false
@@ -101,7 +95,7 @@ const setMode = (val: "light" | "dark" | "auto") => {
 
           <PopoverContent side="right" class="w-44 p-2 ml-2 mb-4 bg-[#242629] dark:bg-[#121210]">
             <div class="flex flex-col gap-2">
-              <Button @click="goSettings"
+              <Button @click="navigate('/settings')"
                 class="flex gap-2 justify-start bg-transparent font-normal focus-visible:ring-0 text-[#E7E7E7] dark:hover:text-background">
                 <Settings class="size-5" />
                 <span>Settings</span>

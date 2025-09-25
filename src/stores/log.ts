@@ -1,11 +1,11 @@
 // @/stores/log.ts
-import { defineStore } from "pinia"
-import { ref } from "vue"
-import { useFetch } from "@/plugins/api"
-import { useSonnerStore } from "@/stores/sonner"
-import { type Log } from "@/models/log"
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { useFetch } from '@/plugins/api'
+import { useSonnerStore } from '@/stores/sonner'
+import { type Log } from '@/models/log'
 
-export const useLogStore = defineStore("log", () => {
+export const useLogStore = defineStore('log', () => {
   const logs = ref<Log[]>([])
   const log = ref<Log | null>(null)
   const loading = ref(false)
@@ -16,15 +16,15 @@ export const useLogStore = defineStore("log", () => {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/logs`, {
-        method: "GET",
-        credentials: "include",
+        method: 'GET',
+        credentials: 'include',
       })
-      if (!res.ok) throw new Error("Failed to fetch logs")
+      if (!res.ok) throw new Error('Failed to fetch logs')
       const data = await res.json()
       logs.value = data
-    } catch (e: any) {
+    } catch (e: unknown) {
       logs.value = []
-      sonner.error(e.message || "Failed to fetch logs")
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch logs')
     } finally {
       loading.value = false
     }
@@ -34,16 +34,16 @@ export const useLogStore = defineStore("log", () => {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/logs/${id}`, {
-        method: "GET",
-        credentials: "include",
+        method: 'GET',
+        credentials: 'include',
       })
-      if (!res.ok) throw new Error("Failed to fetch log")
+      if (!res.ok) throw new Error('Failed to fetch log')
       const data = await res.json()
       log.value = data
-      sonner.success("Log loaded")
-    } catch (e: any) {
+      sonner.success('Log loaded')
+    } catch (e: unknown) {
       log.value = null
-      sonner.error(e.message || "Failed to fetch log")
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch log')
     } finally {
       loading.value = false
     }

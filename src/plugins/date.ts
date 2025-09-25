@@ -3,7 +3,7 @@ export function diffMinutesSeconds(start: string, end: string): string {
   const d2 = new Date(end)
   if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return ''
 
-  let diff = Math.abs(d2.getTime() - d1.getTime()) / 1000 // seconds
+  const diff = Math.abs(d2.getTime() - d1.getTime()) / 1000 // seconds
   const m = Math.floor(diff / 60)
   const s = Math.floor(diff % 60)
 
@@ -23,7 +23,6 @@ export function formatDateTime(iso: string): string {
     hour12: true,
   })
 }
-
 
 export function formatDate(iso: string): string {
   if (!iso) return ''

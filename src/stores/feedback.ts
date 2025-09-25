@@ -22,15 +22,15 @@ export const useFeedbackStore = defineStore('feedback', () => {
       if (!res.ok) throw new Error('Failed to fetch feedbacks')
       const data = await res.json()
       feedbacks.value = data
-    } catch (e: any) {
+    } catch (e: unknown) {
       feedbacks.value = []
-      sonner.error(e.message || 'Failed to fetch feedbacks')
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch feedbacks')
     } finally {
       loading.value = false
     }
   }
 
-  async function fetchFeedback(id: string) {
+  async function fetchFeedback() {
     loading.value = true
     try {
       const res = await useFetch(`${URL}/feedbacks/user`, {
@@ -40,9 +40,9 @@ export const useFeedbackStore = defineStore('feedback', () => {
       if (!res.ok) throw new Error('Failed to fetch feedback')
       const data = await res.json()
       feedback.value = data
-    } catch (e: any) {
+    } catch (e: unknown) {
       feedback.value = null
-      sonner.error(e.message || 'Failed to fetch feedback')
+      if (e instanceof Error) sonner.error(e.message || 'Failed to fetch feedback')
     } finally {
       loading.value = false
     }

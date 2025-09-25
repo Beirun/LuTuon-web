@@ -1,6 +1,5 @@
-<!-- @/views/Feedback.vue -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import {
   Table,
@@ -153,9 +152,6 @@ const filteredFeedbacks = computed(() => {
   }
   return feedbackStore.feedbacks
 })
-
-// total pages
-const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / itemsPerPage))
 
 // paginated results
 const paginatedFeedbacks = computed(() => {

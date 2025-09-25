@@ -1,21 +1,18 @@
 <script setup lang="ts">
 import {
   Stepper,
-  StepperDescription,
   StepperIndicator,
   StepperItem,
   StepperSeparator,
   StepperTitle,
   StepperTrigger,
 } from '@/components/ui/stepper'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeClosed, Check, Loader2 } from 'lucide-vue-next'
 import { useResetStore } from '@/stores/reset'
-import { useSonnerStore } from '@/stores/sonner'
 
-const sonner = useSonnerStore()
 const reset = useResetStore()
 const currentStep = ref(1)
 const email = ref('')
@@ -33,7 +30,7 @@ const onKeyPress = (e: KeyboardEvent) => {
 const onInput = (e: Event) => {
   const el = e.target as HTMLInputElement
   // sanitize in case of paste
-  verificationCode.value = el.value.replace(/\D/g, "").slice(0, 6)
+  verificationCode.value = el.value.replace(/\D/g, '').slice(0, 6)
 }
 const newPassword = ref('')
 const confirmPassword = ref('')
@@ -41,23 +38,27 @@ const confirmPassword = ref('')
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const handleNext = async(nextStep : ()=> void) => {
-    const result = await reset.requestReset(email.value)
-    if(!result) return;
-    currentStep.value = 2
-    nextStep()
+const handleNext = async (nextStep: () => void) => {
+  const result = await reset.requestReset(email.value)
+  if (!result) return
+  currentStep.value = 2
+  nextStep()
 }
 
-const handleVerify = async(nextStep : ()=>void) => {
-  
-    const result = await reset.verifyCode(email.value,verificationCode.value)
-    if(!result) return;
-    currentStep.value = 3
-    nextStep()
+const handleVerify = async (nextStep: () => void) => {
+  const result = await reset.verifyCode(email.value, verificationCode.value)
+  if (!result) return
+  currentStep.value = 3
+  nextStep()
 }
 
-const handleSubmit = async(nextStep : ()=>void) => {
-    await reset.resetPassword(email.value,verificationCode.value,newPassword.value, confirmPassword.value)
+const handleSubmit = async () => {
+  await reset.resetPassword(
+    email.value,
+    verificationCode.value,
+    newPassword.value,
+    confirmPassword.value,
+  )
 }
 
 const ToggleShowNewPassword = () => {
@@ -77,7 +78,7 @@ const ToggleShowConfirmPassword = () => {
       class="w-full mb-8 flex justify-center items-center flex-col"
     >
       <div class="flex w-full justify-center gap-2">
-        <StepperItem v-slot="{ state }" :step="1" :active-step="currentStep">
+        <StepperItem :step="1" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
               <span v-if="currentStep > 1"><Check /></span>
@@ -88,7 +89,7 @@ const ToggleShowConfirmPassword = () => {
           <StepperSeparator class="w-full h-px" />
         </StepperItem>
 
-        <StepperItem v-slot="{ state }" :step="2" :active-step="currentStep">
+        <StepperItem :step="2" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
               <span v-if="currentStep > 2"><Check /></span>
@@ -99,7 +100,7 @@ const ToggleShowConfirmPassword = () => {
           <StepperSeparator class="w-full h-px" />
         </StepperItem>
 
-        <StepperItem v-slot="{ state }" :step="3" :active-step="currentStep">
+        <StepperItem :step="3" :active-step="currentStep">
           <StepperTrigger :disabled="true">
             <StepperIndicator>
               <span class="font-bold">3</span>

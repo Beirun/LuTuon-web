@@ -34,10 +34,11 @@ const items = [
   { title: 'Security', icon: LockKeyhole },
 ]
 
-console.log(auth.isAdmin)
-const userName = ref(auth.userInfo.userName)
-const userDob = ref(auth.userInfo.userDob)
-const userEmail = ref(auth.userInfo.userEmail)
+const userInfo = reactive({
+  userName: auth.userInfo.userName,
+  userEmail: auth.userInfo.userEmail,
+  userDob: auth.userInfo.userDob,
+})
 
 const userPassword = reactive({
   oldPassword: '',
@@ -69,34 +70,28 @@ const handleEdit = () => {
 }
 
 const handleCancel = () => {
-  userName.value = auth.userInfo.userName
-  userDob.value = auth.userInfo.userDob
-  userEmail.value = auth.userInfo.userEmail
+  userInfo.userName = auth.userInfo.userName
+  userInfo.userDob = auth.userInfo.userDob
+  userInfo.userEmail = auth.userInfo.userEmail
   edit.value = false
 }
 
 const handleSave = async () => {
   const updates: {
-    username?: string
-    email?: string
-    dob?: string
-    oldPassword?: string
-    newPassword?: string
-    confirmPassword?: string
+    userName?: string
+    userEmail?: string
+    userDob?: string
   } = {}
-
-  if (value.value) userDob.value = new Date(value.value?.toDate(getLocalTimeZone())).toISOString()
-
-  updates.username = userName.value
-  updates.email = userEmail.value
-  updates.dob = userDob.value
-
+  if (value.value)
+    userInfo.userDob = new Date(value.value?.toDate(getLocalTimeZone())).toISOString()
+  updates.userName = userInfo.userName
+  updates.userEmail = userInfo.userEmail
+  updates.userDob = userInfo.userDob
   const success = await auth.update(updates)
   if (!success) return
-
-  userName.value = auth.userInfo.username
-  userDob.value = auth.userInfo.dob
-  userEmail.value = auth.userInfo.email
+  userInfo.userName = auth.userInfo.userName
+  userInfo.userDob = auth.userInfo.userDob
+  userInfo.userEmail = auth.userInfo.userEmail
   edit.value = false
 }
 
@@ -384,7 +379,7 @@ const TogglePassword = (password: string) => {
                       >Username
                       <input
                         :disabled="!edit"
-                        v-model="userName"
+                        v-model="userInfo.userName"
                         class="p-0 shadow-none focus:outline-none text-left"
                         :class="
                           edit
@@ -415,7 +410,7 @@ const TogglePassword = (password: string) => {
                             {{
                               value
                                 ? df.format(value.toDate(getLocalTimeZone()))
-                                : df.format(new Date(userDob))
+                                : df.format(new Date(userInfo.userDob))
                             }}
                           </Button>
                         </PopoverTrigger>
@@ -425,7 +420,7 @@ const TogglePassword = (password: string) => {
                       </Popover>
                       <div v-if="!edit">
                         {{
-                          new Date(userDob).toLocaleString('en-US', {
+                          new Date(userInfo.userDob).toLocaleString('en-US', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
@@ -442,7 +437,7 @@ const TogglePassword = (password: string) => {
 
                       <input
                         :disabled="!edit"
-                        v-model="userEmail"
+                        v-model="userInfo.userEmail"
                         class="text-left p-0 w-full border-0 shadow-none focus:outline-none"
                         :class="
                           edit

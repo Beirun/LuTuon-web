@@ -18,7 +18,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
   const isAuthenticated = computed(() => !!token.value)
   const isAdmin = computed(() =>
-    token.value ? Object.values(jwtDecode(token.value))[2] === 'Admin' : false,
+    token.value
+      ? Object.values(jwtDecode(token.value))[1] === import.meta.env.VITE_ADMIN_ROLE
+      : false,
   )
   const userInfo = computed(() => user.value)
   const register = async (credentials: {

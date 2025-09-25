@@ -1,5 +1,5 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import {
   Table,
@@ -65,11 +65,11 @@ const changeFilter = (filterBy: string) => {
 
 // date filter setup
 const today = new Date()
-const end = new CalendarDate(today.getFullYear(), today.getMonth()+1, today.getDate())
+const end = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
 
 const value = ref({
   start: end.subtract({ years: 1 }),
-  end
+  end,
 }) as Ref<DateRange>
 
 const locale = ref('en-US')
@@ -79,11 +79,21 @@ const placeholder = ref(value.value.start) as Ref<DateValue>
 const secondMonthPlaceholder = ref(value.value.end) as Ref<DateValue>
 
 const firstMonth = ref(
-  createMonth({ dateObj: placeholder.value, locale: locale.value, fixedWeeks: true, weekStartsOn: 0 }),
+  createMonth({
+    dateObj: placeholder.value,
+    locale: locale.value,
+    fixedWeeks: true,
+    weekStartsOn: 0,
+  }),
 ) as Ref<Grid<DateValue>>
 
 const secondMonth = ref(
-  createMonth({ dateObj: secondMonthPlaceholder.value, locale: locale.value, fixedWeeks: true, weekStartsOn: 0 }),
+  createMonth({
+    dateObj: secondMonthPlaceholder.value,
+    locale: locale.value,
+    fixedWeeks: true,
+    weekStartsOn: 0,
+  }),
 ) as Ref<Grid<DateValue>>
 
 function updateMonth(reference: 'first' | 'second', months: number) {
@@ -95,14 +105,24 @@ function updateMonth(reference: 'first' | 'second', months: number) {
 }
 
 watch(placeholder, (_placeholder) => {
-  firstMonth.value = createMonth({ dateObj: _placeholder, weekStartsOn: 0, fixedWeeks: false, locale: locale.value })
+  firstMonth.value = createMonth({
+    dateObj: _placeholder,
+    weekStartsOn: 0,
+    fixedWeeks: false,
+    locale: locale.value,
+  })
   if (isEqualMonth(secondMonthPlaceholder.value, _placeholder)) {
     secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({ months: 1 })
   }
 })
 
 watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
-  secondMonth.value = createMonth({ dateObj: _secondMonthPlaceholder, weekStartsOn: 0, fixedWeeks: false, locale: locale.value })
+  secondMonth.value = createMonth({
+    dateObj: _secondMonthPlaceholder,
+    weekStartsOn: 0,
+    fixedWeeks: false,
+    locale: locale.value,
+  })
   if (isEqualMonth(_secondMonthPlaceholder, placeholder.value))
     placeholder.value = placeholder.value.subtract({ months: 1 })
 })
@@ -116,18 +136,24 @@ const filteredUsers = computed(() => {
   if (!user.users.length) return []
 
   if (filter.value === 'username') {
-    return user.users.filter(u => u.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    return user.users.filter((u) =>
+      u.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
   }
   if (filter.value === 'email') {
-    return user.users.filter(u => u.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    return user.users.filter((u) =>
+      u.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
   }
   if (filter.value === 'role') {
-    return user.users.filter(u => u.roleName?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    return user.users.filter((u) =>
+      u.roleName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
   }
   if (filter.value === 'birthdate' && value.value.start && value.value.end) {
     const startDate = toDate(value.value.start).getTime()
     const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
-    return user.users.filter(u => {
+    return user.users.filter((u) => {
       const dob = new Date(u.userDob).getTime()
       return dob >= startDate && dob <= endDate
     })
@@ -135,7 +161,7 @@ const filteredUsers = computed(() => {
   if (filter.value === 'date joined' && value.value.start && value.value.end) {
     const startDate = toDate(value.value.start).getTime()
     const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
-    return user.users.filter(u => {
+    return user.users.filter((u) => {
       const joined = new Date(u.dateCreated).getTime()
       return joined >= startDate && joined <= endDate
     })
@@ -152,12 +178,13 @@ const paginatedUsers = computed(() => {
 })
 </script>
 
-
 <template>
   <div class="min-h-screen w-full flex justify-end">
     <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6">
       <div class="md:p-10">
-        <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5">
+        <div
+          class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5"
+        >
           <p class="text-3xl font-bold w-1/2">User List</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
@@ -394,7 +421,10 @@ const paginatedUsers = computed(() => {
               <!-- No users -->
               <TableBody v-else-if="!paginatedUsers.length">
                 <TableRow class="hover:bg-transparent">
-                  <TableCell colspan="5" class="text-center text-foreground/80 py-36 text-3xl font-bold">
+                  <TableCell
+                    colspan="5"
+                    class="text-center text-foreground/80 py-36 text-3xl font-bold"
+                  >
                     No Users Found
                   </TableCell>
                 </TableRow>
@@ -424,7 +454,7 @@ const paginatedUsers = computed(() => {
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="totalPages  "
+              :total="totalPages"
               :default-page="1"
               v-model:page="currentPage"
             >

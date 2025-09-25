@@ -1,10 +1,9 @@
-<!-- @/views/Notifications.vue -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useNotificationStore } from '@/stores/notification'
-import { onBeforeMount, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { formatDateTime } from '@/plugins/date'
 
 import {
@@ -22,16 +21,10 @@ const notificationStore = useNotificationStore()
 const itemsPerPage = 10
 const currentPage = ref(1)
 
-const totalPages = computed(() =>
-  Math.ceil(notificationStore.notifications.length / itemsPerPage)
-)
-
 const paginatedNotifications = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return notificationStore.notifications.slice(start, start + itemsPerPage)
 })
-
-
 </script>
 
 <template>
@@ -59,9 +52,7 @@ const paginatedNotifications = computed(() => {
 
           <!-- No notifications -->
           <template v-else-if="!notificationStore.notifications.length">
-            <div
-              class="rounded-xl border p-10 text-center text-foreground/80 text-2xl font-bold"
-            >
+            <div class="rounded-xl border p-10 text-center text-foreground/80 text-2xl font-bold">
               No Notifications Found
             </div>
           </template>
@@ -77,9 +68,11 @@ const paginatedNotifications = computed(() => {
                 <p class="font-semibold text-lg">{{ n.notificationTitle }}</p>
                 <span
                   class="px-2 py-1 text-xs rounded-full"
-                  :class="n.notificationStatus === 'unread'
-                    ? 'bg-red-500/10 text-red-600 dark:text-red-400'
-                    : 'bg-green-500/10 text-green-600 dark:text-green-400'"
+                  :class="
+                    n.notificationStatus === 'unread'
+                      ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                      : 'bg-green-500/10 text-green-600 dark:text-green-400'
+                  "
                 >
                   {{ n.notificationStatus }}
                 </span>

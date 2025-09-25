@@ -1,6 +1,5 @@
-<!-- @/views/Reports.vue -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import {
   Table,
@@ -36,10 +35,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import type { DateValue } from '@internationalized/date'
-import type {DateRange} from 'reka-ui'
+import type { DateRange } from 'reka-ui'
 import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
@@ -66,7 +65,7 @@ const start = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.
 
 const value = ref({
   start,
-  end: start.add({ days: 20 })
+  end: start.add({ days: 20 }),
 }) as Ref<DateRange>
 
 const locale = ref('en-US')
@@ -127,7 +126,6 @@ watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
     placeholder.value = placeholder.value.subtract({ months: 1 })
 })
 
-
 const reportStore = useReportStore()
 
 // pagination state
@@ -146,15 +144,22 @@ onBeforeMount(async () => {
 
 <template>
   <div class="min-h-screen w-full flex justify-end">
-    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6 ">
+    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6">
       <div class="md:p-10">
-        <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5">
+        <div
+          class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5"
+        >
           <p class="text-3xl font-bold">Reports</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
-              v-if="filter === 'username' || filter === 'point' || filter==='food' || filter === 'type'"
+              v-if="
+                filter === 'username' ||
+                filter === 'point' ||
+                filter === 'food' ||
+                filter === 'type'
+              "
               placeholder="Search"
-              />
+            />
             <Popover v-else>
               <PopoverTrigger as-child>
                 <Button
@@ -327,7 +332,8 @@ onBeforeMount(async () => {
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
                   <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span>
+                    >Filter by <span class="capitalize">{{ filter }}</span></span
+                  >
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -337,16 +343,14 @@ onBeforeMount(async () => {
                 <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('type')">Type</DropdownMenuItem>
               </DropdownMenuContent>
-              </DropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
 
         <div class="grid grid-cols-1 gap-6">
           <div
-            class="w-full max-h-[78vh] overflow-auto outline-1 
-                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
-                   bg-[#e8e8e8]/10 rounded-2xl p-5"
+            class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
               <TableCaption></TableCaption>
@@ -376,7 +380,10 @@ onBeforeMount(async () => {
               <!-- No reports -->
               <TableBody v-else-if="!reportStore.reports.length">
                 <TableRow class="hover:bg-transparent">
-                  <TableCell colspan="8" class="text-center text-foreground/80 py-36 text-3xl font-bold">
+                  <TableCell
+                    colspan="8"
+                    class="text-center text-foreground/80 py-36 text-3xl font-bold"
+                  >
                     No Reports Found
                   </TableCell>
                 </TableRow>
@@ -402,8 +409,12 @@ onBeforeMount(async () => {
         </div>
 
         <!-- Pagination controls -->
-        <div v-if="!reportStore.loading && reportStore.reports.length"  class="flex justify-center mt-6">
-          <Pagination v-slot="{ page }"
+        <div
+          v-if="!reportStore.loading && reportStore.reports.length"
+          class="flex justify-center mt-6"
+        >
+          <Pagination
+            v-slot="{ page }"
             :items-per-page="itemsPerPage"
             :total="reportStore.reports.length"
             :default-page="1"

@@ -1,6 +1,5 @@
-<!-- @/views/Logs.vue -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
 import {
   Table,
@@ -65,7 +64,7 @@ const start = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.
 
 const value = ref({
   start,
-  end: start.add({ days: 20 })
+  end: start.add({ days: 20 }),
 }) as Ref<DateRange>
 
 const locale = ref('en-US')
@@ -137,13 +136,13 @@ const searchQuery = ref('')
 const filteredLogs = computed(() => {
   if (!logStore.logs.length) return []
   if (filter.value === 'username') {
-    return logStore.logs.filter(l =>
-      l.userName?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return logStore.logs.filter((l) =>
+      l.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     )
   }
   if (filter.value === 'email') {
-    return logStore.logs.filter(l =>
-      l.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return logStore.logs.filter((l) =>
+      l.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     )
   }
   if (filter.value === 'date' && value.value.start && value.value.end) {
@@ -151,18 +150,13 @@ const filteredLogs = computed(() => {
     const d = toDate(value.value.end)
     d.setHours(23, 59, 59, 999) // set to 23:59:59.999 of that day
     const end = d.getTime()
-    return logStore.logs.filter(l => {
+    return logStore.logs.filter((l) => {
       const logTime = new Date(l.logDate).getTime()
       return logTime >= start && logTime <= end
     })
   }
   return logStore.logs
 })
-
-// total pages based on logs
-const totalPages = computed(() =>
-  Math.ceil(filteredLogs.value.length / itemsPerPage)
-)
 
 // slice logs for current page
 const paginatedLogs = computed(() => {
@@ -177,17 +171,18 @@ onBeforeMount(async () => {
 
 <template>
   <div class="min-h-screen w-full flex justify-end">
-    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6 ">
+    <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6">
       <div class="md:p-10">
-
-        <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5">
+        <div
+          class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5"
+        >
           <p class="text-3xl font-bold">Account Logs</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
               v-if="filter === 'username' || filter === 'email'"
               v-model="searchQuery"
               placeholder="Search"
-              />
+            />
             <Popover v-else>
               <PopoverTrigger as-child>
                 <Button
@@ -360,7 +355,8 @@ onBeforeMount(async () => {
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
                   <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span>
+                    >Filter by <span class="capitalize">{{ filter }}</span></span
+                  >
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -368,7 +364,7 @@ onBeforeMount(async () => {
                 <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
               </DropdownMenuContent>
-              </DropdownMenu>
+            </DropdownMenu>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
@@ -376,9 +372,7 @@ onBeforeMount(async () => {
         <div class="grid grid-cols-1 gap-6">
           <!-- Table -->
           <div
-            class="w-full max-h-[78vh] overflow-auto outline-1 
-                   dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
-                   bg-[#e8e8e8]/10 rounded-2xl p-5"
+            class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
           >
             <Table>
               <TableCaption></TableCaption>
@@ -404,7 +398,10 @@ onBeforeMount(async () => {
               <!-- No logs -->
               <TableBody v-else-if="!filteredLogs.length">
                 <TableRow class="hover:bg-transparent">
-                  <TableCell colspan="6" class="text-center text-foreground/80 py-36 text-3xl font-bold">
+                  <TableCell
+                    colspan="6"
+                    class="text-center text-foreground/80 py-36 text-3xl font-bold"
+                  >
                     No Logs Found
                   </TableCell>
                 </TableRow>
@@ -415,7 +412,9 @@ onBeforeMount(async () => {
                 <TableRow v-for="l in paginatedLogs" :key="l.logId">
                   <TableCell class="text-foreground text-center">{{ l.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ l.userEmail }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{ formatDateTime(l.logDate) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    formatDateTime(l.logDate)
+                  }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ l.logDescription }}</TableCell>
                 </TableRow>
               </TableBody>

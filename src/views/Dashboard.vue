@@ -1,8 +1,6 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts" setup>
-import SideBar from '@/components/SideBar.vue'
 import { Separator } from '@/components/ui/separator'
-// import {Icon} from '@iconify/vue'
-import { Bell } from 'lucide-vue-next'
 import { lineOptions, vBarOptions, hBarOptions } from '@/lib/chartConfig'
 import {
   Chart as ChartJS,
@@ -13,7 +11,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  scales,
   BarElement,
 } from 'chart.js'
 import { Bar, Line } from 'vue-chartjs'

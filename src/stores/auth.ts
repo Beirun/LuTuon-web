@@ -144,9 +144,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const update = async (updates: {
-    username?: string
-    email?: string
-    dob?: string
+    userName?: string
+    userEmail?: string
+    userDob?: string
     oldPassword?: string
     newPassword?: string
     confirmPassword?: string
@@ -162,15 +162,43 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
 
+      console.log('data', data)
+
       if (res.status === 200) sonner.message('Profile Info', data.message)
       if (data.user) {
+        console.log('user', { ...user.value, ...data.user })
         user.value = { ...user.value, ...data.user }
+
         localStorage.setItem('user', JSON.stringify(user.value))
       }
+      console.log('new User', user.value)
       return true
     } catch (err: unknown) {
       if (err instanceof Error) sonner.error(err.message)
       return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const _delete = async () => {
+    isLoading.value = true
+    try {
+      const res = await useFetch(`${URL}/accounts`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!res.ok) return sonner.error(data.message)
+
+      token.value = null
+      user.value = null
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      router.push('/')
+    } catch (err: unknown) {
+      if (err instanceof Error) sonner.error(err.message)
     } finally {
       isLoading.value = false
     }

@@ -28,9 +28,11 @@ const df = new DateFormatter('en-US', {
   dateStyle: 'long',
 })
 
-const userName = ref(auth.userInfo.userName)
-const userDob = ref(auth.userInfo.userDob)
-const userEmail = ref(auth.userInfo.userEmail)
+const userInfo = reactive({
+  userName: auth.userInfo.userName,
+  userEmail: auth.userInfo.userEmail,
+  userDob: auth.userInfo.userDob,
+})
 
 const userPassword = reactive({
   oldPassword: '',
@@ -68,34 +70,35 @@ const handleEdit = (from: string) => {
 }
 
 const handleCancel = () => {
-  userName.value = auth.userInfo.userName
-  userDob.value = auth.userInfo.userDob
-  userEmail.value = auth.userInfo.userEmail
+  userInfo.userName = auth.userInfo.userName
+  userInfo.userDob = auth.userInfo.userDob
+  userInfo.userEmail = auth.userInfo.userEmail
   manage.value = false
 }
 
 const handleSave = async () => {
   const updates: {
-    username?: string
-    email?: string
-    dob?: string
+    userName?: string
+    userEmail?: string
+    userDob?: string
     oldPassword?: string
     newPassword?: string
     confirmPassword?: string
   } = {}
 
-  if (value.value) userDob.value = new Date(value.value?.toDate(getLocalTimeZone())).toISOString()
+  if (value.value)
+    userInfo.userDob = new Date(value.value?.toDate(getLocalTimeZone())).toISOString()
 
-  updates.username = userName.value
-  updates.email = userEmail.value
-  updates.dob = userDob.value
+  updates.userName = userInfo.userName
+  updates.userEmail = userInfo.userEmail
+  updates.userDob = userInfo.userDob
 
   const success = await auth.update(updates)
   if (!success) return
 
-  userName.value = auth.userInfo.username
-  userDob.value = auth.userInfo.dob
-  userEmail.value = auth.userInfo.email
+  userInfo.userName = auth.userInfo.userName
+  userInfo.userDob = auth.userInfo.userDob
+  userInfo.userEmail = auth.userInfo.userEmail
   manage.value = false
 }
 
@@ -187,7 +190,7 @@ const handlePasswordSave = async () => {
                           ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground'
                           : 'text-gray-400'
                       "
-                      v-model="userName"
+                      v-model="userInfo.userName"
                     />
                   </TableCell>
                 </TableRow>
@@ -217,7 +220,7 @@ const handlePasswordSave = async () => {
                           {{
                             value
                               ? df.format(value.toDate(getLocalTimeZone()))
-                              : df.format(new Date(userDob))
+                              : df.format(new Date(userInfo.userDob))
                           }}
                         </Button>
                       </PopoverTrigger>
@@ -227,7 +230,7 @@ const handlePasswordSave = async () => {
                     </Popover>
                     <div v-if="!manage" class="text-gray-400">
                       {{
-                        new Date(userDob).toLocaleString('en-US', {
+                        new Date(userInfo.userDob).toLocaleString('en-US', {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
@@ -255,7 +258,7 @@ const handlePasswordSave = async () => {
                           ? ' border-1 px-2 rounded-lg bg-popover text-popover-foreground'
                           : 'text-gray-400'
                       "
-                      v-model="userEmail"
+                      v-model="userInfo.userEmail"
                     />
                   </TableCell>
                 </TableRow>

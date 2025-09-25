@@ -65,11 +65,11 @@ const changeFilter = (filterBy: string) => {
 
 // date filter setup
 const today = new Date()
-const start = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
+const end = new CalendarDate(today.getFullYear(), today.getMonth()+1, today.getDate())
 
 const value = ref({
-  start,
-  end: start.add({ days: 20 })
+  start: end.subtract({ years: 1 }),
+  end
 }) as Ref<DateRange>
 
 const locale = ref('en-US')
@@ -157,9 +157,9 @@ const paginatedUsers = computed(() => {
   <div class="min-h-screen w-full flex justify-end">
     <div class="flex flex-col p-4 xs:pl-4 sm:pl-8 md:p-6 md:pr-2 md:pl-18 lg:p-8 w-full md:w-5/6">
       <div class="md:p-10">
-        <div class="flex justify-between mb-5 lg:mb-5">
+        <div class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5">
           <p class="text-3xl font-bold w-1/2">User List</p>
-          <div class="w-1/3 flex items-center justify-end">
+          <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
               v-if="filter === 'username' || filter === 'email' || filter === 'role'"
               v-model="searchQuery"
@@ -171,7 +171,7 @@ const paginatedUsers = computed(() => {
                   variant="outline"
                   :class="
                     cn(
-                      'w-[280px] justify-start text-left font-normal',
+                      'w-fit justify-start text-left font-normal',
                       !value && 'text-muted-foreground',
                     )
                   "
@@ -392,9 +392,9 @@ const paginatedUsers = computed(() => {
               </TableBody>
 
               <!-- No users -->
-              <TableBody v-else-if="!user.users.length">
+              <TableBody v-else-if="!paginatedUsers.length">
                 <TableRow class="hover:bg-transparent">
-                  <TableCell colspan="5" class="text-center text-foreground/80 py-36">
+                  <TableCell colspan="5" class="text-center text-foreground/80 py-36 text-3xl font-bold">
                     No Users Found
                   </TableCell>
                 </TableRow>

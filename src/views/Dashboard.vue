@@ -88,7 +88,7 @@ ChartJS.register(
           </div>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5 sm:mb-5 md:mb-0">
           <!-- Most Played Dish -->
           <div class="outline-1 
                    dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
@@ -100,7 +100,7 @@ ChartJS.register(
           </div>
           
           <!-- Weekly Players -->
-          <div class="outline-1 
+          <div class="outline-1
                    dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 
                    bg-[#e8e8e8]/10 rounded-2xl p-4 md:p-6 shadow-sm">
             <p class="text-xl md:text-2xl font-bold mb-4">Weekly Players</p>

@@ -192,6 +192,7 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
 
+      sonner.success(data.message)
       token.value = null
       user.value = null
       localStorage.removeItem('token')
@@ -244,6 +245,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     logout,
+    _delete,
     handleTokenExpiry,
     makeAuthenticatedRequest,
     continueWithGoogle,

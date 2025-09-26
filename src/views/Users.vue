@@ -36,7 +36,7 @@ import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight, Triangle, Check, Info } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -49,13 +49,14 @@ import {
   RangeCalendarGridRow,
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 
 const user = useUserStore()
 
 const itemsPerPage = 10
 const currentPage = ref(1)
 
-const filter = ref('username')
+const filter = ref('')
 const searchQuery = ref('')
 
 const changeFilter = (filterBy: string) => {
@@ -166,7 +167,14 @@ const filteredUsers = computed(() => {
       return joined >= startDate && joined <= endDate
     })
   }
-  return user.users
+  return user.users.filter(
+    (u) =>
+      u.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      u.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      u.roleName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      formatDate(u.userDob).toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      formatDateTime(u.dateCreated).toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
 })
 
 // then paginate
@@ -188,7 +196,9 @@ const paginatedUsers = computed(() => {
           <p class="text-3xl font-bold w-1/2">User List</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
-              v-if="filter === 'username' || filter === 'email' || filter === 'role'"
+              v-if="
+                filter === '' || filter === 'username' || filter === 'email' || filter === 'role'
+              "
               v-model="searchQuery"
               placeholder="Search"
             />
@@ -363,19 +373,41 @@ const paginatedUsers = computed(() => {
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span
-                  >
+                  <span class="flex gap-2"
+                    >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem @click="changeFilter('username')">Username</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('birthdate')">Birthdate</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('role')">Role</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('date joined')"
-                  >Date Joined</DropdownMenuItem
+                <DropdownMenuItem
+                  @click="changeFilter('username')"
+                  class="flex justify-between gap-2"
                 >
+                  Username
+                  <Check v-if="filter === 'username'" class="size-4" />
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('email')" class="flex justify-between gap-2">
+                  Email
+                  <Check v-if="filter === 'email'" class="size-4" />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  @click="changeFilter('birthdate')"
+                  class="flex justify-between gap-2"
+                >
+                  Birthdate
+                  <Check v-if="filter === 'birthdate'" class="size-4" />
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('role')" class="flex justify-between gap-2">
+                  Role
+                  <Check v-if="filter === 'role'" class="size-4" />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  @click="changeFilter('date joined')"
+                  class="flex justify-between gap-2"
+                >
+                  Date Joined
+                  <Check v-if="filter === 'date joined'" class="size-4" />
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -394,6 +426,7 @@ const paginatedUsers = computed(() => {
                   <TableHead class="font-bold text-foreground text-center">Birthdate</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Role</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Date Joined</TableHead>
+                  <TableHead class="font-bold text-foreground text-center w-[20px]"></TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -415,6 +448,9 @@ const paginatedUsers = computed(() => {
                   <TableCell class="text-center">
                     <Skeleton class="h-4 w-40 mx-auto" />
                   </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-10 mx-auto" />
+                  </TableCell>
                 </TableRow>
               </TableBody>
 
@@ -422,7 +458,7 @@ const paginatedUsers = computed(() => {
               <TableBody v-else-if="!paginatedUsers.length">
                 <TableRow class="hover:bg-transparent">
                   <TableCell
-                    colspan="5"
+                    colspan="6"
                     class="text-center text-foreground/80 py-36 text-3xl font-bold"
                   >
                     No Users Found
@@ -432,7 +468,15 @@ const paginatedUsers = computed(() => {
 
               <!-- Data rows -->
               <TableBody v-else>
-                <TableRow v-for="u in paginatedUsers" :key="u.userId">
+                <TableRow
+                  v-for="u in paginatedUsers"
+                  :key="u.userId"
+                  :class="
+                    u.dateDeleted
+                      ? 'bg-red-100/40 dark:bg-red-900/20 hover:bg-red-100/50 hover:dark:bg-red-900/25'
+                      : ''
+                  "
+                >
                   <TableCell class="h-[6vh] text-foreground text-center">{{
                     u.userName
                   }}</TableCell>
@@ -444,6 +488,16 @@ const paginatedUsers = computed(() => {
                   <TableCell class="text-foreground text-center">{{
                     formatDateTime(u.dateCreated)
                   }}</TableCell>
+                  <TableCell class="text-center">
+                    <HoverCard v-if="u.dateDeleted">
+                      <HoverCardTrigger as-child>
+                        <Info class="mx-auto size-5 text-red-500 cursor-pointer" />
+                      </HoverCardTrigger>
+                      <HoverCardContent class="text-sm w-45 text-center">
+                        This account has been deleted.
+                      </HoverCardContent>
+                    </HoverCard>
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -460,7 +514,6 @@ const paginatedUsers = computed(() => {
             >
               <PaginationContent v-slot="{ items }">
                 <PaginationPrevious />
-
                 <template v-for="(item, index) in items" :key="index">
                   <PaginationItem
                     v-if="item.type === 'page'"
@@ -470,9 +523,7 @@ const paginatedUsers = computed(() => {
                     {{ item.value }}
                   </PaginationItem>
                 </template>
-
                 <PaginationEllipsis :index="4" />
-
                 <PaginationNext />
               </PaginationContent>
             </Pagination>

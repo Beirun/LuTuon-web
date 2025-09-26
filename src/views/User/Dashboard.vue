@@ -9,6 +9,7 @@ import {
   SquareUserRound,
   LockKeyhole,
   LogOut,
+  Loader2,
   CalendarDays,
   Eye,
   EyeClosed,
@@ -27,7 +28,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+  DialogDescription,
+} from '@/components/ui/dialog'
 import type { DateValue } from '@internationalized/date'
 import { DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import { cn } from '@/lib/utils'
@@ -155,8 +157,6 @@ const TogglePassword = (password: string) => {
     showConfirmPassword.value = !showConfirmPassword.value
   }
 }
-
-const openDeleteDialog = ref(false)
 </script>
 
 <template>
@@ -491,22 +491,37 @@ const openDeleteDialog = ref(false)
               >
                 Edit
               </Button>
-              
+
               <Dialog>
                 <DialogTrigger as-child>
                   <Button
-                v-if="activeItem === 'personal information'"
-                class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-red-600"
-              >
-                Delete
-              </Button>
+                    v-if="activeItem === 'personal information'"
+                    class="bg-transparent p-0 hover:bg-transparent cursor-pointer shadow-none text-red-600"
+                  >
+                    Delete
+                  </Button>
                 </DialogTrigger>
-                <DialogContent class="w-[300px] min-w-[300px] lg:max-w-[425px] rounded-md bottom-1/2 translate-y-1/2">
+                <DialogContent
+                  class="w-[300px] min-w-[300px] lg:max-w-[425px] rounded-md bottom-1/2 translate-y-1/2"
+                >
                   <DialogHeader>
                     <DialogTitle>Confirm Delete</DialogTitle>
-                    <DialogDescription>Are you sure you want to delete your account? You won't be able to retrieve any data.</DialogDescription>
+                    <DialogDescription
+                      >Are you sure you want to delete your account? You won't be able to retrieve
+                      any data.</DialogDescription
+                    >
                   </DialogHeader>
-                  <DialogFooter><Button class="cursor-pointer bg-red-600 text-white hover:bg-red-500">Delete</Button></DialogFooter>
+                  <DialogFooter
+                    ><Button
+                      @click="auth._delete"
+                      :disabled="auth.isLoading"
+                      class="cursor-pointer bg-red-600 text-white hover:bg-red-500"
+                    >
+                      <Loader2 v-if="auth.isLoading" class="w-4 h-4 animate-spin" />
+
+                      Delete</Button
+                    ></DialogFooter
+                  >
                 </DialogContent>
               </Dialog>
 

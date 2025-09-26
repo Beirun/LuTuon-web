@@ -40,7 +40,7 @@ import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight, Check, Triangle } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -54,10 +54,12 @@ import {
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
 
-const filter = ref('username')
+const filter = ref('')
+const searchQuery = ref('')
 
 const changeFilter = (filterBy: string) => {
   filter.value = filterBy
+  searchQuery.value = ''
 }
 
 const today = new Date()
@@ -126,20 +128,65 @@ watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
     placeholder.value = placeholder.value.subtract({ months: 1 })
 })
 
-const reportStore = useReportStore()
+const report = useReportStore()
 
 // pagination state
 const currentPage = ref(1)
 const itemsPerPage = 10
 
+// filtering first
+const filteredReports = computed(() => {
+  if (!report.reports.length) return []
+
+  if (filter.value === 'username') {
+    return report.reports.filter((r) =>
+      r.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
+  }
+  if (filter.value === 'point') {
+    return report.reports.filter((r) =>
+      r.attemptPoint?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
+  }
+  if (filter.value === 'food') {
+    return report.reports.filter((r) =>
+      r.foodName?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
+  }
+  if (filter.value === 'type') {
+    return report.reports.filter((r) =>
+      r.attemptType?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    )
+  }
+  if (filter.value === 'date' && value.value.start && value.value.end) {
+    const startDate = toDate(value.value.start).getTime()
+    const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
+    return report.reports.filter((r) => {
+      const date = new Date(r.attemptDate).getTime()
+      return date >= startDate && date <= endDate
+    })
+  }
+
+  return report.reports.filter(
+    (r) =>
+      r.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      r.attemptPoint?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      r.foodName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      r.attemptDate?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      r.attemptType?.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
+})
+
 const paginatedReports = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
-  return reportStore.reports.slice(start, start + itemsPerPage)
+  return filteredReports.value.slice(start, start + itemsPerPage)
 })
 
 onBeforeMount(async () => {
-  if (reportStore.reports.length === 0) await reportStore.fetchReports()
+  if (report.reports.length === 0) await report.fetchReports()
 })
+// then paginate
+const totalPages = computed(() => Math.ceil(filteredReports.value.length / itemsPerPage))
 </script>
 
 <template>
@@ -153,6 +200,7 @@ onBeforeMount(async () => {
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
               v-if="
+                filter === '' ||
                 filter === 'username' ||
                 filter === 'point' ||
                 filter === 'food' ||
@@ -331,17 +379,29 @@ onBeforeMount(async () => {
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span
-                  >
+                  <span class="flex gap-2"
+                    >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem @click="changeFilter('username')">Username</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('point')">Point</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('food')">Food</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('type')">Type</DropdownMenuItem>
+                <DropdownMenuItem
+                  @click="changeFilter('username')"
+                  class="flex justify-between gap-2"
+                  >Username <Check v-if="filter === 'username'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('point')" class="flex justify-between gap-2"
+                  >Point <Check v-if="filter === 'point'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('food')" class="flex justify-between gap-2"
+                  >Food <Check v-if="filter === 'food'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('date')" class="flex justify-between gap-2"
+                  >Date <Check v-if="filter === 'date'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('type')" class="flex justify-between gap-2"
+                  >Type <Check v-if="filter === 'type'" class="size-4"
+                /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -366,7 +426,7 @@ onBeforeMount(async () => {
               </TableHeader>
 
               <!-- Skeleton while loading -->
-              <TableBody v-if="reportStore.loading">
+              <TableBody v-if="report.loading">
                 <TableRow v-for="i in 5" :key="i">
                   <TableCell class="text-center"><Skeleton class="h-4 w-20 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
@@ -378,7 +438,7 @@ onBeforeMount(async () => {
               </TableBody>
 
               <!-- No reports -->
-              <TableBody v-else-if="!reportStore.reports.length">
+              <TableBody v-else-if="!report.reports.length">
                 <TableRow class="hover:bg-transparent">
                   <TableCell
                     colspan="8"
@@ -410,13 +470,13 @@ onBeforeMount(async () => {
 
         <!-- Pagination controls -->
         <div
-          v-if="!reportStore.loading && reportStore.reports.length"
+          v-if="!report.loading && report.reports.length && totalPages > 1"
           class="flex justify-center mt-6"
         >
           <Pagination
             v-slot="{ page }"
             :items-per-page="itemsPerPage"
-            :total="reportStore.reports.length"
+            :total="totalPages"
             :default-page="1"
             v-model:page="currentPage"
           >

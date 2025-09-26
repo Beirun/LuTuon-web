@@ -3,22 +3,18 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogClose,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
-import RegisterForm from './RegisterForm.vue'
 import { reactive, ref } from 'vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 import { Eye, EyeClosed, Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import { googleTokenLogin  } from 'vue3-google-login'
+import { googleTokenLogin } from 'vue3-google-login'
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 
 const credentials = reactive({
   email: '',
@@ -51,12 +47,11 @@ const goToForgotPassword = () => {
 
 async function google() {
   const object = await googleTokenLogin()
-  auth.continueWithGoogle(object);
-  
+  auth.continueWithGoogle(object)
 }
 </script>
 <template>
-  <Dialog v-model:open="props.open" @update:open="handleOpenChange">
+  <Dialog :open="props.open" @update:open="handleOpenChange">
     <DialogContent class="flex flex-col pt-8 md:h-175 sm:max-h-175 overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
@@ -93,15 +88,24 @@ async function google() {
             >
             <div class="relative">
               <Input
-              v-model="credentials.password"
-              tabindex="2"
-              :placeholder="showPassword ? 'Password123' : '••••••••'"
-              id="password"
-              :type="showPassword ? 'text': 'password'"
-              class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
+                v-model="credentials.password"
+                tabindex="2"
+                :placeholder="showPassword ? 'Password123' : '••••••••'"
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
               />
-              <EyeClosed class=" size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"   :class="showPassword ? 'hidden' : ''" @click="TogglePassword"/>
-              <Eye icon="radix-icons:eye-open" class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showPassword ? '' : 'hidden'" @click="TogglePassword"/>
+              <EyeClosed
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showPassword ? 'hidden' : ''"
+                @click="TogglePassword"
+              />
+              <Eye
+                icon="radix-icons:eye-open"
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showPassword ? '' : 'hidden'"
+                @click="TogglePassword"
+              />
             </div>
           </div>
         </div>
@@ -144,17 +148,17 @@ async function google() {
           <div class="text-sm sm:text-sm md:text-base">OR</div>
           <div class="h-[1px] w-full bg-foreground"></div>
         </div>
-          
-          <Button
-            @click="google"
-            tabindex="6"
-            :disabled="auth.isLoading"
-            variant="outline"
-            class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
-            >
-              <img src="@/assets/google.png" class="size-6 sm:size-6 md:size-8" alt="" />
-              CONTINUE WITH GOOGLE
-          </Button>
+
+        <Button
+          @click="google"
+          tabindex="6"
+          :disabled="auth.isLoading"
+          variant="outline"
+          class="h-14 flex justify-center items-center gap-4 bg-background brightness-95 text-foreground w-full my-4 rounded-md text-base sm:text-base md:text-lg active:brightness-90 hover:brightness-95 cursor-pointer hover:shadow-md hover:shadow-primary-foreground/20 transition-all duration-300"
+        >
+          <img src="@/assets/google.png" class="size-6 sm:size-6 md:size-8" alt="" />
+          CONTINUE WITH GOOGLE
+        </Button>
       </div>
     </DialogContent>
   </Dialog>

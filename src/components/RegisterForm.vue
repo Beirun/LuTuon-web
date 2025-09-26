@@ -4,36 +4,30 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogClose,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
-import LoginForm from './LoginForm.vue'
 import Button from './ui/button/Button.vue'
 import Input from './ui/input/Input.vue'
 import Label from './ui/label/Label.vue'
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
-// import { Icon } from '@iconify/vue'
-import { Eye, EyeClosed, Loader2} from 'lucide-vue-next'
+import { Eye, EyeClosed, Loader2 } from 'lucide-vue-next'
 import { googleTokenLogin } from 'vue3-google-login'
 
-const auth = useAuthStore();
+const auth = useAuthStore()
 const credentials = reactive({
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
-const register = async() =>{
-    const success = await auth.register(credentials)
-    if(!success) return
-    credentials.confirmPassword = ''
-    credentials.password = ''
-    credentials.email= ''
-    handleOpenChange(false)
-  
+const register = async () => {
+  const success = await auth.register(credentials)
+  if (!success) return
+  credentials.confirmPassword = ''
+  credentials.password = ''
+  credentials.email = ''
+  handleOpenChange(false)
 }
 const screenWidth = ref(window.innerWidth)
 const showPassword = ref(false)
@@ -46,7 +40,6 @@ const TogglePassword = () => {
 const ToggleConfirmPassword = () => {
   showConfirmPassword.value = !showConfirmPassword.value
 }
-
 
 const updateWidth = () => {
   screenWidth.value = window.innerWidth
@@ -75,12 +68,11 @@ const handleOpenChange = (openState: boolean) => {
 
 async function google() {
   const object = await googleTokenLogin()
-  auth.continueWithGoogle(object);
-  
+  auth.continueWithGoogle(object)
 }
 </script>
 <template>
-  <Dialog v-model:open="props.open" @update:open="handleOpenChange">
+  <Dialog :open="props.open" @update:open="handleOpenChange">
     <DialogContent class="flex flex-col pt-8">
       <DialogHeader>
         <DialogTitle>
@@ -117,15 +109,23 @@ async function google() {
             >
             <div class="relative">
               <Input
-              v-model="credentials.password"
-              tabindex="-1"
-              :placeholder="showPassword ? 'Password123' : '••••••••'"
-              id="password"
-              :type="showPassword ? 'text': 'password'"
-              class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
+                v-model="credentials.password"
+                tabindex="-1"
+                :placeholder="showPassword ? 'Password123' : '••••••••'"
+                id="password"
+                :type="showPassword ? 'text' : 'password'"
+                class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
               />
-              <EyeClosed class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"  :class="showPassword ? 'hidden' : ''" @click="TogglePassword"/>
-              <Eye class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showPassword ? '' : 'hidden'" @click="TogglePassword"/>
+              <EyeClosed
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showPassword ? 'hidden' : ''"
+                @click="TogglePassword"
+              />
+              <Eye
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showPassword ? '' : 'hidden'"
+                @click="TogglePassword"
+              />
             </div>
           </div>
           <div class="flex flex-col gap-1">
@@ -135,17 +135,24 @@ async function google() {
               >Confirm Password</Label
             >
             <div class="relative">
-              
               <Input
-              v-model="credentials.confirmPassword"
-              tabindex="-1"
-              :placeholder="showConfirmPassword ? 'Password123' : '••••••••'"
-              id="confirmpassword"
-              :type="showConfirmPassword ? 'text': 'password'"
-              class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
+                v-model="credentials.confirmPassword"
+                tabindex="-1"
+                :placeholder="showConfirmPassword ? 'Password123' : '••••••••'"
+                id="confirmpassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                class="h-14 px-2 sm:px-2 md:px-4 py-3 text-base sm:text-base md:text-lg border border-border rounded-sm sm:rounded-sm md:rounded-md focus:outline-primary focus:outline-2"
               />
-              <EyeClosed class=" size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"  :class="showConfirmPassword ? 'hidden' : ''" @click="ToggleConfirmPassword"/>
-              <Eye class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl " :class="showConfirmPassword ? '' : 'hidden'" @click="ToggleConfirmPassword"/>
+              <EyeClosed
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showConfirmPassword ? 'hidden' : ''"
+                @click="ToggleConfirmPassword"
+              />
+              <Eye
+                class="size-5 absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl"
+                :class="showConfirmPassword ? '' : 'hidden'"
+                @click="ToggleConfirmPassword"
+              />
             </div>
           </div>
         </div>

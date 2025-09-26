@@ -39,7 +39,7 @@ import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight, Check, Triangle } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -53,10 +53,11 @@ import {
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
 
-const filter = ref('username')
+const filter = ref('')
 
 const changeFilter = (filterBy: string) => {
   filter.value = filterBy
+  searchQuery.value = ''
 }
 
 const today = new Date()
@@ -155,8 +156,16 @@ const filteredLogs = computed(() => {
       return logTime >= start && logTime <= end
     })
   }
-  return logStore.logs
+  return logStore.logs.filter(
+    (l) =>
+      l.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      l.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      l.logDescription?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      formatDateTime(l.logDate).toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
 })
+
+const totalPages = computed(() => Math.ceil(filteredLogs.value.length / itemsPerPage))
 
 // slice logs for current page
 const paginatedLogs = computed(() => {
@@ -179,7 +188,7 @@ onBeforeMount(async () => {
           <p class="text-3xl font-bold">Account Logs</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
-              v-if="filter === 'username' || filter === 'email'"
+              v-if="filter === '' || filter === 'username' || filter === 'email'"
               v-model="searchQuery"
               placeholder="Search"
             />
@@ -354,15 +363,23 @@ onBeforeMount(async () => {
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span
-                  >
+                  <span class="flex gap-2"
+                    >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem @click="changeFilter('username')">Username</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
+                <DropdownMenuItem
+                  @click="changeFilter('username')"
+                  class="flex justify-between gap-2"
+                  >Username <Check v-if="filter === 'username'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('email')" class="flex justify-between gap-2"
+                  >Email <Check v-if="filter === 'email'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('date')" class="flex justify-between gap-2"
+                  >Date <Check v-if="filter === 'date'" class="size-4"
+                /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -422,11 +439,14 @@ onBeforeMount(async () => {
           </div>
 
           <!-- Pagination -->
-          <div v-if="!logStore.loading && filteredLogs.length" class="flex justify-center mt-4">
+          <div
+            v-if="!logStore.loading && filteredLogs.length && totalPages > 1"
+            class="flex justify-center mt-4"
+          >
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="filteredLogs.length"
+              :total="totalPages"
               :default-page="currentPage"
               @update:page="currentPage = $event"
             >

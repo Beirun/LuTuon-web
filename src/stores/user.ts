@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', () => {
       })
       if (!res.ok) throw new Error('Failed to fetch users')
       const data = await res.json()
+      console.log('data', data)
       users.value = data
     } catch (e: unknown) {
       if (e instanceof Error) sonner.error(e.message || 'Failed to fetch users')

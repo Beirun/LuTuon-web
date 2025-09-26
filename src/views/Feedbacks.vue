@@ -39,7 +39,7 @@ import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight, Triangle, Check } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -53,9 +53,10 @@ import {
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
 
-const filter = ref('username')
+const filter = ref('')
 const changeFilter = (filterBy: string) => {
   filter.value = filterBy
+  searchQuery.value = ''
 }
 
 const today = new Date()
@@ -150,7 +151,13 @@ const filteredFeedbacks = computed(() => {
       return feedbackTime >= start && feedbackTime <= end
     })
   }
-  return feedbackStore.feedbacks
+  return feedbackStore.feedbacks.filter(
+    (f) =>
+      f.userName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      f.userEmail?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      f.feedbackMessage?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      formatDateTime(f.feedbackDate).toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
 })
 
 // paginated results
@@ -162,6 +169,9 @@ const paginatedFeedbacks = computed(() => {
 onBeforeMount(async () => {
   if (feedbackStore.feedbacks.length === 0) await feedbackStore.fetchFeedbacks()
 })
+
+// then paginate
+const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / itemsPerPage))
 </script>
 
 <template>
@@ -174,7 +184,7 @@ onBeforeMount(async () => {
           <p class="text-3xl font-bold">Feedbacks</p>
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
             <Input
-              v-if="filter === 'username' || filter === 'email'"
+              v-if="filter === '' || filter === 'username' || filter === 'email'"
               v-model="searchQuery"
               placeholder="Search"
             />
@@ -347,15 +357,23 @@ onBeforeMount(async () => {
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button variant="outline" class="ml-2 cursor-pointer">
-                  <span
-                    >Filter by <span class="capitalize">{{ filter }}</span></span
-                  >
+                  <span class="flex gap-2"
+                    >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem @click="changeFilter('username')">Username</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('email')">Email</DropdownMenuItem>
-                <DropdownMenuItem @click="changeFilter('date')">Date</DropdownMenuItem>
+                <DropdownMenuItem
+                  @click="changeFilter('username')"
+                  class="flex justify-between gap-2"
+                  >Username <Check v-if="filter === 'username'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('email')" class="flex justify-between gap-2"
+                  >Email <Check v-if="filter === 'email'" class="size-4"
+                /></DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('date')" class="flex justify-between gap-2"
+                  >Date <Check v-if="filter === 'date'" class="size-4"
+                /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -415,7 +433,7 @@ onBeforeMount(async () => {
 
           <!-- Pagination -->
           <div
-            v-if="!feedbackStore.loading && filteredFeedbacks.length"
+            v-if="!feedbackStore.loading && filteredFeedbacks.length && totalPages > 1"
             class="flex justify-center mt-4"
           >
             <Pagination

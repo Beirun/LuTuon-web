@@ -439,7 +439,7 @@ const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / ite
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="filteredFeedbacks.length"
+              :total="totalPages"
               :default-page="currentPage"
               @update:page="currentPage = $event"
             >

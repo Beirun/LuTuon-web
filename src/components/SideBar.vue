@@ -81,7 +81,12 @@ const unreadCount = computed(
 
 <template>
   <Sidebar
-    v-if="route.path !== '/forgot-password' && route.path !== '/' && route.path !== '/dashboard'"
+    v-if="
+      route.path !== '/forgot-password' &&
+      route.path !== '/' &&
+      route.path !== '/overview' &&
+      route.path !== '/feedback'
+    "
     v-model:open="isSidebarOpen"
     class="flex flex-col h-screen w-1/6"
   >

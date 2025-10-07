@@ -7,7 +7,6 @@ import { useSonnerStore } from '@/stores/sonner'
 
 export const useFeedbackStore = defineStore('feedback', () => {
   const feedbacks = ref<Feedback[]>([])
-  const feedback = ref<Feedback | null>(null)
   const loading = ref(false)
   const URL = import.meta.env.VITE_BASE_URL
   const sonner = useSonnerStore()
@@ -39,14 +38,13 @@ export const useFeedbackStore = defineStore('feedback', () => {
       })
       if (!res.ok) throw new Error('Failed to fetch feedback')
       const data = await res.json()
-      feedback.value = data
+      feedbacks.value = data
     } catch (e: unknown) {
-      feedback.value = null
       if (e instanceof Error) sonner.error(e.message || 'Failed to fetch feedback')
     } finally {
       loading.value = false
     }
   }
 
-  return { feedbacks, feedback, loading, fetchFeedbacks, fetchFeedback }
+  return { feedbacks, loading, fetchFeedbacks, fetchFeedback }
 })

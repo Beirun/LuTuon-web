@@ -20,66 +20,67 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Landing,
-      meta: { requiresGuest: true }
+      meta: { requiresGuest: true, title: 'LuTuon' },
     },
     {
       path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPassword,
-      meta: { requiresGuest: true }
+      meta: { requiresGuest: true, title: 'Reset Password' },
     },
     {
       path: '/admin',
       name: 'admindashboard',
       component: Dashboard,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Admin Dashboard' },
     },
     {
       path: '/users',
       name: 'users',
       component: Users,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Users' },
     },
     {
       path: '/reports',
       name: 'reports',
       component: Reports,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Reports' },
     },
     {
       path: '/feedbacks',
       name: 'feedbacks',
       component: Feedbacks,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Feedbacks' },
     },
     {
       path: '/logs',
       name: 'logs',
       component: Logs,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Logs' },
     },
     {
       path: '/settings',
       name: 'settings',
       component: Settings,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Account Settings' },
     },
     {
-      path: '/dashboard',
+      path: '/overview',
       name: 'user-dashboard',
       component: UserDashboard,
-      meta: { requiresAuth: true, requiresUser: true }
+      meta: { requiresAuth: true, requiresUser: true, title: 'Account Overview' },
     },
     {
       path: '/notifications',
       name: 'notifications',
       component: Notifications,
-      meta: {requiresAuth: true, requiresAdmin: true}
-    }
+      meta: { requiresAuth: true, requiresAdmin: true, title: 'Notifications' },
+    },
   ],
 })
 
-router.beforeEach(async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  document.title = to.path !== '/' ? 'LuTuon - ' + to.meta.title : (to.meta.title as string)
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth) {
@@ -102,20 +103,18 @@ router.beforeEach(async(to, from, next) => {
     }
 
     if (to.meta.requiresAdmin && !authStore.isAdmin) {
-      next('/dashboard')
+      next('/overview')
       return
     }
 
     next()
-  } 
-  else if (to.meta.requiresGuest) {
+  } else if (to.meta.requiresGuest) {
     if (authStore.isAuthenticated) {
-      next(authStore.isAdmin ? '/admin' : '/dashboard')
+      next(authStore.isAdmin ? '/admin' : '/overview')
       return
     }
     next()
-  } 
-  else {
+  } else {
     next()
   }
 })

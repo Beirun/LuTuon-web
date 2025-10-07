@@ -13,7 +13,7 @@ const route = useRoute()
 const isSidebarOpen = ref(false)
 provide('sidebarState', isSidebarOpen)
 
-const paths = ['/forgot-password', '/', '/dashboard', '/personal-information', '/password']
+const paths = ['/forgot-password', '/', '/overview', '/personal-information', '/password']
 
 const toasterTheme = computed(() => (mode.value === 'auto' ? 'light' : mode.value))
 </script>
@@ -25,7 +25,7 @@ const toasterTheme = computed(() => (mode.value === 'auto' ? 'light' : mode.valu
       <SidebarTrigger
         class="lg:hidden cursor-pointer"
         :class="
-          route.path === '/forgot-password' || route.path === '/' || route.path === '/dashboard'
+          route.path === '/forgot-password' || route.path === '/' || route.path === '/overview'
             ? 'hidden'
             : ''
         "

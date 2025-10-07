@@ -5,7 +5,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useNotificationStore } from '@/stores/notification'
 import { ref, computed } from 'vue'
 import { formatDateTime } from '@/plugins/date'
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from '@/components/ui/dropdown-menu'
 import {
   Pagination,
   PaginationContent,
@@ -14,9 +18,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { MoreVertical } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
 
 const notificationStore = useNotificationStore()
+async function markAsRead(id: string) {
+  await notificationStore.updateNotificationStatus(id, 'read')
+}
 
+async function remove(id: string) {
+  await notificationStore.deleteNotification(id)
+}
 // pagination state
 const itemsPerPage = 10
 const currentPage = ref(1)
@@ -25,6 +37,7 @@ const paginatedNotifications = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return notificationStore.notifications.slice(start, start + itemsPerPage)
 })
+const totalPages = computed(() => Math.ceil(paginatedNotifications.value.length / itemsPerPage))
 </script>
 
 <template>
@@ -65,19 +78,49 @@ const paginatedNotifications = computed(() => {
               class="rounded-xl border p-5 bg-background shadow-sm hover:shadow-md transition flex flex-col gap-2"
             >
               <div class="flex justify-between items-center">
-                <p class="font-semibold text-lg">{{ n.notificationTitle }}</p>
-                <span
-                  class="px-2 py-1 text-xs rounded-full"
-                  :class="
-                    n.notificationStatus === 'unread'
-                      ? 'bg-red-500/10 text-red-600 dark:text-red-400'
-                      : 'bg-green-500/10 text-green-600 dark:text-green-400'
-                  "
-                >
-                  {{ n.notificationStatus }}
-                </span>
+                <div class="flex gap-2">
+                  <p class="font-semibold text-xl">{{ n.notificationTitle }}</p>
+                  <span
+                    class="px-2 py-1 text-xs rounded-full"
+                    :class="
+                      n.notificationStatus === 'unread'
+                        ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                        : 'bg-green-500/10 text-green-600 dark:text-green-400'
+                    "
+                  >
+                    {{ n.notificationStatus }}
+                  </span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger as-child>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="w-6 h-6 p-0 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      <component :is="MoreVertical" class="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent class="w-[1rem]">
+                    <Button
+                      variant="ghost"
+                      @click.stop="markAsRead(n.notificationId)"
+                      :disabled="n.notificationStatus === 'read'"
+                      class="text-xs w-full flex justify-start"
+                    >
+                      Mark as Read
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      @click.stop="remove(n.notificationId)"
+                      class="text-red-500 text-xs w-full flex justify-start"
+                    >
+                      Delete
+                    </Button>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <p class="text-sm text-muted-foreground">
+              <p class="text-base text-muted-foreground">
                 {{ n.notificationMessage }}
               </p>
               <span class="text-xs text-gray-400">
@@ -88,14 +131,11 @@ const paginatedNotifications = computed(() => {
         </div>
 
         <!-- Pagination -->
-        <div
-          v-if="!notificationStore.loading && notificationStore.notifications.length"
-          class="flex justify-center mt-6"
-        >
+        <div v-if="totalPages > 1" class="flex justify-center mt-6">
           <Pagination
             v-slot="{ page }"
             :items-per-page="itemsPerPage"
-            :total="notificationStore.notifications.length"
+            :total="totalPages"
             :default-page="currentPage"
             @update:page="currentPage = $event"
           >

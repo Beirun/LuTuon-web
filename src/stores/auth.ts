@@ -161,7 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
       const data = await res.json()
       if (!res.ok) return sonner.error(data.message)
-
+      sonner.success(data.message)
       console.log('data', data)
 
       if (res.status === 200) sonner.message('Profile Info', data.message)

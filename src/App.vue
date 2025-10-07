@@ -13,7 +13,7 @@ const route = useRoute()
 const isSidebarOpen = ref(false)
 provide('sidebarState', isSidebarOpen)
 
-const paths = ['/forgot-password', '/', '/overview', '/personal-information', '/password']
+const paths = ['/admin', '/users', '/reports', '/feedbacks', '/logs', '/notifications', '/settings']
 
 const toasterTheme = computed(() => (mode.value === 'auto' ? 'light' : mode.value))
 </script>
@@ -23,15 +23,11 @@ const toasterTheme = computed(() => (mode.value === 'auto' ? 'light' : mode.valu
   <SidebarProvider>
     <div class="w-screen h-screen flex flex-col">
       <SidebarTrigger
+        v-if="paths.includes(route.path)"
         class="lg:hidden cursor-pointer"
-        :class="
-          route.path === '/forgot-password' || route.path === '/' || route.path === '/overview'
-            ? 'hidden'
-            : ''
-        "
         @click="isSidebarOpen = true"
       />
-      <SideBar v-if="!paths.includes(route.path)" />
+      <SideBar v-if="paths.includes(route.path)" />
       <RouterView />
     </div>
   </SidebarProvider>

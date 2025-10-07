@@ -79,7 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (redirectPath) router.push(redirectPath)
       else if (isAdmin.value) router.push('/admin')
-      else router.push('/dashboard')
+      else router.push('/overview')
     } catch (err: unknown) {
       if (err instanceof Error) sonner.error(err.message)
     } finally {
@@ -111,7 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (redirectPath) router.push(redirectPath)
       else if (isAdmin.value) router.push('/admin')
-      else router.push('/dashboard')
+      else router.push('/overview')
     } catch (err: unknown) {
       if (err instanceof Error) sonner.error(err.message)
     } finally {

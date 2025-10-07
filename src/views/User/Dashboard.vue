@@ -3,19 +3,23 @@
 import { useAuthStore } from '@/stores/auth'
 import { computed, onBeforeMount, reactive, ref } from 'vue'
 import {
-  Bell,
-  Triangle,
   ShieldUser,
   SquareUserRound,
   LockKeyhole,
-  LogOut,
   Loader2,
   CalendarDays,
   Eye,
   EyeClosed,
-  MoreVertical,
+  MessageSquareText,
 } from 'lucide-vue-next'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHeader,
+  TableHead,
+} from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -37,14 +41,23 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import DarkModeSwitch from '@/components/DarkModeSwitch.vue'
-import { useNotificationStore } from '@/stores/notification'
-import { timeAgo } from '@/plugins/date'
+import UserNavbar from '@/components/UserNavbar.vue'
+import { useFeedbackStore } from '@/stores/feedback'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
+import { formatDateTimeShort } from '@/plugins/date'
 const auth = useAuthStore()
 const items = [
   { title: 'Account Overview', icon: ShieldUser },
   { title: 'Personal Information', icon: SquareUserRound },
   { title: 'Security', icon: LockKeyhole },
+  { title: 'Your Feedbacks', icon: MessageSquareText },
 ]
 
 const userInfo = reactive({
@@ -141,10 +154,6 @@ const df = new DateFormatter('en-US', {
 
 const value = ref<DateValue>()
 
-const handleLogout = () => {
-  auth.logout()
-}
-
 const showOldPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -161,140 +170,29 @@ const TogglePassword = (password: string) => {
   }
 }
 
-const notification = useNotificationStore()
-onBeforeMount(async () => notification.fetchNotifications())
-const unreadCount = computed(
-  () => notification.notifications.filter((n) => n.notificationStatus !== 'read').length,
-)
+const feedbackStore = useFeedbackStore()
 
-async function markAsRead(id: string) {
-  await notification.updateNotificationStatus(id, 'read')
-}
+// Pagination state
+const itemsPerPage = 10
+const currentPage = ref(1)
 
-async function remove(id: string) {
-  await notification.deleteNotification(id)
-}
+// paginated results
+const paginatedFeedbacks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return feedbackStore.feedbacks.slice(start, start + itemsPerPage)
+})
+
+onBeforeMount(async () => {
+  if (feedbackStore.feedbacks.length === 0) await feedbackStore.fetchFeedback()
+})
+
+// then paginate
+const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / itemsPerPage))
 </script>
 
 <template>
   <div class="w-screen h-screen flex flex-col justify-center">
-    <!-- start header -->
-    <div class="w-full h-1/10 flex justify-between items-center px-2 lg:px-10 shadow-xs">
-      <div><img src="@/assets/logo.png" alt="" /></div>
-      <div class="flex w-full h-full justify-end items-center gap-5">
-        <DarkModeSwitch />
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button
-              variant="outline"
-              class="h-12 w-12 shadow-sm shadow-black/20 active:brightness-90 hover:brightness-95 duration-300 cursor-pointer relative"
-            >
-              <component :is="Bell" class="text-[#3A3A3A] dark:text-white" />
-              <span
-                v-if="unreadCount > 0"
-                class="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1"
-              >
-                {{ unreadCount }}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent class="w-[24rem] p-3">
-            <div class="font-semibold text-center text-lg mb-2">Notifications</div>
-            <hr class="mb-2 border-gray-200 dark:border-gray-700" />
-
-            <div
-              v-if="!notification.loading && notification.notifications.length"
-              class="flex flex-col gap-2"
-            >
-              <div
-                v-for="n in notification.notifications"
-                :key="n.notificationId"
-                class="flex flex-col gap-1 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <div class="flex justify-between gap-1 items-start">
-                  <div class="flex">
-                    <span class="font-medium">{{ n.notificationTitle }}</span>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="w-6 h-6 p-0 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      >
-                        <component :is="MoreVertical" class="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent class="w-[1rem]">
-                      <Button
-                        variant="ghost"
-                        @click.stop="markAsRead(n.notificationId)"
-                        :disabled="n.notificationStatus === 'read'"
-                        class="text-xs w-full flex justify-start"
-                      >
-                        Mark as Read
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        @click.stop="remove(n.notificationId)"
-                        class="text-red-500 text-xs w-full flex justify-start"
-                      >
-                        Delete
-                      </Button>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <span class="text-sm text-gray-600 dark:text-gray-300 pr-4">
-                  {{ n.notificationMessage }}
-                </span>
-                <div class="flex">
-                  <small class="text-xs font-medium text-gray-500">{{
-                    timeAgo(n.notificationDate)
-                  }}</small>
-                </div>
-              </div>
-            </div>
-
-            <div v-else-if="!notification.loading" class="text-center text-sm text-gray-500 py-2">
-              No notifications
-            </div>
-
-            <div v-else class="text-center text-sm text-gray-500 py-2">Loading...</div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button
-              variant="outline"
-              class="h-12 px-3 w-33 sm:w-fit font-light text-gray-600 dark:text-[#e8e8e8] shadow-sm shadow-black/20 rounded-md border border-border flex items-center gap-2 cursor-pointer active:brightness-90 hover:brightness-95 duration-300"
-            >
-              <span class="block sm:hidden"> {{ auth.userInfo.userEmail.slice(0, 10) }}... </span>
-              <span class="hidden sm:block">
-                {{ auth.userInfo.userEmail }}
-              </span>
-
-              <component
-                :is="Triangle"
-                height="15"
-                class="rotate-180 fill-[#3A3A3A] text-[#3A3A3A] dark:text-[#e8e8e8] dark:fill-[#e8e8e8]"
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="sm:w-40">
-            <DropdownMenuItem
-              @click="handleLogout"
-              class="cursor-pointer flex items-center justify-between text-base"
-            >
-              <span>Logout</span>
-              <LogOut class="size-5" />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
-    <!-- end header -->
-
+    <UserNavbar />
     <!-- start body -->
     <div class="w-full h-full pt-10 flex flex-col items-center gap-5">
       <div
@@ -314,8 +212,11 @@ async function remove(id: string) {
                 <span v-else-if="activeItem === 'personal information'">
                   <component :is="items[1].icon" class="text-[#3A3A3A] size-6" />
                 </span>
-                <span v-else>
+                <span v-else-if="activeItem === 'security'">
                   <component :is="items[2].icon" class="text-[#3A3A3A] size-6" />
+                </span>
+                <span v-else>
+                  <component :is="items[3].icon" class="text-[#3A3A3A] size-6" />
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -354,13 +255,7 @@ async function remove(id: string) {
           <p class="text-xl sm:text-2xl font-bold">
             <!-- start change header when mobile -->
             <span class="block sm:hidden">
-              {{
-                activeItem === 'account overview'
-                  ? 'Account Overview'
-                  : activeItem === 'personal information'
-                    ? 'Personal Information'
-                    : 'Security'
-              }}
+              {{ items.find((i) => i.title.toLowerCase() === activeItem)!.title }}
             </span>
             <!-- end change header when mobile -->
 
@@ -393,7 +288,10 @@ async function remove(id: string) {
 
         <div class="sm:w-2/3 w-full flex flex-col gap-5">
           <!-- start Personal Info top div on right side (if laptop) -->
-          <div v-if="activeItem !== 'security'" class="w-full border border-border rounded-xl">
+          <div
+            v-if="activeItem !== 'security' && activeItem !== 'your feedbacks'"
+            class="w-full border border-border rounded-xl"
+          >
             <div class="flex justify-between border-b p-3 items-center">
               <p class="text-lg font-bold">Personal Information</p>
               <Button
@@ -556,7 +454,10 @@ async function remove(id: string) {
           <!-- end Personal Info top div on right side (if laptop) -->
 
           <!-- start Password/Delete Account BOTTOM div on right side (if laptop) -->
-          <div class="w-full border border-border rounded-xl">
+          <div
+            v-if="activeItem !== 'your feedbacks'"
+            class="w-full border border-border rounded-xl"
+          >
             <div class="flex justify-between border-b p-3 items-center">
               <!-- conditional header -->
               <p class="text-lg font-bold">
@@ -761,6 +662,62 @@ async function remove(id: string) {
             </div>
           </div>
           <!-- end Password/Delete Account BOTTOM div on right side (if laptop) -->
+          <div
+            v-if="activeItem === 'your feedbacks'"
+            class="w-full border border-border rounded-xl"
+          >
+            <Table class="my-2">
+              <TableHeader v-if="feedbackStore.feedbacks.length !== 0">
+                <TableRow class="px-5 hover:bg-transparent">
+                  <TableHead class="font-bold text-foreground text-center">Message</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody v-if="feedbackStore.feedbacks.length === 0">
+                <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                  <TableCell class="w-full text-center text-foreground/80 py-36 text-3xl font-bold">
+                    No Feedbacks Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+              <TableBody v-else>
+                <TableRow v-for="f in paginatedFeedbacks" :key="f.feedbackId">
+                  <TableCell class="text-foreground text-center">{{ f.feedbackMessage }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    formatDateTimeShort(f.feedbackDate)
+                  }}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+            <div
+              v-if="!feedbackStore.loading && feedbackStore.feedbacks.length && totalPages > 1"
+              class="flex justify-center mt-4"
+            >
+              <Pagination
+                v-slot="{ page }"
+                :items-per-page="itemsPerPage"
+                :total="totalPages"
+                :default-page="currentPage"
+                @update:page="currentPage = $event"
+              >
+                <PaginationContent v-slot="{ items }">
+                  <PaginationPrevious />
+                  <template v-for="(item, index) in items" :key="index">
+                    <PaginationItem
+                      v-if="item.type === 'page'"
+                      :value="item.value"
+                      :is-active="item.value === page"
+                    >
+                      {{ item.value }}
+                    </PaginationItem>
+                    <PaginationEllipsis v-else :index="index" />
+                  </template>
+                  <PaginationNext />
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </div>
         </div>
       </div>
     </div>

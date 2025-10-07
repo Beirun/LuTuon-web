@@ -72,7 +72,7 @@ const setMode = (val: 'light' | 'dark' | 'auto') => {
   popoverOpen.value = false
 }
 const notification = useNotificationStore()
-onBeforeMount(async () => notification.fetchNotifications())
+onBeforeMount(async () => await notification.fetchNotifications())
 
 const unreadCount = computed(
   () => notification.notifications.filter((n) => n.notificationStatus !== 'read').length,
@@ -82,10 +82,13 @@ const unreadCount = computed(
 <template>
   <Sidebar
     v-if="
-      route.path !== '/forgot-password' &&
-      route.path !== '/' &&
-      route.path !== '/overview' &&
-      route.path !== '/feedback'
+      route.path === '/admin' ||
+      route.path === '/users' ||
+      route.path === '/reports' ||
+      route.path === '/feedbacks' ||
+      route.path === '/logs' ||
+      route.path === '/notifications' ||
+      route.path === '/settings'
     "
     v-model:open="isSidebarOpen"
     class="flex flex-col h-screen w-1/6"

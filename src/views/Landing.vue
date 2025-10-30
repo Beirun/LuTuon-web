@@ -40,11 +40,17 @@ const openPlayStore = () => {
     <!-- Header Section -->
 
     <div
-      class="w-screen h-17.5 sm:h-17.5 md:h-20 bg-background absolute top-0 right-0 flex items-center justify-between px-4 sm:px-4 md:px-12"
+      class="z-100 w-screen h-17.5 sm:h-17.5 md:h-20 absolute top-0 right-0 flex items-center justify-between px-4 sm:px-4 md:px-12"
     >
-      <img src="@/assets/logo.png" class="h-8 sm:h-8 md:h-10" alt="" />
+      <div class="relative">
+        <img src="@/assets/logo.png" class="h-8 sm:h-8 md:h-10" alt="" />
+        <div class="-z-100 absolute size-full top-0 bg-background blur-md" />
+      </div>
       <div class="flex justify-between items-center h-full gap-4 sm:gap-4 md:gap-10">
-        <DarkModeSwitch />
+        <div class="relative">
+          <DarkModeSwitch />
+          <div class="-z-100 absolute size-full top-0 bg-background blur-sm" />
+        </div>
         <Button
           @click="isLoginOpen = true"
           class="h-12 sm:h-9 md:h-12 text-primary-foreground/80 dark:text-primary-foreground px-4 py-1 sm:px-4 md:px-8 bg-primary font-medium text-sm sm:text-sm md:text-lg active:brightness-90 cursor-pointer rounded-sm sm:rounded:sm md:rounded-md shadow-md shadow-black/40 transition-all duration-300 hover:brightness-95 dark:hover:brightness-110"
@@ -55,10 +61,25 @@ const openPlayStore = () => {
     </div>
 
     <!-- Hero Section -->
+    <!-- bg-[radial-gradient(ellipse_at_center,_#473b00_0%,_transparent_75%)] -->
 
     <div
-      class="w-screen min-h-screen bg-[radial-gradient(ellipse_at_center,_#fff2bd_0%,_transparent_90%)] dark:bg-[radial-gradient(ellipse_at_center,_#473b00_0%,_transparent_75%)] flex flex-col justify-center items-center gap-10 pb-30 sm:pb-30 md:pb-20 lg:pb-10"
+      class="relative overflow-hidden w-screen min-h-screen flex flex-col justify-center items-center gap-10 pb-30 sm:pb-30 md:pb-20 lg:pb-10"
     >
+      <div
+        class="-z-10 absolute size-[100vw] lg:size-auto top-0 lg:inset-0 bg-[radial-gradient(ellipse_at_center,_#ffe682_0%,_transparent_75%)] dark:bg-none"
+      />
+      <div
+        class="block md:hidden -z-10 absolute size-[100vw] -left-1/2 bottom-1/5 sm:bottom-1/20 translate-y-[clamp(-100px,25vh,1000px)] lg:size-auto lg:inset-0 bg-[radial-gradient(ellipse_at_center,_#ffe682_0%,_transparent_75%)] dark:bg-none"
+      />
+
+      <div
+        class="hidden dark:block -z-10 absolute top-0 -right-1/10 size-[clamp(100px,100vw,1000px)] -translate-y-[clamp(-100px,25vh,1000px)] bg-radial-[at_75%_25%] from-primary/15 to-65% to-transparent"
+      />
+
+      <div
+        class="hidden dark:block -z-10 absolute bottom-1/5 lg:bottom-0 lg:translate-y-1/2 lg:-translate-x-1/5 -left-1/2 lg:-left-1/10 size-[clamp(100px,100vw,1000px)] translate-y-[clamp(-100px,25vh,1000px)] bg-radial-[at_50%_50%] from-primary/15 to-65% to-transparent"
+      />
       <div class="text-center space-y-2 flex justify-center w-full">
         <div
           class="font-gotham font-black sm:font-black md:font-bold text-4xl text-foreground w-33/40 md:max-w-275 leading-12 sm:leading-12 md:leading-14 lg:leading-20 xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl pb-10 sm:pb-10 md:pb-0 pt-45 sm:pt-45 md:pt-30"

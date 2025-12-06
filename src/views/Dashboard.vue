@@ -2,6 +2,8 @@
 <script lang="ts" setup>
 import { Separator } from '@/components/ui/separator'
 import { lineOptions, vBarOptions, hBarOptions } from '@/lib/chartConfig'
+import { useReportStore } from '@/stores/report'
+import { useUserStore } from '@/stores/user'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,44 +15,158 @@ import {
   Legend,
   BarElement,
 } from 'chart.js'
+import { ref, onBeforeMount, computed } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
 
-const lineData = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'Data One',
-      data: [40, 39, 10, 40, 39, 80, 40],
-      borderColor: '#F8C600',
-      pointRadius: 6,
-      pointBorderColor: '#F8C600',
-      pointBorderWidth: 3,
-      pointBackgroundColor: '#fafafa',
-    },
-  ],
-}
+const user = useUserStore()
+const report = useReportStore()
 
-const hBarData = {
-  labels: ['Adobo', 'Torta', 'Humba', 'Tinola'],
-  datasets: [
-    {
-      label: 'Data One',
-      backgroundColor: '#F8C600',
-      data: [40, 20, 12, 11],
-    },
-  ],
-}
+const lineData = computed(() => {
+  const now = new Date()
+  const months = new Map<string, number>()
 
-const vBarData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [
-    {
-      label: 'Data One',
-      backgroundColor: '#F8C600',
-      data: [40, 20, 12, 11, 20, 15, 10],
-    },
-  ],
-}
+  // initialize 12-month window with zero
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    months.set(key, 0)
+  }
+
+  // count actual users in that 12-month window
+  for (let i = 0; i < user.users.length; i++) {
+    const d = new Date(user.users[i].dateCreated)
+
+    const diff =
+      (now.getFullYear() - d.getFullYear()) * 12 +
+      (now.getMonth() - d.getMonth())
+
+    if (diff >= 0 && diff < 12) {
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      months.set(key, (months.get(key) || 0) + 1)
+    }
+  }
+
+  const sorted = [...months.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+
+  const labels: string[] = []
+  const values: number[] = []
+
+  for (let i = 0; i < sorted.length; i++) {
+    const [y, m] = sorted[i][0].split('-')
+
+    const full = new Date(`${y}-${m}-01`).toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    })
+
+    labels.push(full)
+    values.push(sorted[i][1])
+  }
+
+  for(let i = values.length; i >=0; i--){
+    if(values[i] !== 0) continue
+
+    if(i-1 >= 0 && values[i-1] === 0){
+      labels.splice(i - 1, 1)
+      values.splice(i - 1, 1)
+    }
+  }
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Users Created',
+        data: values,
+        borderColor: '#F8C600',
+        pointRadius: 6,
+        pointBorderColor: '#F8C600',
+        pointBorderWidth: 3,
+        pointBackgroundColor: '#fafafa',
+      },
+    ],
+  }
+})
+
+
+
+
+const hBarData = computed(() => {
+  const dishes = ['Tinolang Manok', 'Adobong Manok', 'Humba', 'Tortang Talong']
+  const count = new Map<string, number>()
+
+  // initialize all to 0
+  for (let i = 0; i < dishes.length; i++) count.set(dishes[i], 0)
+
+  // count attempts
+  for (let i = 0; i < report.reports.length; i++) {
+    const r = report.reports[i]
+    if (count.has(r.foodName)) count.set(r.foodName, (count.get(r.foodName) || 0) + 1)
+  }
+
+  const labels: string[] = []
+  const values: number[] = []
+
+  for (let i = 0; i < dishes.length; i++) {
+    labels.push(dishes[i])
+    values.push(count.get(dishes[i]) || 0)
+  }
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Most Played Dish',
+        backgroundColor: '#F8C600',
+        data: values,
+      },
+    ],
+  }
+})
+
+
+const vBarData = computed(() => {
+  const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const counts = Array(7).fill(0)
+
+  // count attempts by weekday
+  for (let i = 0; i < report.reports.length; i++) {
+    const d = new Date(report.reports[i].attemptDate)
+    counts[d.getDay()]++
+  }
+
+  // rotate so first item is tomorrow
+  const today = new Date().getDay()
+  const start = (today + 1) % 7
+
+  const rotatedLabels: string[] = []
+  const rotatedValues: number[] = []
+
+  for (let i = 0; i < 7; i++) {
+    const idx = (start + i) % 7
+    rotatedLabels.push(names[idx])
+    rotatedValues.push(counts[idx])
+  }
+
+  return {
+    labels: rotatedLabels,
+    datasets: [
+      {
+        label: 'Weekly Players',
+        backgroundColor: '#F8C600',
+        data: rotatedValues,
+      },
+    ],
+  }
+})
+
+
+onBeforeMount(async () => {
+  await report.fetchReports()
+  await user.fetchUsers()
+
+  console.log("reports", report.reports)
+ 
+})
 
 ChartJS.register(
   CategoryScale,
@@ -63,6 +179,7 @@ ChartJS.register(
   Legend,
 )
 </script>
+
 
 <template>
   <div class="min-h-screen w-full flex justify-end">

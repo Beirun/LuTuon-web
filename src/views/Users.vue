@@ -35,8 +35,8 @@ import type { DateRange } from 'reka-ui'
 import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight, Triangle, Check, Info } from 'lucide-vue-next'
+import { CalendarDate, isEqualMonth} from '@internationalized/date'
+import { Calendar, ChevronLeft, ChevronRight, Triangle, Check, Info, Download } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -50,6 +50,9 @@ import {
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { jsPDF } from 'jspdf'
+import { autoTable } from 'jspdf-autotable'
+import logo from '@/assets/logo.png'
 
 const user = useUserStore()
 
@@ -184,6 +187,81 @@ const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return filteredUsers.value.slice(start, start + itemsPerPage)
 })
+
+const exportData = async () => {
+  if (!filteredUsers.value.length){
+    alert('No User Record')
+    return
+  }
+  const now = new Date()
+  const doc = new jsPDF()
+
+  const img = new Image()
+  img.src = logo
+  await new Promise((resolve) => {
+    img.onload = resolve
+  })
+
+
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const title = 'User List'
+  const titleX = pageWidth/2
+  const startY = 30
+
+  const imgWidth = 40
+  const imgHeight = 15
+  const x = (pageWidth - imgWidth)/2
+  const y = 10
+
+  doc.addImage(img, 'PNG', x, y,imgWidth,imgHeight)
+
+  doc.setFont('helvetica', 'bold')
+  doc.text(title, titleX, startY,{align: 'center'})
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  if (filter.value){
+    const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
+    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+  }
+  else{
+    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
+  }
+  doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
+  doc.setFont('helvetica', 'italic')
+  doc.text(`*rows colored RED are deleted accounts`, titleX, startY+15, {align:'center'})
+
+  const tableColumn = ['Username', 'Email Address', 'Birhtdate','Role','Date Joined']
+  const tableRows = filteredUsers.value.map((u) => [
+    u.userName,
+    u.userEmail,
+    formatDate(u.userDob),
+    u.roleName,
+    formatDateTime(u.dateCreated),
+  ])
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: startY+20,
+    styles: {fontSize: 11},
+    headStyles: {fillColor: [41,128,185]},
+    didParseCell: (data) => {
+      if (data.section === 'body'){
+        const rowIndex = data.row.index
+        const user = filteredUsers.value[rowIndex]
+        if (user.dateDeleted){
+          data.cell.styles.fillColor = [255,204,203]
+        }
+      }
+    }
+  })
+  if (filter.value){
+    doc.save(`LuTuon_UserList_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
+  }else{
+    doc.save(`LuTuon_UserList_${now.toLocaleDateString()}.pdf`)
+  }
+}
 </script>
 
 <template>
@@ -194,7 +272,7 @@ const paginatedUsers = computed(() => {
           class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5"
         >
           <p class="text-3xl font-bold w-1/2">User List</p>
-          <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
+          <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end gap-2">
             <Input
               v-if="
                 filter === '' || filter === 'username' || filter === 'email' || filter === 'role'
@@ -372,7 +450,7 @@ const paginatedUsers = computed(() => {
             </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <Button variant="outline" class="ml-2 cursor-pointer">
+                <Button variant="outline" class=" cursor-pointer">
                   <span class="flex gap-2"
                     >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
                   </span>
@@ -410,6 +488,9 @@ const paginatedUsers = computed(() => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button @click="exportData" >PDF
+              <Download />
+            </Button>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />

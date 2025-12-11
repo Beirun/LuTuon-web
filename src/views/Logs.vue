@@ -39,7 +39,7 @@ import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarDate, isEqualMonth } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight, Check, Triangle } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight, Check, Triangle, Download } from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -52,6 +52,9 @@ import {
   RangeCalendarGridRow,
   RangeCalendarHeadCell,
 } from '@/components/ui/range-calendar'
+import { jsPDF } from 'jspdf'
+import { autoTable } from 'jspdf-autotable'
+import logo from '@/assets/logo.png'
 
 const filter = ref('')
 
@@ -176,6 +179,70 @@ const paginatedLogs = computed(() => {
 onBeforeMount(async () => {
   if (logStore.logs.length === 0) await logStore.fetchLogs()
 })
+
+const exportData = async () => {
+  if (!filteredLogs.value.length){
+    alert('No Logs Record')
+    return
+  }
+  const now = new Date()
+  const doc = new jsPDF()
+
+  const img = new Image()
+  img.src = logo
+  await new Promise((resolve) => {
+    img.onload = resolve
+  })
+
+
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const title = 'Logs'
+  const titleX = pageWidth/2
+  const startY = 30
+
+  const imgWidth = 40
+  const imgHeight = 15
+  const x = (pageWidth - imgWidth)/2
+  const y = 10
+
+  doc.addImage(img, 'PNG', x, y,imgWidth,imgHeight)
+
+  doc.setFont('helvetica', 'bold')
+  doc.text(title, titleX, startY,{align: 'center'})
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  if (filter.value){
+    const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
+    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+  }
+  else{
+    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
+  }
+  doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
+  doc.setFont('helvetica', 'italic')
+
+  const tableColumn = ['Username', 'Email', 'Date','Description']
+  const tableRows = filteredLogs.value.map((l) => [
+    l.userName,
+    l.userEmail,
+    formatDateTime(l.logDate),
+    l.logDescription
+  ])
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: startY+15,
+    styles: {fontSize: 11},
+    headStyles: {fillColor: [41,128,185]},
+  })
+  if (filter.value){
+    doc.save(`LuTuon_Logs_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
+  }else{
+    doc.save(`LuTuon_Logs_${now.toLocaleDateString()}.pdf`)
+  }
+}
 </script>
 
 <template>
@@ -186,7 +253,7 @@ onBeforeMount(async () => {
           class="flex flex-col sm:flex-col md:flex-col lg:flex-row justify-between mb-5 lg:mb-5 gap-5"
         >
           <p class="text-3xl font-bold">Account Logs</p>
-          <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end">
+          <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end gap-2">
             <Input
               v-if="filter === '' || filter === 'username' || filter === 'email'"
               v-model="searchQuery"
@@ -362,7 +429,7 @@ onBeforeMount(async () => {
             </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <Button variant="outline" class="ml-2 cursor-pointer">
+                <Button variant="outline" class="cursor-pointer">
                   <span class="flex gap-2"
                     >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
                   </span>
@@ -382,6 +449,7 @@ onBeforeMount(async () => {
                 /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button @click="exportData">PDF <Download/></Button>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />

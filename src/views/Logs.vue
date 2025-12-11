@@ -449,7 +449,7 @@ const exportData = async () => {
                 /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button @click="exportData">PDF <Download/></Button>
+            <Button @click="exportData" class="cursor-pointer">PDF <Download/></Button>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />

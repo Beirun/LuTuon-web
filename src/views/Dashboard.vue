@@ -15,7 +15,7 @@ import {
   Legend,
   BarElement,
 } from 'chart.js'
-import { ref, onBeforeMount, computed } from 'vue'
+import { onBeforeMount, computed } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
 
 const user = useUserStore()
@@ -165,7 +165,7 @@ onBeforeMount(async () => {
   await user.fetchUsers()
 
   console.log("reports", report.reports)
- 
+
 })
 
 ChartJS.register(

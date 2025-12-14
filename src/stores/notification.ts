@@ -74,6 +74,29 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   }
 
+  async function updateAllNotificationStatus() {
+    loading.value = true
+    try {
+      const notificationIds = notifications.value.filter(n => n.notificationStatus === "unread").map(n => n.notificationId)
+      const res = await useFetch(`${URL}/notifications/all`, {
+        method: 'POST',
+        body: JSON.stringify({notificationIds}),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Failed to update notification')
+      notifications.value = notifications.value.map((n => ({
+        ...n, notificationStatus: "read"
+      })))
+      return data
+    } catch (e: unknown) {
+      if (e instanceof Error) sonner.error(e.message || 'Failed to update notification')
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
   async function deleteNotification(notificationId: string) {
     loading.value = true
     try {
@@ -98,5 +121,6 @@ export const useNotificationStore = defineStore('notification', () => {
     createNotification,
     updateNotificationStatus,
     deleteNotification,
+    updateAllNotificationStatus
   }
 })

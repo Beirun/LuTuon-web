@@ -55,6 +55,9 @@ import {
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import logo from '@/assets/logo.png'
+import { useSonnerStore } from '@/stores/sonner'
+
+const sonner = useSonnerStore()
 
 const filter = ref('')
 const changeFilter = (filterBy: string) => {
@@ -127,7 +130,7 @@ watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
 const feedbackStore = useFeedbackStore()
 
 // Pagination state
-const itemsPerPage = 10
+const itemsPerPage = 15
 const currentPage = ref(1)
 
 // Filtering
@@ -178,7 +181,7 @@ const totalPages = computed(() => Math.ceil(filteredFeedbacks.value.length / ite
 
 const exportData = async () => {
   if (!filteredFeedbacks.value.length){
-    alert('No Report Record')
+    sonner.error("No Data Found.")
     return
   }
   const now = new Date()
@@ -190,7 +193,7 @@ const exportData = async () => {
     img.onload = resolve
   })
 
-
+  const count = filteredFeedbacks.value.length
   const pageWidth = doc.internal.pageSize.getWidth()
   const title = 'Feedbacks'
   const titleX = pageWidth/2
@@ -208,18 +211,19 @@ const exportData = async () => {
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value){
+  if (filter.value && searchQuery.value != ""){
     const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
-    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+    doc.text(`Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
   }
   else{
-    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
+    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
   }
   doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
   doc.setFont('helvetica', 'italic')
 
-  const tableColumn = ['Username', 'Email', 'Date','Message']
-  const tableRows = filteredFeedbacks.value.map((f) => [
+  const tableColumn = ['No.', 'Username', 'Email', 'Date','Message']
+  const tableRows = filteredFeedbacks.value.map((f, i) => [
+    i + 1,
     f.userName,
     f.userEmail,
     formatDateTime(f.feedbackDate),
@@ -230,10 +234,10 @@ const exportData = async () => {
     head: [tableColumn],
     body: tableRows,
     startY: startY+15,
-    styles: {fontSize: 11},
+    styles: {fontSize: 8},
     headStyles: {fillColor: [41,128,185]},
   })
-  if (filter.value){
+  if (filter.value && searchQuery.value != ""){
     doc.save(`LuTuon_Feedbacks_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
   }else{
     doc.save(`LuTuon_Feedbacks_${now.toLocaleDateString()}.pdf`)
@@ -447,7 +451,9 @@ const exportData = async () => {
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
-
+        <div class="w-full text-right mb-5">
+          Total Rows: <span class="font-bold">{{ filteredFeedbacks.length }}</span>
+        </div>
         <div class="grid grid-cols-1 gap-6">
           <div
             class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
@@ -456,6 +462,7 @@ const exportData = async () => {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead class="font-bold text-foreground text-center"></TableHead>
                   <TableHead class="font-bold text-foreground text-center">Username</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Email</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Date</TableHead>
@@ -466,6 +473,7 @@ const exportData = async () => {
               <!-- Skeleton while loading -->
               <TableBody v-if="feedbackStore.loading">
                 <TableRow v-for="i in 5" :key="i">
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
@@ -487,7 +495,9 @@ const exportData = async () => {
 
               <!-- Data rows -->
               <TableBody v-else>
-                <TableRow v-for="f in paginatedFeedbacks" :key="f.feedbackId">
+                <TableRow v-for="(f, i) in paginatedFeedbacks" :key="f.feedbackId">
+                  <TableCell class="text-foreground text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.userEmail }}</TableCell>
                   <TableCell class="text-foreground text-center">{{
@@ -507,7 +517,7 @@ const exportData = async () => {
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="totalPages"
+              :total="filteredFeedbacks.length"
               :default-page="currentPage"
               @update:page="currentPage = $event"
             >

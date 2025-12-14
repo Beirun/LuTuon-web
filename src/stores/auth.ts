@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const register = async (credentials: {
     email: string
+    birthdate: string
     password: string
     confirmPassword: string
   }) => {

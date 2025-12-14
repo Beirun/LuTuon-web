@@ -55,6 +55,9 @@ import {
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import logo from '@/assets/logo.png'
+import { useSonnerStore } from '@/stores/sonner'
+
+const sonner = useSonnerStore()
 
 const filter = ref('')
 
@@ -181,8 +184,8 @@ onBeforeMount(async () => {
 })
 
 const exportData = async () => {
-  if (!filteredLogs.value.length){
-    alert('No Logs Record')
+  if (!filteredLogs.value.length) {
+    sonner.error('No Data Found.')
     return
   }
   const now = new Date()
@@ -194,52 +197,66 @@ const exportData = async () => {
     img.onload = resolve
   })
 
-
+  const count = filteredLogs.value.length
   const pageWidth = doc.internal.pageSize.getWidth()
   const title = 'Logs'
-  const titleX = pageWidth/2
+  const titleX = pageWidth / 2
   const startY = 30
 
   const imgWidth = 40
   const imgHeight = 15
-  const x = (pageWidth - imgWidth)/2
+  const x = (pageWidth - imgWidth) / 2
   const y = 10
 
-  doc.addImage(img, 'PNG', x, y,imgWidth,imgHeight)
+  doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight)
 
   doc.setFont('helvetica', 'bold')
-  doc.text(title, titleX, startY,{align: 'center'})
+  doc.text(title, titleX, startY, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value){
-    const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
-    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+  if (filter.value && searchQuery.value != '') {
+    const cap = filter.value
+      ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase()
+      : ''
+    doc.text(
+      `Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`,
+      titleX,
+      startY + 5,
+      { align: 'center' },
+    )
+  } else {
+    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY + 5, { align: 'center' })
   }
-  else{
-    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
-  }
-  doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
+  doc.text(
+    `Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`,
+    titleX,
+    startY + 10,
+    { align: 'center' },
+  )
   doc.setFont('helvetica', 'italic')
 
-  const tableColumn = ['Username', 'Email', 'Date','Description']
-  const tableRows = filteredLogs.value.map((l) => [
+  const tableColumn = ['No.', 'Username', 'Email', 'Date', 'Description']
+  const tableRows = filteredLogs.value.map((l, i) => [
+    i + 1,
     l.userName,
     l.userEmail,
     formatDateTime(l.logDate),
-    l.logDescription
+    l.logDescription,
   ])
 
   autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
-    startY: startY+15,
-    styles: {fontSize: 11},
-    headStyles: {fillColor: [41,128,185]},
+    startY: startY + 15,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
   })
-  if (filter.value){
-    doc.save(`LuTuon_Logs_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
-  }else{
+  if (filter.value && searchQuery.value != '') {
+    doc.save(
+      `LuTuon_Logs_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`,
+    )
+  } else {
     doc.save(`LuTuon_Logs_${now.toLocaleDateString()}.pdf`)
   }
 }
@@ -449,11 +466,13 @@ const exportData = async () => {
                 /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button @click="exportData" class="cursor-pointer">PDF <Download/></Button>
+            <Button @click="exportData" class="cursor-pointer">PDF <Download /></Button>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
-
+        <div class="w-full text-right mb-5">
+          Total Rows: <span class="font-bold">{{ filteredLogs.length }}</span>
+        </div>
         <div class="grid grid-cols-1 gap-6">
           <!-- Table -->
           <div
@@ -463,6 +482,7 @@ const exportData = async () => {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead class="font-bold text-foreground text-center"></TableHead>
                   <TableHead class="font-bold text-foreground text-center">Username</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Email</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Date</TableHead>
@@ -474,6 +494,7 @@ const exportData = async () => {
               <TableBody v-if="logStore.loading">
                 <TableRow v-for="i in 5" :key="i">
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-28 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-36 mx-auto" /></TableCell>
@@ -494,7 +515,10 @@ const exportData = async () => {
 
               <!-- Data rows -->
               <TableBody v-else>
-                <TableRow v-for="l in paginatedLogs" :key="l.logId">
+                <TableRow v-for="(l, i) in paginatedLogs" :key="l.logId">
+                  <TableCell class="text-foreground text-center">
+                    {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+                  </TableCell>
                   <TableCell class="text-foreground text-center">{{ l.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ l.userEmail }}</TableCell>
                   <TableCell class="text-foreground text-center">{{
@@ -514,7 +538,7 @@ const exportData = async () => {
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="totalPages"
+              :total="filteredLogs.length"
               :default-page="currentPage"
               @update:page="currentPage = $event"
             >

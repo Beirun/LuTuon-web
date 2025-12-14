@@ -18,12 +18,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { MoreVertical } from 'lucide-vue-next'
+import { MoreVertical, CheckCheck } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 
 const notificationStore = useNotificationStore()
 async function markAsRead(id: string) {
   await notificationStore.updateNotificationStatus(id, 'read')
+}
+
+async function markAllAsRead(){
+  await notificationStore.updateAllNotificationStatus()
 }
 
 async function remove(id: string) {
@@ -46,6 +50,7 @@ const totalPages = computed(() => Math.ceil(paginatedNotifications.value.length 
       <div class="md:p-10">
         <div class="flex justify-between mb-5 lg:mb-5">
           <p class="text-3xl font-bold">Notifications</p>
+          <Button @click="markAllAsRead()">Mark All as Read <CheckCheck/></Button>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
 

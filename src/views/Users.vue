@@ -35,8 +35,16 @@ import type { DateRange } from 'reka-ui'
 import type { Grid } from 'reka-ui/date'
 import type { Ref } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarDate, isEqualMonth} from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight, Triangle, Check, Info, Download } from 'lucide-vue-next'
+import { CalendarDate, isEqualMonth } from '@internationalized/date'
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Triangle,
+  Check,
+  Info,
+  Download,
+} from 'lucide-vue-next'
 import { RangeCalendarRoot, useDateFormatter } from 'reka-ui'
 import { createMonth, toDate } from 'reka-ui/date'
 import { cn } from '@/lib/utils'
@@ -53,10 +61,13 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import logo from '@/assets/logo.png'
+import { useSonnerStore } from '@/stores/sonner'
+
+const sonner = useSonnerStore()
 
 const user = useUserStore()
 
-const itemsPerPage = 10
+const itemsPerPage = 15
 const currentPage = ref(1)
 
 const filter = ref('')
@@ -162,6 +173,24 @@ const filteredUsers = computed(() => {
       return dob >= startDate && dob <= endDate
     })
   }
+  if (filter.value === 'age') {
+    const q = +searchQuery.value
+    return user.users.filter((u) => {
+      if (!u.userDob) return false
+      if (!q) return true
+      const b = new Date(u.userDob)
+      const age =
+        new Date().getFullYear() -
+        b.getFullYear() -
+        (new Date() <
+        new Date(
+          new Date().setFullYear(b.getFullYear() + (new Date().getFullYear() - b.getFullYear())),
+        )
+          ? 1
+          : 0)
+      return age === q
+    })
+  }
   if (filter.value === 'date joined' && value.value.start && value.value.end) {
     const startDate = toDate(value.value.start).getTime()
     const endDate = toDate(value.value.end).getTime() + (24 * 60 * 60 * 1000 - 1)
@@ -180,6 +209,17 @@ const filteredUsers = computed(() => {
   )
 })
 
+const calculateAge = (dob: string) => {
+  const birthDate = new Date(dob)
+  const today = new Date()
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const monthDiff = today.getMonth() - birthDate.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--
+  }
+  return age
+}
+
 // then paginate
 const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage))
 
@@ -189,10 +229,11 @@ const paginatedUsers = computed(() => {
 })
 
 const exportData = async () => {
-  if (!filteredUsers.value.length){
-    alert('No User Record')
+  if (!filteredUsers.value.length) {
+    sonner.error('No Data Found.')
     return
   }
+  const count = filteredUsers.value.length
   const now = new Date()
   const doc = new jsPDF()
 
@@ -202,40 +243,60 @@ const exportData = async () => {
     img.onload = resolve
   })
 
-
   const pageWidth = doc.internal.pageSize.getWidth()
   const title = 'User List'
-  const titleX = pageWidth/2
+  const titleX = pageWidth / 2
   const startY = 30
 
   const imgWidth = 40
   const imgHeight = 15
-  const x = (pageWidth - imgWidth)/2
+  const x = (pageWidth - imgWidth) / 2
   const y = 10
 
-  doc.addImage(img, 'PNG', x, y,imgWidth,imgHeight)
+  doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight)
 
   doc.setFont('helvetica', 'bold')
-  doc.text(title, titleX, startY,{align: 'center'})
+  doc.text(title, titleX, startY, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value){
-    const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
-    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+  if (filter.value && searchQuery.value != '') {
+    const cap = filter.value
+      ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase()
+      : ''
+    doc.text(
+      `Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`,
+      titleX,
+      startY + 5,
+      { align: 'center' },
+    )
+  } else {
+    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY + 5, { align: 'center' })
   }
-  else{
-    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
-  }
-  doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
+  doc.text(
+    `Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`,
+    titleX,
+    startY + 10,
+    { align: 'center' },
+  )
   doc.setFont('helvetica', 'italic')
-  doc.text(`*rows colored RED are deleted accounts`, titleX, startY+15, {align:'center'})
+  doc.text(`*rows colored RED are deleted accounts`, titleX, startY + 15, { align: 'center' })
 
-  const tableColumn = ['Username', 'Email Address', 'Birhtdate','Role','Date Joined']
-  const tableRows = filteredUsers.value.map((u) => [
+  const tableColumn = [
+    'No.',
+    'Username',
+    'Email Address',
+    'Birhtdate',
+    'Age',
+    'Role',
+    'Date Joined',
+  ]
+  const tableRows = filteredUsers.value.map((u, i) => [
+    i + 1,
     u.userName,
     u.userEmail,
     formatDate(u.userDob),
+    calculateAge(u.userDob),
     u.roleName,
     formatDateTime(u.dateCreated),
   ])
@@ -243,22 +304,24 @@ const exportData = async () => {
   autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
-    startY: startY+20,
-    styles: {fontSize: 11},
-    headStyles: {fillColor: [41,128,185]},
+    startY: startY + 20,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
     didParseCell: (data) => {
-      if (data.section === 'body'){
+      if (data.section === 'body') {
         const rowIndex = data.row.index
         const user = filteredUsers.value[rowIndex]
-        if (user.dateDeleted){
-          data.cell.styles.fillColor = [255,204,203]
+        if (user.dateDeleted) {
+          data.cell.styles.fillColor = [255, 204, 203]
         }
       }
-    }
+    },
   })
-  if (filter.value){
-    doc.save(`LuTuon_UserList_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
-  }else{
+  if (filter.value && searchQuery.value != '') {
+    doc.save(
+      `LuTuon_UserList_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`,
+    )
+  } else {
     doc.save(`LuTuon_UserList_${now.toLocaleDateString()}.pdf`)
   }
 }
@@ -275,7 +338,11 @@ const exportData = async () => {
           <div class="w-full sm:w-full md:w-full lg:w-1/3 flex items-center justify-end gap-2">
             <Input
               v-if="
-                filter === '' || filter === 'username' || filter === 'email' || filter === 'role'
+                filter === '' ||
+                filter === 'username' ||
+                filter === 'email' ||
+                filter === 'role' ||
+                filter === 'age'
               "
               v-model="searchQuery"
               placeholder="Search"
@@ -450,7 +517,7 @@ const exportData = async () => {
             </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <Button variant="outline" class=" cursor-pointer">
+                <Button variant="outline" class="cursor-pointer">
                   <span class="flex gap-2"
                     >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
                   </span>
@@ -475,6 +542,10 @@ const exportData = async () => {
                   Birthdate
                   <Check v-if="filter === 'birthdate'" class="size-4" />
                 </DropdownMenuItem>
+                <DropdownMenuItem @click="changeFilter('age')" class="flex justify-between gap-2">
+                  Age
+                  <Check v-if="filter === 'age'" class="size-4" />
+                </DropdownMenuItem>
                 <DropdownMenuItem @click="changeFilter('role')" class="flex justify-between gap-2">
                   Role
                   <Check v-if="filter === 'role'" class="size-4" />
@@ -488,12 +559,16 @@ const exportData = async () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button @click="exportData" class="cursor-pointer">PDF
+            <Button @click="exportData" class="cursor-pointer"
+              >PDF
               <Download />
             </Button>
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
+        <div class="w-full text-right mb-5">
+          Total Rows: <span class="font-bold">{{ filteredUsers.length }}</span>
+        </div>
         <div class="grid grid-cols-1 gap-6">
           <div
             class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5 scrollbar-styled"
@@ -502,9 +577,11 @@ const exportData = async () => {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead class="font-bold text-foreground text-center"></TableHead>
                   <TableHead class="font-bold text-foreground text-center">Username</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Email Address</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Birthdate</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Age</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Role</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Date Joined</TableHead>
                   <TableHead class="font-bold text-foreground text-center w-[20px]"></TableHead>
@@ -514,6 +591,9 @@ const exportData = async () => {
               <!-- Skeleton while loading -->
               <TableBody v-if="user.loading">
                 <TableRow v-for="i in 5" :key="i">
+                  <TableCell class="h-[6vh] text-center">
+                    <Skeleton class="h-4 w-24 mx-auto" />
+                  </TableCell>
                   <TableCell class="h-[6vh] text-center">
                     <Skeleton class="h-4 w-24 mx-auto" />
                   </TableCell>
@@ -532,11 +612,14 @@ const exportData = async () => {
                   <TableCell class="text-center">
                     <Skeleton class="h-4 w-10 mx-auto" />
                   </TableCell>
+                  <TableCell class="text-center">
+                    <Skeleton class="h-4 w-10 mx-auto" />
+                  </TableCell>
                 </TableRow>
               </TableBody>
 
               <!-- No users -->
-              <TableBody v-else-if="!paginatedUsers.length">
+              <TableBody v-else-if="!filteredUsers.length">
                 <TableRow class="hover:bg-transparent">
                   <TableCell
                     colspan="6"
@@ -550,7 +633,7 @@ const exportData = async () => {
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow
-                  v-for="u in paginatedUsers"
+                  v-for="(u, i) in paginatedUsers"
                   :key="u.userId"
                   :class="
                     u.dateDeleted
@@ -558,13 +641,17 @@ const exportData = async () => {
                       : ''
                   "
                 >
-                  <TableCell class="h-[6vh] text-foreground text-center">{{
-                    u.userName
+                  <TableCell class="text-foreground text-center">{{
+                    (currentPage - 1) * itemsPerPage + i + 1
                   }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ u.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ u.userEmail }}</TableCell>
                   <TableCell class="text-foreground text-center">{{
                     formatDate(u.userDob)
                   }}</TableCell>
+                  <TableCell class="text-foreground text-center">
+                    {{ calculateAge(u.userDob) }}
+                  </TableCell>
                   <TableCell class="text-foreground text-center">{{ u.roleName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{
                     formatDateTime(u.dateCreated)
@@ -585,16 +672,20 @@ const exportData = async () => {
           </div>
 
           <!-- Pagination -->
-          <div v-if="totalPages > 1" class="mt-4 flex justify-center">
+          <div
+            v-if="!user.loading && filteredUsers.length && totalPages > 1"
+            class="mt-4 flex justify-center"
+          >
             <Pagination
               v-slot="{ page }"
               :items-per-page="itemsPerPage"
-              :total="totalPages"
-              :default-page="1"
-              v-model:page="currentPage"
+              :total="filteredUsers.length"
+              :default-page="currentPage"
+              @update:page="currentPage = $event"
             >
               <PaginationContent v-slot="{ items }">
                 <PaginationPrevious />
+
                 <template v-for="(item, index) in items" :key="index">
                   <PaginationItem
                     v-if="item.type === 'page'"
@@ -603,8 +694,9 @@ const exportData = async () => {
                   >
                     {{ item.value }}
                   </PaginationItem>
+                  <PaginationEllipsis v-else :index="index" />
                 </template>
-                <PaginationEllipsis :index="4" />
+
                 <PaginationNext />
               </PaginationContent>
             </Pagination>

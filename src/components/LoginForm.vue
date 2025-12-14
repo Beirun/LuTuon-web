@@ -33,6 +33,8 @@ const props = defineProps({
 const emit = defineEmits(['update:open', 'openRegisterDialog'])
 
 const openRegisterDialog = () => {
+  credentials.email = ''
+  credentials.password = ''
   emit('update:open', false)
   emit('openRegisterDialog')
 }

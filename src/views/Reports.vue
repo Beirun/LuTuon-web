@@ -56,6 +56,9 @@ import {
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import logo from '@/assets/logo.png'
+import { useSonnerStore } from '@/stores/sonner'
+
+const sonner = useSonnerStore()
 
 const filter = ref('')
 const searchQuery = ref('')
@@ -135,7 +138,7 @@ const report = useReportStore()
 
 // pagination state
 const currentPage = ref(1)
-const itemsPerPage = 10
+const itemsPerPage = 15
 
 // filtering first
 const filteredReports = computed(() => {
@@ -193,9 +196,10 @@ const totalPages = computed(() => Math.ceil(filteredReports.value.length / items
 
 const exportData = async () => {
   if (!filteredReports.value.length){
-    alert('No Report Record')
+    sonner.error("No Data Found.")
     return
   }
+  const count = filteredReports.value.length
   const now = new Date()
   const doc = new jsPDF()
 
@@ -223,18 +227,19 @@ const exportData = async () => {
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value){
+  if (filter.value && searchQuery.value != ""){
     const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
-    doc.text(`Filter: ${cap} | Query: ${searchQuery.value}`, titleX, startY+5, {align:'center'})
+    doc.text(`Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
   }
   else{
-    doc.text('Filter: ALL', titleX, startY+5, {align:'center'})
+    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
   }
   doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
   doc.setFont('helvetica', 'italic')
 
-  const tableColumn = ['Username', 'Point', 'Food','Date','Duration', 'Type']
-  const tableRows = filteredReports.value.map((r) => [
+  const tableColumn = ['No.','Username', 'Point', 'Food','Date','Duration', 'Type']
+  const tableRows = filteredReports.value.map((r, i) => [
+    i + 1,
     r.userName,
     r.attemptPoint,
     r.foodName,
@@ -247,10 +252,10 @@ const exportData = async () => {
     head: [tableColumn],
     body: tableRows,
     startY: startY+15,
-    styles: {fontSize: 11},
+    styles: {fontSize: 8},
     headStyles: {fillColor: [41,128,185]},
   })
-  if (filter.value){
+  if (filter.value && searchQuery.value != ""){
     doc.save(`LuTuon_Reports_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
   }else{
     doc.save(`LuTuon_Reports_${now.toLocaleDateString()}.pdf`)
@@ -480,7 +485,9 @@ const exportData = async () => {
           </div>
         </div>
         <Separator class="text-[#DBDBE0] mb-6" />
-
+        <div class="w-full text-right mb-5">
+          Total Rows: <span class="font-bold">{{ filteredReports.length }}</span>
+        </div>
         <div class="grid grid-cols-1 gap-6">
           <div
             class="w-full max-h-[78vh] overflow-auto outline-1 dark:outline-gray-200/10 dark:bg-[#1e1e1e]/10 bg-[#e8e8e8]/10 rounded-2xl p-5"
@@ -489,6 +496,7 @@ const exportData = async () => {
               <TableCaption></TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead class="font-bold text-foreground text-center"></TableHead>
                   <TableHead class="font-bold text-foreground text-center">Username</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Point</TableHead>
                   <TableHead class="font-bold text-foreground text-center">Food</TableHead>
@@ -502,6 +510,7 @@ const exportData = async () => {
               <TableBody v-if="report.loading">
                 <TableRow v-for="i in 5" :key="i">
                   <TableCell class="text-center"><Skeleton class="h-4 w-20 mx-auto" /></TableCell>
+                  <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-24 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-10 mx-auto" /></TableCell>
                   <TableCell class="text-center"><Skeleton class="h-4 w-10 mx-auto" /></TableCell>
@@ -524,7 +533,8 @@ const exportData = async () => {
 
               <!-- Data rows -->
               <TableBody v-else>
-                <TableRow v-for="r in paginatedReports" :key="r.attemptId">
+                <TableRow v-for="(r, i) in paginatedReports" :key="r.attemptId">
+                  <TableCell class="text-foreground text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.attemptPoint }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.foodName }}</TableCell>
@@ -549,7 +559,7 @@ const exportData = async () => {
           <Pagination
             v-slot="{ page }"
             :items-per-page="itemsPerPage"
-            :total="totalPages"
+            :total="filteredReports.length"
             :default-page="1"
             v-model:page="currentPage"
           >
@@ -564,9 +574,9 @@ const exportData = async () => {
                 >
                   {{ item.value }}
                 </PaginationItem>
+                <PaginationEllipsis v-else :index="index" />
               </template>
 
-              <PaginationEllipsis :index="4" />
 
               <PaginationNext />
             </PaginationContent>

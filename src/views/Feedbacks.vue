@@ -498,7 +498,6 @@ const exportData = async () => {
                 <TableRow v-for="(f, i) in paginatedFeedbacks" :key="f.feedbackId">
                   <TableCell class="text-foreground text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
-                  <TableCell class="text-foreground text-center">{{ f.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ f.userEmail }}</TableCell>
                   <TableCell class="text-foreground text-center">{{
                     formatDateTime(f.feedbackDate)

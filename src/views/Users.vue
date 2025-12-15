@@ -270,7 +270,7 @@ if (
   const s = formatter.custom(toDate(value.value.start), { dateStyle: 'medium' })
   const e = formatter.custom(toDate(value.value.end), { dateStyle: 'medium' })
 
-  filterText = `${filter.value[0].toUpperCase() + filter.value.slice(1)}: ${s} – ${e}`
+  filterText = `${filter.value[0].toUpperCase() + filter.value.slice(1)} | ${s} – ${e}`
 } else if (filter.value && searchQuery.value.trim() !== '') {
   const cap = filter.value[0].toUpperCase() + filter.value.slice(1)
   filterText = `${cap} | Query: ${searchQuery.value}`

@@ -60,7 +60,7 @@ import { useSonnerStore } from '@/stores/sonner'
 
 const sonner = useSonnerStore()
 
-const filter = ref('')
+const filter = ref('username')
 const searchQuery = ref('')
 
 const changeFilter = (filterBy: string) => {
@@ -150,9 +150,12 @@ const filteredReports = computed(() => {
     )
   }
   if (filter.value === 'point') {
-    return report.reports.filter((r) =>
-      r.attemptPoint?.toLowerCase().includes(searchQuery.value.toLowerCase()),
-    )
+    const q = searchQuery.value.trim()
+    return report.reports.filter((r) => {
+      if (!q) return true
+      if (r.attemptPoint == null) return false
+      return String(r.attemptPoint) === q
+    })
   }
   if (filter.value === 'food') {
     return report.reports.filter((r) =>
@@ -195,8 +198,8 @@ onBeforeMount(async () => {
 const totalPages = computed(() => Math.ceil(filteredReports.value.length / itemsPerPage))
 
 const exportData = async () => {
-  if (!filteredReports.value.length){
-    sonner.error("No Data Found.")
+  if (!filteredReports.value.length) {
+    sonner.error('No Data Found.')
     return
   }
   const count = filteredReports.value.length
@@ -209,35 +212,46 @@ const exportData = async () => {
     img.onload = resolve
   })
 
-
   const pageWidth = doc.internal.pageSize.getWidth()
   const title = 'Reports'
-  const titleX = pageWidth/2
+  const titleX = pageWidth / 2
   const startY = 30
 
   const imgWidth = 40
   const imgHeight = 15
-  const x = (pageWidth - imgWidth)/2
+  const x = (pageWidth - imgWidth) / 2
   const y = 10
 
-  doc.addImage(img, 'PNG', x, y,imgWidth,imgHeight)
+  doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight)
 
   doc.setFont('helvetica', 'bold')
-  doc.text(title, titleX, startY,{align: 'center'})
+  doc.text(title, titleX, startY, { align: 'center' })
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value && searchQuery.value != ""){
-    const cap = filter.value ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase() : ''
-    doc.text(`Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
+  let filterText = 'ALL'
+
+  if (filter.value === 'date' && value.value.start && value.value.end) {
+    const s = formatter.custom(toDate(value.value.start), { dateStyle: 'medium' })
+    const e = formatter.custom(toDate(value.value.end), { dateStyle: 'medium' })
+
+    filterText = `${filter.value[0].toUpperCase() + filter.value.slice(1)} | ${s} - ${e}`
+  } else if (filter.value && searchQuery.value.trim() !== '') {
+    const cap = filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase()
+    filterText = `${cap} | Query: ${searchQuery.value}`
   }
-  else{
-    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY+5, {align:'center'})
-  }
-  doc.text(`Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`, titleX, startY+10, {align:'center'})
+
+  doc.text(`Filter: ${filterText} | Total Rows: ${count}`, titleX, startY + 5, { align: 'center' })
+
+  doc.text(
+    `Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`,
+    titleX,
+    startY + 10,
+    { align: 'center' },
+  )
   doc.setFont('helvetica', 'italic')
 
-  const tableColumn = ['No.','Username', 'Point', 'Food','Date','Duration', 'Type']
+  const tableColumn = ['No.', 'Username', 'Point', 'Food', 'Date', 'Duration', 'Type']
   const tableRows = filteredReports.value.map((r, i) => [
     i + 1,
     r.userName,
@@ -251,15 +265,22 @@ const exportData = async () => {
   autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
-    startY: startY+15,
-    styles: {fontSize: 8},
-    headStyles: {fillColor: [41,128,185]},
+    startY: startY + 15,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
   })
-  if (filter.value && searchQuery.value != ""){
-    doc.save(`LuTuon_Reports_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`)
-  }else{
-    doc.save(`LuTuon_Reports_${now.toLocaleDateString()}.pdf`)
+  let fileLabel = 'ALL'
+
+  if (filter.value === 'date' && value.value.start && value.value.end) {
+    const s = formatter.custom(toDate(value.value.start), { dateStyle: 'medium' })
+    const e = formatter.custom(toDate(value.value.end), { dateStyle: 'medium' })
+
+    fileLabel = `DATE_${s}_TO_${e}`
+  } else if (filter.value && searchQuery.value.trim() !== '') {
+    fileLabel = `${filter.value.toUpperCase()}_QUERY=${searchQuery.value}`
   }
+
+  doc.save(`LuTuon_Reports_FilteredBy=${fileLabel}_[${now.toLocaleDateString()}].pdf`)
 }
 </script>
 
@@ -294,7 +315,7 @@ const exportData = async () => {
                     )
                   "
                 >
-                  <Calendar class=" h-4 w-4" />
+                  <Calendar class="h-4 w-4" />
                   <template v-if="value.start">
                     <template v-if="value.end">
                       {{
@@ -453,7 +474,7 @@ const exportData = async () => {
             </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <Button variant="outline" class=" cursor-pointer">
+                <Button variant="outline" class="cursor-pointer">
                   <span class="flex gap-2"
                     >Filter <Triangle class="mt-0.5 size-4 rotate-180" />
                   </span>
@@ -479,7 +500,8 @@ const exportData = async () => {
                 /></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button @click="exportData"  class="cursor-pointer">PDF
+            <Button @click="exportData" class="cursor-pointer"
+              >PDF
               <Download />
             </Button>
           </div>
@@ -520,7 +542,7 @@ const exportData = async () => {
               </TableBody>
 
               <!-- No reports -->
-              <TableBody v-else-if="!report.reports.length">
+              <TableBody v-else-if="!filteredReports.length">
                 <TableRow class="hover:bg-transparent">
                   <TableCell
                     colspan="8"
@@ -534,7 +556,9 @@ const exportData = async () => {
               <!-- Data rows -->
               <TableBody v-else>
                 <TableRow v-for="(r, i) in paginatedReports" :key="r.attemptId">
-                  <TableCell class="text-foreground text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    (currentPage - 1) * itemsPerPage + i + 1
+                  }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.userName }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.attemptPoint }}</TableCell>
                   <TableCell class="text-foreground text-center">{{ r.foodName }}</TableCell>
@@ -576,7 +600,6 @@ const exportData = async () => {
                 </PaginationItem>
                 <PaginationEllipsis v-else :index="index" />
               </template>
-
 
               <PaginationNext />
             </PaginationContent>

@@ -6,7 +6,7 @@ import {
   ShieldUser,
   SquareUserRound,
   LockKeyhole,
-  Loader2,
+  Utensils,
   CalendarDays,
   Eye,
   EyeClosed,
@@ -43,6 +43,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import UserNavbar from '@/components/UserNavbar.vue'
 import { useFeedbackStore } from '@/stores/feedback'
+import { useReportStore } from '@/stores/report'
 import {
   Pagination,
   PaginationContent,
@@ -51,13 +52,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { formatDateTimeShort } from '@/plugins/date'
+import { formatDateTimeShort, diffMinutesSeconds } from '@/plugins/date'
 const auth = useAuthStore()
 const items = [
   { title: 'Account Overview', icon: ShieldUser },
   { title: 'Personal Information', icon: SquareUserRound },
   { title: 'Security', icon: LockKeyhole },
   { title: 'Your Feedbacks', icon: MessageSquareText },
+  { title: 'Game History', icon: Utensils},
 ]
 
 const userInfo = reactive({
@@ -171,6 +173,7 @@ const TogglePassword = (password: string) => {
 }
 
 const feedbackStore = useFeedbackStore()
+const reportStore = useReportStore()
 
 // Pagination state
 const itemsPerPage = 10
@@ -181,13 +184,24 @@ const paginatedFeedbacks = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   return feedbackStore.feedbacks.slice(start, start + itemsPerPage)
 })
+const userReports = computed(() => {
+  const email = auth.userInfo.userEmail
+  return reportStore.reports.filter(r => r.userEmail === email)
+})
+const paginatedReports = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return userReports.value.slice(start, start + itemsPerPage)
+})
 
 onBeforeMount(async () => {
   if (feedbackStore.feedbacks.length === 0) await feedbackStore.fetchFeedback()
+  if (reportStore.reports.length === 0) await reportStore.fetchReports()
 })
 
 // then paginate
 const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / itemsPerPage))
+const totalPagesReport = computed(() => Math.ceil(userReports.value.length / itemsPerPage)
+)
 </script>
 
 <template>
@@ -215,8 +229,11 @@ const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / ite
                 <span v-else-if="activeItem === 'security'">
                   <component :is="items[2].icon" class="text-[#3A3A3A] size-6" />
                 </span>
-                <span v-else>
+                <span v-else-if="activeItem === 'your feedbacks'">
                   <component :is="items[3].icon" class="text-[#3A3A3A] size-6" />
+                </span>
+                <span v-else>
+                  <component :is="items[4].icon" class="text-[#3A3A3A] size-6" />
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -289,7 +306,7 @@ const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / ite
         <div class="sm:w-2/3 w-full flex flex-col gap-5">
           <!-- start Personal Info top div on right side (if laptop) -->
           <div
-            v-if="activeItem !== 'security' && activeItem !== 'your feedbacks'"
+            v-if="activeItem !== 'security' && activeItem !== 'your feedbacks'  && activeItem !== 'game history'"
             class="w-full border border-border rounded-xl"
           >
             <div class="flex justify-between border-b p-3 items-center">
@@ -455,7 +472,7 @@ const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / ite
 
           <!-- start Password/Delete Account BOTTOM div on right side (if laptop) -->
           <div
-            v-if="activeItem !== 'your feedbacks'"
+            v-if="activeItem !== 'your feedbacks' && activeItem !== 'game history'"
             class="w-full border border-border rounded-xl"
           >
             <div class="flex justify-between border-b p-3 items-center">
@@ -698,6 +715,68 @@ const totalPages = computed(() => Math.ceil(feedbackStore.feedbacks.length / ite
                 v-slot="{ page }"
                 :items-per-page="itemsPerPage"
                 :total="totalPages"
+                :default-page="currentPage"
+                @update:page="currentPage = $event"
+              >
+                <PaginationContent v-slot="{ items }">
+                  <PaginationPrevious />
+                  <template v-for="(item, index) in items" :key="index">
+                    <PaginationItem
+                      v-if="item.type === 'page'"
+                      :value="item.value"
+                      :is-active="item.value === page"
+                    >
+                      {{ item.value }}
+                    </PaginationItem>
+                    <PaginationEllipsis v-else :index="index" />
+                  </template>
+                  <PaginationNext />
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </div>
+          <div
+            v-if="activeItem === 'game history'"
+            class="w-full border border-border rounded-xl"
+          >
+            <Table class="my-2">
+              <TableHeader v-if="reportStore.reports.length !== 0">
+                <TableRow class="px-5 hover:bg-transparent">
+                  <TableHead class="font-bold text-foreground text-center">Type</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Food</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Date</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Duration</TableHead>
+                  <TableHead class="font-bold text-foreground text-center">Point</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody v-if="reportStore.reports.length === 0">
+                <TableRow class="flex justify-between px-5 hover:bg-transparent">
+                  <TableCell class="w-full text-center text-foreground/80 py-36 text-3xl font-bold">
+                    No Reports Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+              <TableBody v-else>
+                <TableRow v-for="r in paginatedReports" :key="r.attemptId">
+                  <TableCell class="text-foreground text-center">{{ r.attemptType }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ r.foodName }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{
+                    formatDateTimeShort(r.attemptDate)
+                  }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ diffMinutesSeconds(r.attemptDate, r.attemptDuration) }}</TableCell>
+                  <TableCell class="text-foreground text-center">{{ r.attemptPoint }}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+            <div
+              v-if="!feedbackStore.loading && feedbackStore.feedbacks.length && totalPagesReport > 1"
+              class="flex justify-center mt-4"
+            >
+              <Pagination
+                v-slot="{ page }"
+                :items-per-page="itemsPerPage"
+                :total="totalPagesReport"
                 :default-page="currentPage"
                 @update:page="currentPage = $event"
               >

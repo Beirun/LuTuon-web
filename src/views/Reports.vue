@@ -244,7 +244,7 @@ const exportData = async () => {
     r.attemptPoint,
     r.foodName,
     formatDateTime(r.attemptDate),
-    r.attemptDuration,
+    diffMinutesSeconds(r.attemptDate, r.attemptDuration),
     r.attemptType,
   ])
 

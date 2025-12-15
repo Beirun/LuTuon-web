@@ -70,7 +70,7 @@ const user = useUserStore()
 const itemsPerPage = 15
 const currentPage = ref(1)
 
-const filter = ref('')
+const filter = ref('username')
 const searchQuery = ref('')
 
 const changeFilter = (filterBy: string) => {
@@ -260,25 +260,36 @@ const exportData = async () => {
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  if (filter.value && searchQuery.value != '') {
-    const cap = filter.value
-      ? filter.value[0].toUpperCase() + filter.value.slice(1).toLowerCase()
-      : ''
-    doc.text(
-      `Filter: ${cap} | Query: ${searchQuery.value} | Total Rows: ${count}`,
-      titleX,
-      startY + 5,
-      { align: 'center' },
-    )
-  } else {
-    doc.text(`Filter: ALL | Total Rows: ${count}`, titleX, startY + 5, { align: 'center' })
-  }
-  doc.text(
-    `Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`,
-    titleX,
-    startY + 10,
-    { align: 'center' },
-  )
+  let filterText = 'ALL'
+
+if (
+  (filter.value === 'birthdate' || filter.value === 'date joined') &&
+  value.value.start &&
+  value.value.end
+) {
+  const s = formatter.custom(toDate(value.value.start), { dateStyle: 'medium' })
+  const e = formatter.custom(toDate(value.value.end), { dateStyle: 'medium' })
+
+  filterText = `${filter.value[0].toUpperCase() + filter.value.slice(1)}: ${s} – ${e}`
+} else if (filter.value && searchQuery.value.trim() !== '') {
+  const cap = filter.value[0].toUpperCase() + filter.value.slice(1)
+  filterText = `${cap} | Query: ${searchQuery.value}`
+}
+
+doc.text(
+  `Filter: ${filterText} | Total Rows: ${count}`,
+  titleX,
+  startY + 5,
+  { align: 'center' },
+)
+
+doc.text(
+  `Generated on: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`,
+  titleX,
+  startY + 10,
+  { align: 'center' },
+)
+
   doc.setFont('helvetica', 'italic')
   doc.text(`*rows colored RED are deleted accounts`, titleX, startY + 15, { align: 'center' })
 
@@ -317,13 +328,23 @@ const exportData = async () => {
       }
     },
   })
-  if (filter.value && searchQuery.value != '') {
-    doc.save(
-      `LuTuon_UserList_FilteredBy=${filter.value.toUpperCase()}_Query=${searchQuery.value}_${now.toLocaleDateString()}.pdf`,
-    )
-  } else {
-    doc.save(`LuTuon_UserList_${now.toLocaleDateString()}.pdf`)
-  }
+  let fileLabel = 'ALL'
+
+if (
+  (filter.value === 'birthdate' || filter.value === 'date joined') &&
+  value.value.start &&
+  value.value.end
+) {
+  const s = formatter.custom(toDate(value.value.start), { dateStyle: 'medium' })
+  const e = formatter.custom(toDate(value.value.end), { dateStyle: 'medium' })
+
+  fileLabel = `${filter.value.replace(' ', '_').toUpperCase()}_${s}_TO_${e}`
+} else if (filter.value && searchQuery.value.trim() !== '') {
+  fileLabel = `${filter.value.toUpperCase()}_${searchQuery.value}`
+}
+
+doc.save(`LuTuon_UserList_FilteredBy=${fileLabel}_[${now.toLocaleDateString()}].pdf`)
+
 }
 </script>
 
@@ -657,7 +678,7 @@ const exportData = async () => {
                     formatDateTime(u.dateCreated)
                   }}</TableCell>
                   <TableCell class="text-center">
-                    <HoverCard v-if="u.dateDeleted">
+                    <HoverCard v-if="u.dateDeleted" :open-delay="0" :close-delay="0">
                       <HoverCardTrigger as-child>
                         <Info class="mx-auto size-5 text-red-500 cursor-pointer" />
                       </HoverCardTrigger>

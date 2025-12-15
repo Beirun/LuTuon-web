@@ -19,8 +19,8 @@ const openLoginDialog = () => {
   isRegisterOpen.value = false
 }
 
-const openPlayStore = () => {
-  window.open('https://play.google.com/store/apps/details?id=com.miHoYo.GenshinImpact', '_blank')
+const downloadAPK = () => {
+  window.open('https://api.lutuon.app/apks/lutuon_v1.apk', '_blank')
 }
 </script>
 
@@ -105,6 +105,7 @@ const openPlayStore = () => {
         class="flex flex-col items-center mt-15 gap-15 sm:gap-15 lg:gap-20 sm:flex-col lg:flex-row text-foreground"
       >
         <Button
+          @click="downloadAPK"
           variant="outline"
           class="dark:hover:brightness-110 cursor-pointer h-30 flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-card rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90 hover:brightness-95"
         >
@@ -117,7 +118,7 @@ const openPlayStore = () => {
           </div>
         </Button>
         <Button
-          @click="openPlayStore"
+          @click="downloadAPK"
           variant="outline"
           class="dark:hover:brightness-120 cursor-pointer h-30 flex justify-center items-center gap-8 w-79/80 sm:w-79/80 md:w-100 bg-card rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-[#aa8700]/50 shadow-black/10 active:brightness-90 hover:brightness-95"
         >
